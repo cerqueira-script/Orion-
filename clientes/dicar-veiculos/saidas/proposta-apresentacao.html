@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Apresentação Orion · Dicar Veículos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FAF8F4; --card:#FFFFFF; --ink:#1A2332; --muted:#5A6572;
+    --blue:#1D3A6E; --blue-dark:#142A52; --gold:#C99A2E; --line:#E6E1D7;
+    --serif:'Fraunces',Georgia,serif; --sans:'Inter',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{font-family:var(--sans);color:var(--ink);background:#ccc}
+  @page{size:A4 landscape;margin:0}
+  .slide{width:297mm;height:210mm;background:var(--bg);position:relative;overflow:hidden;page-break-after:always;padding:22mm 24mm;display:flex;flex-direction:column}
+  .slide:last-child{page-break-after:auto}
+  h1,h2,h3{font-family:var(--serif);font-weight:600;line-height:1.1;letter-spacing:-.01em}
+  .star{color:var(--gold)}
+  .muted{color:var(--muted)}
+
+  /* logo + footer per slide */
+  .slide .brand{position:absolute;top:14mm;left:24mm;font-family:var(--serif);font-size:15px;letter-spacing:.22em;color:var(--ink)}
+  .slide .brand .star{margin-right:6px}
+  .slide .pg{position:absolute;bottom:13mm;right:24mm;font-size:11px;color:var(--muted);letter-spacing:.12em}
+  .slide .ft{position:absolute;bottom:13mm;left:24mm;font-size:11px;color:var(--muted);letter-spacing:.06em}
+  .eyebrow{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--blue);font-weight:600;margin-bottom:14px}
+  .eyebrow .num{color:var(--gold);margin-right:8px}
+  .head{margin-top:14mm}
+  .head h2{font-size:38px;max-width:24ch}
+  .head .sub{color:var(--muted);font-size:17px;margin-top:10px;max-width:60ch}
+  .body{flex:1;display:flex;flex-direction:column;justify-content:center}
+
+  /* COVER */
+  .cover{justify-content:center;background:var(--bg)}
+  .cover::after{content:'';position:absolute;inset:0;background:
+    radial-gradient(circle at 78% 22%, rgba(201,154,46,.10), transparent 38%),
+    radial-gradient(circle at 12% 84%, rgba(29,58,110,.06), transparent 40%);}
+  .cover .inner{position:relative;z-index:2}
+  .cover .logo{font-family:var(--serif);font-size:30px;letter-spacing:.28em;margin-bottom:40px}
+  .cover h1{font-size:64px;font-weight:600;max-width:18ch;margin-bottom:22px}
+  .cover .lead{font-size:21px;color:var(--muted);max-width:50ch}
+  .cover .meta{margin-top:46px;display:flex;gap:26px;font-size:14px;color:var(--muted)}
+  .cover .meta span::before{content:'✦';color:var(--gold);margin-right:8px;font-size:11px}
+
+  /* two columns */
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:8px}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:26px}
+  .panel.good{border-top:3px solid var(--gold)}
+  .panel.bad{border-top:3px solid var(--blue)}
+  .panel h3{font-family:var(--sans);font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+  .panel ul{list-style:none}
+  .panel li{padding:9px 0 9px 28px;position:relative;font-size:16px;border-bottom:1px solid var(--line)}
+  .panel li:last-child{border-bottom:none}
+  .panel li::before{position:absolute;left:0;font-weight:700}
+  .panel.good li::before{content:'✓';color:var(--gold)}
+  .panel.bad li::before{content:'✕';color:var(--blue)}
+
+  .pull{font-family:var(--serif);font-size:30px;line-height:1.3;border-left:3px solid var(--gold);padding-left:24px;max-width:40ch;margin-top:auto}
+
+  /* cost grid */
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:6px}
+  .cost{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px}
+  .cost .what{font-weight:600;font-size:16px;margin-bottom:6px}
+  .cost .res{font-size:13.5px;color:var(--muted);line-height:1.5}
+
+  /* phases */
+  .phases{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:6px}
+  .phase{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:28px;position:relative}
+  .phase .pn{font-family:var(--serif);font-size:52px;color:var(--line);position:absolute;top:16px;right:22px}
+  .phase h3{font-size:23px;margin-bottom:8px}
+  .phase p{font-size:15px;color:var(--muted);line-height:1.55}
+
+  /* plan slide */
+  .planbig{display:grid;grid-template-columns:1.1fr 1fr;gap:30px;align-items:center;flex:1}
+  .planbig .left .kicker{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);font-weight:600;margin-bottom:10px}
+  .planbig .left h2{font-size:52px;margin-bottom:10px}
+  .planbig .left .desc{font-size:19px;color:var(--muted);max-width:34ch}
+  .planbig .pricebox{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:34px}
+  .planbig .pricebox.feat{border:2px solid var(--blue);box-shadow:0 18px 50px rgba(26,35,50,.10)}
+  .planbig .ribbon{display:inline-block;background:var(--blue);color:#fff;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:5px 14px;border-radius:50px;margin-bottom:16px}
+  .planbig .mo{font-family:var(--serif);font-size:46px}
+  .planbig .mo small{font-family:var(--sans);font-size:17px;color:var(--muted);font-weight:400}
+  .planbig .setup{font-size:15px;color:var(--muted);margin:6px 0 20px;border-bottom:1px solid var(--line);padding-bottom:18px}
+  .planbig ul{list-style:none}
+  .planbig li{font-size:15.5px;padding:8px 0 8px 26px;position:relative}
+  .planbig li::before{content:'✦';color:var(--gold);position:absolute;left:0;font-size:11px;top:11px}
+
+  /* table */
+  table{width:100%;border-collapse:collapse;margin-top:8px;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  th,td{padding:11px 14px;text-align:center;border-bottom:1px solid var(--line);font-size:15px}
+  th{background:#F3EFE7;font-family:var(--sans);font-weight:600;font-size:14px}
+  td:first-child,th:first-child{text-align:left}
+  tr:last-child td{border-bottom:none}
+  .yes{color:var(--gold);font-weight:700}
+  .no{color:#CBD0D6}
+  .rowprice td{font-weight:700;background:#FBF7EF}
+
+  /* steps */
+  .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:6px}
+  .step{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:24px}
+  .step .sn{width:38px;height:38px;border-radius:50%;background:var(--blue);color:#fff;font-weight:600;display:flex;align-items:center;justify-content:center;margin-bottom:14px;font-size:17px}
+  .step h3{font-size:18px;margin-bottom:6px}
+  .step p{font-size:14px;color:var(--muted);line-height:1.5}
+
+  /* recommendation / closing */
+  .big{font-family:var(--serif);font-size:40px;line-height:1.25;max-width:24ch}
+  .closing{background:var(--blue);color:#fff;justify-content:center;text-align:center}
+  .closing::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 80% 20%, rgba(201,154,46,.18), transparent 40%)}
+  .closing .inner{position:relative;z-index:2}
+  .closing .logo{font-family:var(--serif);font-size:24px;letter-spacing:.28em;margin-bottom:30px;color:#fff}
+  .closing h2{font-size:50px;color:#fff;max-width:20ch;margin:0 auto 18px}
+  .closing p{font-size:19px;color:#D7DEEC;max-width:46ch;margin:0 auto 30px}
+  .closing .pill{display:inline-block;background:var(--gold);color:#1A2332;font-weight:600;padding:14px 30px;border-radius:8px;font-size:17px}
+  .closing .contact{margin-top:34px;color:#AEB9CF;font-size:14px;letter-spacing:.04em}
+</style>
+</head>
+<body>
+
+<!-- 1 · CAPA -->
+<section class="slide cover">
+  <div class="inner">
+    <div class="logo"><span class="star">✦</span> ORION</div>
+    <h1>Presença digital para a Dicar Veículos</h1>
+    <p class="lead">Como transformar a melhor reputação de Castanhal na revenda mais encontrada da região.</p>
+    <div class="meta">
+      <span>Proposta comercial</span>
+      <span>Castanhal/PA</span>
+      <span>Junho 2026</span>
+    </div>
+  </div>
+</section>
+
+<!-- 2 · DIAGNOSTICO -->
+<section class="slide">
+  <div class="brand"><span class="star">✦</span> ORION</div>
+  <div class="head">
+    <div class="eyebrow"><span class="num">01</span> O diagnóstico, sem rodeio</div>
+    <h2>O problema não é cliente. É presença organizada.</h2>
+  </div>
+  <div class="body">
+    <div class="cols">
+      <div class="panel good">
+        <h3>O que já é forte — offline</h3>
+        <ul>
+          <li>5,0 estrelas no Google, sem reclamações</li>
+          <li>Procedência e garantia como marca</li>
+          <li>Conhecida e querida na cidade</li>
+          <li>Estoque variado, do popular ao SUV</li>
+        </ul>
+      </div>
+      <div class="panel bad">
+        <h3>O que está frágil — online</h3>
+        <ul>
+          <li>Instagram parado desde dez/2023</li>
+          <li>Sem site com vitrine de estoque</li>
+          <li>3 números de WhatsApp diferentes</li>
+          <li>Quase invisível nos marketplaces</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="ft">A parte difícil você já construiu.</div>
+  <div class="pg">01 / 11</div>
+</section>
+
+<!-- 3 · CUSTO -->
+<section class="slide">
+  <div class="brand"><span class="star">✦</span> ORION</div>
+  <div class="head">
+    <div class="eyebrow"><span class="num">02</span> O que está custando vendas hoje</div>
+    <h2>Cada lacuna é um cliente que foi pro concorrente.</h2>
+  </div>
+  <div class="body">
+    <div class="grid3">
+      <div class="cost"><div class="what">Sem vitrine online</div><div class="res">O carro não é visto antes da visita. A compra começa e morre no concorrente.</div></div>
+      <div class="cost"><div class="what">Instagram parado</div><div class="res">A marca parece "fechada" e some da descoberta de quem pesquisa todo dia.</div></div>
+      <div class="cost"><div class="what">3 WhatsApps</div><div class="res">Cliente confuso, lead perdido, ninguém sabe onde responder.</div></div>
+      <div class="cost"><div class="what">Fora dos marketplaces</div><div class="res">Some da OLX, Webmotors e iCarros — onde se procura carro.</div></div>
+      <div class="cost"><div class="what">Confusão "Dicar Manaus"</div><div class="res">A busca pelo nome leva o cliente pra empresa errada.</div></div>
+      <div class="cost"><div class="what">Google sem site</div><div class="res">Seus 5,0★ não convertem pra lugar nenhum.</div></div>
+    </div>
+  </div>
+  <div class="pg">02 / 11</div>
+</section>
+
+<!-- 4 · FASES -->
+<section class="slide">
+  <div class="brand"><span class="star">✦</span> ORION</div>
+  <div class="head">
+    <div class="eyebrow"><span class="num">03</span> A solução em 3 fases</div>
+    <h2>A presença se constrói em camadas.</h2>
+    <p class="sub">Na ordem que dá mais resultado — você não precisa fazer tudo de uma vez.</p>
+  </div>
+  <div class="body">
+    <div class="phases">
+      <div class="phase"><div class="pn">1</div><h3>Fundação</h3><p>Site com vitrine, um WhatsApp oficial, marca e endereço padronizados, Google completo. Para de vazar venda.</p></div>
+      <div class="phase"><div class="pn">2</div><h3>Presença</h3><p>Instagram ativo com os carros e o estoque espalhado nos marketplaces onde o comprador pesquisa.</p></div>
+      <div class="phase"><div class="pn">3</div><h3>Aceleração</h3><p>Anúncios no Google e Instagram, vídeos dos carros e otimização contínua pra aparecer na frente.</p></div>
+    </div>
+  </div>
+  <div class="pg">03 / 11</div>
+</section>
+
+<!-- 5 · PLANO FUNDACAO -->
+<section class="slide">
+  <div class="brand"><span class="star">✦</span> ORION</div>
+  <div class="planbig" style="margin-top:14mm">
+    <div class="left">
+      <div class="kicker">Plano 01 · Fase 1</div>
+      <h2>Fundação</h2>
+      <p class="desc">Parar de perder venda e ter uma base profissional no ar.</p>
+    </div>
+    <div class="pricebox">
+      <div class="mo">R$ 197 <small>/mês</small></div>
+      <div class="setup">+ R$ 3.900 de montagem (pagamento único)</div>
+      <ul>
+        <li>Site próprio com vitrine de estoque</li>
+        <li>Domínio próprio + hospedagem</li>
+        <li>Google Business completo</li>
+        <li>1 WhatsApp oficial + marca padronizada</li>
+        <li>Diferenciação da "Dicar Manaus"</li>
+      </ul>
+    </div>
+  </div>
+  <div class="pg">04 / 11</div>
+</section>
+
+<!-- 6 · PLANO PRESENCA -->
+<section class="slide">
+  <div class="brand"><span class="star">✦</span> ORION</div>
+  <div class="planbig" style="margin-top:14mm">
+    <div class="left">
+      <div class="kicker">Plano 02 · Fase 2</div>
+      <h2>Presença</h2>
+      <p class="desc">Manter a marca viva e visível todo mês, onde o cliente procura.</p>
+    </div>
+    <div class="pricebox feat">
+      <span class="ribbon">Recomendado</span>
+      <div class="mo">R$ 1.290 <small>/mês</small></div>
+      <div class="setup">+ R$ 3.900 de montagem (pagamento único)</div>
+      <ul>
+        <li>Tudo da Fundação</li>
+        <li>Instagram: 12 posts/mês + stories</li>
+        <li>Perfil reorganizado (bio, destaques, botões)</li>
+        <li>Carros na OLX, Webmotors e iCarros</li>
+        <li>Vitrine sempre atualizada + avaliações</li>
+      </ul>
+    </div>
+  </div>
+  <div class="pg">05 / 11</div>
+</section>
+
+<!-- 7 · PLANO ACELERACAO -->
+<section class="slide">
+  <div class="brand"><span class="star">✦</span> ORION</div>
+  <div class="planbig" style="margin-top:14mm">
+    <div class="left">
+      <div class="kicker">Plano 03 · Fase 3</div>
+      <h2>Aceleração</h2>
+      <p class="desc">Ir atrás do cliente ativamente, com anúncio e vídeo.</p>
+    </div>
+    <div class="pricebox">
+      <div class="mo">R$ 2.490 <small>/mês</small></div>
+      <div class="setup">+ R$ 4.900 de montagem · verba de anúncios à parte</div>
+      <ul>
+        <li>Tudo da Presença</li>
+        <li>Tráfego pago (Google + Instagram)</li>
+        <li>Vídeos dos carros (Reels)</li>
+        <li>SEO local contínuo</li>
+        <li>Relatório mensal de resultados</li>
+      </ul>
+    </div>
+  </div>
+  <div class="pg">06 / 11</div>
+</section>
+
+<!-- 8 · COMPARATIVO -->
+<section class="slide">
+  <div class="brand"><span class="star">✦</span> ORION</div>
+  <div class="head">
+    <div class="eyebrow"><span class="num">04</span> Comparativo</div>
+    <h2>O que entra em cada plano.</h2>
+  </div>
+  <div class="body">
+    <table>
+      <tr><th>Recurso</th><th>Fundação</th><th>Presença</th><th>Aceleração</th></tr>
+      <tr><td>Site com vitrine de estoque</td><td class="yes">✦</td><td class="yes">✦</td><td class="yes">✦</td></tr>
+      <tr><td>Google Business otimizado</td><td class="yes">✦</td><td class="yes">✦</td><td class="yes">✦</td></tr>
+      <tr><td>Padronização de marca / WhatsApp</td><td class="yes">✦</td><td class="yes">✦</td><td class="yes">✦</td></tr>
+      <tr><td>Gestão de Instagram</td><td class="no">–</td><td class="yes">✦</td><td class="yes">✦</td></tr>
+      <tr><td>Carros nos marketplaces</td><td class="no">–</td><td class="yes">✦</td><td class="yes">✦</td></tr>
+      <tr><td>Tráfego pago + vídeos + SEO</td><td class="no">–</td><td class="no">–</td><td class="yes">✦</td></tr>
+      <tr class="rowprice"><td>Montagem (única)</td><td>R$ 3.900</td><td>R$ 3.900</td><td>R$ 4.900</td></tr>
+      <tr class="rowprice"><td>Mensalidade</td><td>R$ 197</td><td>R$ 1.290</td><td>R$ 2.490</td></tr>
+    </table>
+  </div>
+  <div class="pg">07 / 11</div>
+</section>
+
+<!-- 9 · RECOMENDACAO -->
+<section class="slide">
+  <div class="brand"><span class="star">✦</span> ORION</div>
+  <div class="head">
+    <div class="eyebrow"><span class="num">05</span> Nossa recomendação</div>
+  </div>
+  <div class="body">
+    <p class="big">Comece pela <span class="star">Presença</span>. Ela cobre os três pontos que mais pesam: mostrar o carro, provar que é confiável e jogar o cliente pro WhatsApp.</p>
+    <p class="muted" style="font-size:18px;margin-top:24px;max-width:60ch">E quando o movimento crescer, a gente sobe pra Aceleração e vai buscar cliente com anúncio — sem refazer nada. É só somar.</p>
+  </div>
+  <div class="pg">08 / 11</div>
+</section>
+
+<!-- 10 · COMO FUNCIONA -->
+<section class="slide">
+  <div class="brand"><span class="star">✦</span> ORION</div>
+  <div class="head">
+    <div class="eyebrow"><span class="num">06</span> Como funciona</div>
+    <h2>Do sim ao no ar em 15 dias úteis.</h2>
+  </div>
+  <div class="body">
+    <div class="steps">
+      <div class="step"><div class="sn">1</div><h3>Você escolhe</h3><p>Define o plano e a gente fecha.</p></div>
+      <div class="step"><div class="sn">2</div><h3>Reunião de início</h3><p>1h pra alinhar acessos, fotos e o WhatsApp oficial.</p></div>
+      <div class="step"><div class="sn">3</div><h3>Montagem</h3><p>Site e Google prontos em até 15 dias úteis.</p></div>
+      <div class="step"><div class="sn">4</div><h3>No ar</h3><p>Publicamos, ajustamos e começa a rodar.</p></div>
+    </div>
+    <p class="muted" style="font-size:15px;margin-top:24px">Sem fidelidade longa — a mensalidade é mês a mês.</p>
+  </div>
+  <div class="pg">09 / 11</div>
+</section>
+
+<!-- 11 · FECHAMENTO -->
+<section class="slide closing">
+  <div class="inner">
+    <div class="logo"><span class="star">✦</span> ORION</div>
+    <h2>Bora colocar a Dicar na vitrine certa?</h2>
+    <p>Me diz qual plano faz mais sentido ou marca 15 minutos pra conversar. Se topar, já começo a montar essa semana.</p>
+    <span class="pill">Falar com a Orion no WhatsApp</span>
+    <div class="contact">[WhatsApp da Orion] · [e-mail da Orion] · Castanhal/PA</div>
+  </div>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,247 @@
+/* =========================================================
+   Dicar Veículos — estilo (marca: vermelho / preto / branco)
+   ========================================================= */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+:root{
+  --red:#CE181E; --red-dark:#A01016; --black:#141414; --ink:#1A1A1A;
+  --muted:#6B7280; --line:#E5E7EB; --bg:#FFFFFF; --soft:#F4F4F5; --soft2:#FAFAFA;
+  --wa:#25D366; --wa-dark:#1da851; --gold:#E6B800;
+  --sans:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  --shadow:0 1px 3px rgba(0,0,0,.08); --shadow-lg:0 12px 34px rgba(0,0,0,.12);
+  --radius:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1180px;margin:0 auto;padding:0 22px}
+h1,h2,h3{line-height:1.12;font-weight:800;letter-spacing:-.02em}
+.section{padding:64px 0}
+.section.soft{background:var(--soft)}
+.eyebrow{color:var(--red);font-weight:800;font-size:13px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:10px}
+.sec-title{font-size:clamp(26px,4vw,38px);margin-bottom:8px}
+.sec-sub{color:var(--muted);font-size:17px;max-width:56ch}
+.center{text-align:center;margin-inline:auto}
+
+/* ---------- Botões ---------- */
+.btn{display:inline-flex;align-items:center;gap:9px;font-weight:700;font-size:15px;padding:13px 24px;border-radius:9px;cursor:pointer;border:0;transition:.18s;font-family:inherit}
+.btn-red{background:var(--red);color:#fff}.btn-red:hover{background:var(--red-dark)}
+.btn-dark{background:var(--black);color:#fff}.btn-dark:hover{background:#000}
+.btn-wa{background:var(--wa);color:#fff}.btn-wa:hover{background:var(--wa-dark)}
+.btn-ghost{background:transparent;border:1.5px solid #fff;color:#fff}.btn-ghost:hover{background:#fff;color:var(--ink)}
+.btn-outline{background:#fff;border:1.5px solid var(--line);color:var(--ink)}.btn-outline:hover{border-color:var(--red);color:var(--red)}
+.btn-block{width:100%;justify-content:center}
+.btn-sm{padding:8px 14px;font-size:13px}
+
+/* ---------- Header ---------- */
+.site-header{position:sticky;top:0;z-index:50;background:var(--black);color:#fff}
+.nav{display:flex;align-items:center;justify-content:space-between;height:70px}
+.brand{display:flex;align-items:center;gap:12px;font-weight:900;letter-spacing:.02em}
+.brand .dv{width:42px;height:42px;border-radius:50%;background:var(--red);display:grid;place-items:center;font-size:18px;font-weight:900;color:#fff;border:2px solid #fff}
+.brand .bt{font-size:19px;line-height:1}.brand .bt small{display:block;font-size:10px;font-weight:600;letter-spacing:.18em;color:#bdbdbd;margin-top:3px}
+.nav-links{display:flex;align-items:center;gap:26px}
+.nav-links a{font-size:14.5px;font-weight:600;color:#e9e9e9}.nav-links a:hover{color:#fff}
+.nav-links a.active{color:var(--red)}
+.nav-cta{display:flex;align-items:center;gap:12px}
+.menu-btn{display:none;background:none;border:0;color:#fff;font-size:26px;cursor:pointer}
+
+/* ---------- Hero ---------- */
+.hero{position:relative;background:linear-gradient(120deg,#141414 0%,#222 60%,#3a0d0f 100%);color:#fff;overflow:hidden}
+.hero::after{content:'';position:absolute;right:-120px;top:-80px;width:520px;height:520px;background:radial-gradient(circle,rgba(206,24,30,.35),transparent 60%)}
+.hero-inner{position:relative;z-index:2;padding:84px 0 92px;max-width:680px}
+.hero .tag{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);padding:7px 15px;border-radius:50px;font-size:13px;font-weight:600;margin-bottom:22px}
+.hero h1{font-size:clamp(34px,5.6vw,56px);font-weight:900;margin-bottom:18px}
+.hero h1 .hl{color:var(--red)}
+.hero p{font-size:clamp(17px,2.2vw,20px);color:#d6d6d6;margin-bottom:30px;max-width:52ch}
+.hero-cta{display:flex;gap:14px;flex-wrap:wrap}
+.hero-badges{display:flex;gap:26px;margin-top:40px;flex-wrap:wrap}
+.hero-badges .b{display:flex;align-items:center;gap:10px;font-size:14px;color:#eaeaea}
+.hero-badges .b .ic{width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,.1);display:grid;place-items:center;font-size:16px}
+
+/* ---------- Faixa de confiança ---------- */
+.trust{background:var(--red);color:#fff}
+.trust .row{display:flex;justify-content:space-around;gap:18px;flex-wrap:wrap;padding:18px 0;text-align:center}
+.trust .row div{font-size:14px;font-weight:600}
+.trust .row strong{display:block;font-size:22px;font-weight:900}
+
+/* ---------- Cards de veículo ---------- */
+.grid-cars{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:34px}
+.car{background:#fff;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;transition:.18s}
+.car:hover{box-shadow:var(--shadow-lg);transform:translateY(-3px)}
+.car .ph{position:relative;aspect-ratio:4/3;background:var(--soft);overflow:hidden}
+.car .ph img{width:100%;height:100%;object-fit:cover}
+.car .flag{position:absolute;top:12px;left:12px;background:var(--red);color:#fff;font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:5px 11px;border-radius:6px}
+.car .flag.sold{background:var(--black)}
+.car .body{padding:18px 18px 20px;display:flex;flex-direction:column;flex:1}
+.car .mk{font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.car .nm{font-size:19px;font-weight:800;margin:2px 0 4px}
+.car .vs{font-size:13.5px;color:var(--muted);margin-bottom:14px}
+.car .specs{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:#555;border-top:1px solid var(--line);padding-top:12px;margin-bottom:14px}
+.car .specs span{display:flex;align-items:center;gap:5px}
+.car .pr{margin-top:auto}
+.car .pr .v{font-size:23px;font-weight:900;color:var(--ink)}
+.car .pr .v small{font-size:12px;color:var(--muted);font-weight:600}
+.car .actions{display:flex;gap:8px;margin-top:14px}
+.car .actions .btn{flex:1;padding:11px}
+
+/* ---------- Diferenciais ---------- */
+.feats{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:34px}
+.feat{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:26px}
+.feat .ic{width:48px;height:48px;border-radius:12px;background:#fdecec;color:var(--red);display:grid;place-items:center;font-size:22px;margin-bottom:14px}
+.feat h3{font-size:17px;margin-bottom:6px}
+.feat p{font-size:14px;color:var(--muted)}
+
+/* ---------- Sobre / passos / contato ---------- */
+.about{display:grid;grid-template-columns:1.1fr 1fr;gap:44px;align-items:center}
+.about .card-stat{background:var(--black);color:#fff;border-radius:18px;padding:34px}
+.about .card-stat .big{font-size:46px;font-weight:900;color:var(--red)}
+.about .card-stat .line{display:flex;justify-content:space-between;padding:14px 0;border-bottom:1px solid #2c2c2c;font-size:15px}
+.about .card-stat .line:last-child{border:0}
+.steps3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:34px}
+.stp{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:26px;position:relative}
+.stp .n{position:absolute;top:18px;right:22px;font-size:42px;font-weight:900;color:var(--soft)}
+.stp h3{font-size:18px;margin:6px 0}
+.stp p{font-size:14px;color:var(--muted)}
+
+.contact{display:grid;grid-template-columns:1fr 1fr;gap:30px;align-items:stretch}
+.contact .box{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:30px}
+.contact .info p{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);font-size:15px}
+.contact .info p:last-child{border:0}
+.contact .info .lb{color:var(--muted);min-width:90px;font-weight:600}
+.map{border:0;width:100%;height:100%;min-height:280px;border-radius:var(--radius)}
+
+/* ---------- Footer ---------- */
+.site-footer{background:var(--black);color:#cfcfcf;padding:48px 0 26px}
+.site-footer .cols{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:30px;margin-bottom:30px}
+.site-footer h4{color:#fff;font-size:14px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:14px}
+.site-footer a{display:block;padding:5px 0;font-size:14px;color:#cfcfcf}.site-footer a:hover{color:#fff}
+.site-footer .bottom{border-top:1px solid #2a2a2a;padding-top:20px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-size:13px;color:#8b8b8b}
+.orion-credit{color:#8b8b8b}.orion-credit b{color:#cfcfcf}
+
+/* WhatsApp flutuante */
+.wa-float{position:fixed;right:20px;bottom:20px;z-index:60;background:var(--wa);color:#fff;width:58px;height:58px;border-radius:50%;display:grid;place-items:center;font-size:28px;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.wa-float:hover{background:var(--wa-dark)}
+
+/* ---------- Página de estoque ---------- */
+.page-head{background:var(--black);color:#fff;padding:46px 0}
+.page-head h1{font-size:clamp(28px,4vw,40px)}
+.page-head .bc{color:#bdbdbd;font-size:14px;margin-bottom:8px}
+.estoque-layout{display:grid;grid-template-columns:260px 1fr;gap:28px;padding:34px 0}
+.filters{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:22px;align-self:start;position:sticky;top:90px}
+.filters h3{font-size:14px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:16px}
+.filters .fg{margin-bottom:16px}
+.filters label{display:block;font-size:12.5px;font-weight:700;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}
+.filters input,.filters select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;font-family:inherit;font-size:14px}
+.filters .rangeval{font-size:13px;color:var(--red);font-weight:700;margin-top:4px}
+.estoque-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px}
+.estoque-top .count{font-size:15px;color:var(--muted)}.estoque-top .count b{color:var(--ink)}
+.estoque-top select{padding:9px 12px;border:1px solid var(--line);border-radius:8px;font-family:inherit;font-size:14px}
+.grid-cars.estoque{grid-template-columns:repeat(3,1fr);margin-top:0}
+.empty{padding:50px;text-align:center;color:var(--muted);background:#fff;border:1px dashed var(--line);border-radius:var(--radius)}
+
+/* ---------- Detalhe do veículo ---------- */
+.detail{display:grid;grid-template-columns:1.3fr 1fr;gap:34px;padding:34px 0}
+.gallery .main{aspect-ratio:4/3;background:var(--soft);border-radius:var(--radius);overflow:hidden;border:1px solid var(--line)}
+.gallery .main img{width:100%;height:100%;object-fit:cover}
+.gallery .thumbs{display:flex;gap:10px;margin-top:10px}
+.gallery .thumbs img{width:84px;height:64px;object-fit:cover;border-radius:8px;border:2px solid var(--line);cursor:pointer}
+.gallery .thumbs img.active{border-color:var(--red)}
+.dinfo .mk{color:var(--muted);font-weight:700;text-transform:uppercase;font-size:13px;letter-spacing:.05em}
+.dinfo h1{font-size:30px;margin:4px 0}
+.dinfo .vs{color:var(--muted);margin-bottom:18px}
+.dinfo .price{font-size:34px;font-weight:900;margin:6px 0 4px}
+.dinfo .price-note{color:var(--muted);font-size:14px;margin-bottom:20px}
+.spec-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:22px}
+.spec-grid div{background:#fff;padding:14px 16px}
+.spec-grid .k{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.spec-grid .v{font-size:16px;font-weight:700}
+.dinfo .desc{background:var(--soft);border-radius:var(--radius);padding:18px;font-size:15px;color:#444;margin-bottom:22px}
+.dinfo .cta-row{display:flex;gap:12px;flex-wrap:wrap}
+
+/* =========================================================
+   PAINEL ADMIN
+   ========================================================= */
+.admin-body{background:var(--soft);min-height:100vh}
+.login-screen{min-height:100vh;display:grid;place-items:center;background:linear-gradient(120deg,#141414,#3a0d0f);padding:20px}
+.login-card{background:#fff;border-radius:18px;padding:40px;width:100%;max-width:400px;box-shadow:var(--shadow-lg)}
+.login-card .brand{justify-content:center;color:var(--ink);margin-bottom:8px}
+.login-card .brand .bt small{color:var(--muted)}
+.login-card h2{text-align:center;font-size:22px;margin:14px 0 4px}
+.login-card .sub{text-align:center;color:var(--muted);font-size:14px;margin-bottom:24px}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:13px;font-weight:700;margin-bottom:6px}
+.field input,.field select,.field textarea{width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:15px}
+.field textarea{resize:vertical;min-height:80px}
+.login-hint{margin-top:18px;background:var(--soft);border-radius:10px;padding:12px 14px;font-size:12.5px;color:var(--muted);line-height:1.7}
+.login-err{background:#fdecec;color:var(--red-dark);padding:10px 13px;border-radius:8px;font-size:13.5px;margin-bottom:14px;display:none}
+
+.admin-shell{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+.sidebar{background:var(--black);color:#fff;padding:24px 0;position:sticky;top:0;height:100vh}
+.sidebar .brand{padding:0 22px 22px;border-bottom:1px solid #2a2a2a;margin-bottom:14px}
+.sidebar nav a{display:flex;align-items:center;gap:11px;padding:12px 22px;color:#cfcfcf;font-size:14.5px;font-weight:600;cursor:pointer}
+.sidebar nav a:hover{background:#1f1f1f;color:#fff}
+.sidebar nav a.active{background:var(--red);color:#fff}
+.sidebar .who{position:absolute;bottom:0;left:0;right:0;padding:18px 22px;border-top:1px solid #2a2a2a;font-size:13px}
+.sidebar .who .nm{font-weight:700;color:#fff}.sidebar .who .rl{color:#9a9a9a;font-size:12px}
+.sidebar .who a{color:var(--red);font-size:13px;margin-top:6px;display:inline-block;cursor:pointer}
+
+.admin-main{padding:28px 32px}
+.admin-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;flex-wrap:wrap;gap:12px}
+.admin-top h1{font-size:24px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:26px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.kpi .v{font-size:30px;font-weight:900}.kpi .v.red{color:var(--red)}
+.kpi .l{font-size:13px;color:var(--muted);margin-top:2px}
+
+.table-wrap{background:#fff;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+table.adm{width:100%;border-collapse:collapse}
+table.adm th,table.adm td{padding:13px 16px;text-align:left;border-bottom:1px solid var(--line);font-size:14px}
+table.adm th{background:var(--soft);font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+table.adm tr:last-child td{border:0}
+table.adm .thumb{width:60px;height:44px;object-fit:cover;border-radius:6px}
+.badge{font-size:11px;font-weight:800;padding:4px 9px;border-radius:50px;text-transform:uppercase;letter-spacing:.04em}
+.badge.ok{background:#e6f6ec;color:#1a8f4a}
+.badge.sold{background:#eee;color:#555}
+.badge.role{background:#fdecec;color:var(--red)}
+.rowact{display:flex;gap:8px}
+.iconbtn{border:1px solid var(--line);background:#fff;border-radius:7px;padding:6px 10px;cursor:pointer;font-size:13px}
+.iconbtn:hover{border-color:var(--red);color:var(--red)}
+.iconbtn.del:hover{border-color:var(--red);background:var(--red);color:#fff}
+
+/* Modal */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;place-items:center;z-index:100;padding:20px;overflow:auto}
+.modal-bg.open{display:grid}
+.modal{background:#fff;border-radius:16px;width:100%;max-width:620px;max-height:90vh;overflow:auto}
+.modal header{padding:20px 24px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+.modal header h3{font-size:19px}
+.modal .x{border:0;background:none;font-size:24px;cursor:pointer;color:var(--muted)}
+.modal .content{padding:24px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.modal footer{padding:18px 24px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:10px}
+.photo-drop{border:2px dashed var(--line);border-radius:10px;padding:18px;text-align:center;color:var(--muted);font-size:14px;cursor:pointer}
+.photo-prev{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.photo-prev .pp{position:relative}
+.photo-prev img{width:72px;height:54px;object-fit:cover;border-radius:6px;border:1px solid var(--line)}
+.photo-prev .rm{position:absolute;top:-6px;right:-6px;background:var(--red);color:#fff;border:0;border-radius:50%;width:20px;height:20px;cursor:pointer;font-size:12px}
+.hide{display:none!important}
+
+/* ---------- Responsivo ---------- */
+@media(max-width:900px){
+  .grid-cars,.grid-cars.estoque{grid-template-columns:repeat(2,1fr)}
+  .feats{grid-template-columns:repeat(2,1fr)}
+  .about,.contact,.detail{grid-template-columns:1fr}
+  .estoque-layout{grid-template-columns:1fr}
+  .filters{position:static}
+  .admin-shell{grid-template-columns:1fr}
+  .sidebar{position:static;height:auto}
+  .kpis{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:620px){
+  .nav-links{display:none}.menu-btn{display:block}
+  .nav-links.show{display:flex;position:absolute;top:70px;left:0;right:0;flex-direction:column;background:var(--black);padding:16px 22px;gap:14px}
+  .grid-cars,.grid-cars.estoque,.feats,.steps3{grid-template-columns:1fr}
+  .form-row{grid-template-columns:1fr}
+  .site-footer .cols{grid-template-columns:1fr}
+}

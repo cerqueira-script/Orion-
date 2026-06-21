@@ -72,6 +72,8 @@ Usar essas informações como base pra qualquer resposta ou decisão. Não é ne
 
 Pra qualquer tarefa visual (carrossel, post, landing page), consultar `identidade/design-guide.md` como referência de estilo.
 
+Pra construir **site ou landing page** (do zero ou refazendo), usar a skill `frontend-design` junto do `design-guide.md` — ela orienta paleta, tipografia e layout autorais, fugindo do visual "cara de template". Quando o trabalho é pra um cliente, usar a marca **dele** (cores/logo na pasta do cliente), não a da Orion.
+
 ---
 
 ## Trabalho para clientes
