@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <circle cx="32" cy="32" r="31" fill="#E1141B"/>
+  <circle cx="32" cy="32" r="29.5" fill="none" stroke="#ffffff" stroke-width="3"/>
+  <text x="32" y="43" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-size="28" font-weight="900" fill="#ffffff" letter-spacing="-1">DV</text>
+</svg>

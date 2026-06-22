@@ -4,6 +4,42 @@
   var $ = function (s, c) { return (c || document).querySelector(s); };
   var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
 
+  /* Ícones SVG (silhuetas por tipo) — substituem emojis */
+  var ICON = {
+    hatch: '<svg viewBox="0 0 64 36" fill="currentColor" aria-hidden="true"><path d="M5 27v-9a3 3 0 0 1 3-3h7l6-7h10l13 12h4a3 3 0 0 1 3 3v4h-4a7 7 0 0 0-14 0H25a7 7 0 0 0-14 0H5z"/><circle cx="18" cy="28" r="4.6"/><circle cx="46" cy="28" r="4.6"/></svg>',
+    suv: '<svg viewBox="0 0 64 36" fill="currentColor" aria-hidden="true"><path d="M4 27V15a3 3 0 0 1 3-3h7l4-5h18l4 5h7a3 3 0 0 1 3 3v12h-4a7 7 0 0 0-14 0H25a7 7 0 0 0-14 0H4z"/><circle cx="18" cy="28" r="4.6"/><circle cx="46" cy="28" r="4.6"/></svg>',
+    sedan: '<svg viewBox="0 0 64 36" fill="currentColor" aria-hidden="true"><path d="M5 27v-9a3 3 0 0 1 3-3h7l6-7h14l9 12h4a3 3 0 0 1 3 3v4h-4a7 7 0 0 0-14 0H25a7 7 0 0 0-14 0H5z"/><circle cx="18" cy="28" r="4.6"/><circle cx="46" cy="28" r="4.6"/></svg>',
+    picape: '<svg viewBox="0 0 64 36" fill="currentColor" aria-hidden="true"><path d="M4 27V15a3 3 0 0 1 3-3h7l4-5h18l4 5h7a3 3 0 0 1 3 3v12h-4a7 7 0 0 0-14 0H25a7 7 0 0 0-14 0H4z"/><circle cx="18" cy="28" r="4.6"/><circle cx="46" cy="28" r="4.6"/></svg>',
+    auto: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
+    todos: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>'
+  };
+
+  /* ---------- dados estruturados do veículo (schema.org) p/ Google ---------- */
+  function injectVehicleLD(v) {
+    var ld = {
+      '@context': 'https://schema.org', '@type': 'Car',
+      name: v.marca + ' ' + v.modelo + ' ' + v.versao,
+      brand: { '@type': 'Brand', name: v.marca },
+      model: v.modelo, vehicleModelDate: String(v.ano),
+      mileageFromOdometer: { '@type': 'QuantitativeValue', value: v.km, unitCode: 'KMT' },
+      vehicleTransmission: v.cambio, fuelType: v.combustivel, color: v.cor, numberOfDoors: v.portas,
+      offers: {
+        '@type': 'Offer', price: v.preco, priceCurrency: 'BRL',
+        availability: v.status === 'vendido' ? 'https://schema.org/SoldOut' : 'https://schema.org/InStock',
+        seller: { '@type': 'AutoDealer', name: 'Dicar Veículos' }
+      }
+    };
+    if (v.fotos && v.fotos.length && v.fotos[0].indexOf('data:') !== 0) {
+      ld.image = (location.protocol === 'file:') ? v.fotos[0] : location.origin + '/' + v.fotos[0];
+    }
+    var old = document.getElementById('veh-ld');
+    if (old) old.remove();
+    var s = document.createElement('script');
+    s.type = 'application/ld+json'; s.id = 'veh-ld';
+    s.textContent = JSON.stringify(ld);
+    document.head.appendChild(s);
+  }
+
   /* ---------- config (contatos) ---------- */
   function bindConfig() {
     var cfg = Store.getConfig();
@@ -114,12 +150,12 @@
     var catsBox = $('#cats');
     if (catsBox) {
       var defs = [
-        { nm: 'Hatch', ic: '🚗', q: 'tipo=Hatch' },
-        { nm: 'SUV', ic: '🚙', q: 'tipo=SUV' },
-        { nm: 'Picape', ic: '🛻', q: 'tipo=Picape' },
-        { nm: 'Sedã', ic: '🚘', q: 'tipo=Sedã' },
-        { nm: 'Automáticos', ic: '⚙️', q: 'cambio=Automático' },
-        { nm: 'Ver todos', ic: '◆', q: '' }
+        { nm: 'Hatch', ic: ICON.hatch, q: 'tipo=Hatch' },
+        { nm: 'SUV', ic: ICON.suv, q: 'tipo=SUV' },
+        { nm: 'Picape', ic: ICON.picape, q: 'tipo=Picape' },
+        { nm: 'Sedã', ic: ICON.sedan, q: 'tipo=Sedã' },
+        { nm: 'Automáticos', ic: ICON.auto, q: 'cambio=Automático' },
+        { nm: 'Ver todos', ic: ICON.todos, q: '' }
       ];
       var all = Store.getVehicles({ status: 'disponivel' });
       catsBox.innerHTML = defs.map(function (d) {
@@ -173,6 +209,14 @@
     fBusca.addEventListener('input', apply);
     fPreco.addEventListener('input', apply);
     apply();
+
+    // veio de um filtro (clicou numa categoria na home)? rola direto pros carros
+    if (q.get('tipo') || q.get('cambio') || q.get('marca')) {
+      var shop = $('.shop');
+      if (shop) setTimeout(function () {
+        window.scrollTo({ top: shop.offsetTop - 64, behavior: 'smooth' });
+      }, 250);
+    }
   }
 
   /* ---------- DETALHE ---------- */
@@ -182,6 +226,7 @@
     var v = id && Store.getVehicle(id);
     if (!v) { box.innerHTML = '<div class="empty">Veículo não encontrado. <a href="estoque.html">Ver os carros</a></div>'; return; }
     document.title = v.marca + ' ' + v.modelo + ' ' + v.versao + ' · Dicar Veículos';
+    injectVehicleLD(v);
     var fotos = (v.fotos && v.fotos.length) ? v.fotos : [Store.placeholder(v)];
     var sold = v.status === 'vendido';
     var msg = 'Olá! Tenho interesse no ' + v.marca + ' ' + v.modelo + ' ' + v.versao + ' (' + v.ano + '), ' + Store.fmtPreco(v.preco) + '. Está disponível?';

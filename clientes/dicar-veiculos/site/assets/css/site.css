@@ -127,7 +127,9 @@ h1,h2,h3{font-family:var(--display);font-weight:400;line-height:.9;text-transfor
 .cats{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-top:38px}
 .cat{background:var(--paper);border:1px solid var(--line);border-radius:4px;padding:24px 14px;text-align:center;transition:.2s var(--ease);cursor:pointer}
 .cat:hover{border-color:var(--ink);transform:translateY(-4px)}
-.cat .ic{font-size:30px;margin-bottom:10px;filter:grayscale(1)}
+.cat .ic{margin-bottom:12px;color:var(--ink);display:flex;justify-content:center;transition:color .2s var(--ease)}
+.cat .ic svg{width:48px;height:34px}
+.cat:hover .ic{color:var(--red)}
 .cat .nm{font-family:var(--display);font-size:20px;letter-spacing:.03em}
 .cat .ct{font-size:12px;color:var(--steel)}
 
@@ -157,11 +159,12 @@ h1,h2,h3{font-family:var(--display);font-weight:400;line-height:.9;text-transfor
 /* =================== SOBRE (split diagonal) =================== */
 .about{position:relative;background:var(--ink);color:#fff;overflow:hidden}
 .about-grid{display:grid;grid-template-columns:1fr 1fr;align-items:center}
-.about-media{position:relative;min-height:520px;background:var(--ink-2);clip-path:polygon(0 0,100% 0,100% 100%,12% 100%)}
-.about-media .big-num{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--display);font-size:clamp(120px,18vw,260px);color:rgba(255,255,255,.05);line-height:.8}
-.about-media .stamp{position:absolute;left:18%;top:50%;transform:translateY(-50%);text-align:center}
-.about-media .stamp .star{font-family:var(--display);font-size:96px;color:var(--red);line-height:.8}
-.about-media .stamp .t{font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:#aeb3b9;margin-top:8px}
+.about-media{position:relative;min-height:520px;background:var(--ink-2);clip-path:polygon(0 0,100% 0,100% 100%,12% 100%);overflow:hidden}
+.about-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.about-media::after{content:'';position:absolute;inset:0;background:linear-gradient(115deg,rgba(14,14,16,.6),rgba(14,14,16,.12) 48%,transparent)}
+.about-badge{position:absolute;left:15%;bottom:34px;z-index:2;background:rgba(14,14,16,.82);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.14);border-radius:12px;padding:16px 22px;text-align:center}
+.about-badge .star{font-family:var(--display);font-size:58px;color:var(--red);line-height:.85}
+.about-badge .t{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#cfd2d6;margin-top:2px}
 .about-copy{padding:96px 64px 96px 40px}
 .about-copy h2{font-size:clamp(40px,5vw,64px);margin:16px 0 18px}
 .about-copy p{color:#c0c4c9;margin-bottom:16px;max-width:48ch}
@@ -208,6 +211,7 @@ h1,h2,h3{font-family:var(--display);font-weight:400;line-height:.9;text-transfor
 /* WhatsApp flutuante */
 .wa-fab{position:fixed;right:22px;bottom:22px;z-index:80;width:60px;height:60px;border-radius:50%;background:var(--wa);color:#fff;display:grid;place-items:center;font-size:28px;box-shadow:0 10px 30px rgba(0,0,0,.28);transition:transform .2s}
 .wa-fab:hover{transform:scale(1.08);background:var(--wa-dk)}
+.wa-fab svg{width:30px;height:30px}
 
 /* =================== PÁGINAS INTERNAS =================== */
 .page-hero{background:var(--ink);color:#fff;padding:140px 0 60px;position:relative;overflow:hidden}
