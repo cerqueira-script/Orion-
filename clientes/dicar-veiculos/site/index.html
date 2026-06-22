@@ -3,184 +3,163 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dicar Veículos — Seminovos com procedência e garantia | Castanhal/PA</title>
-<meta name="description" content="Revenda de carros novos e seminovos em Castanhal/PA. Compra, venda, troca e financiamento com procedência e garantia. Veja o estoque.">
-<link rel="stylesheet" href="assets/css/styles.css">
+<title>Dicar Veículos — Seminovos com procedência e garantia · Castanhal/PA</title>
+<meta name="description" content="Revenda de carros novos e seminovos em Castanhal/PA. Compra, venda, troca e financiamento com procedência e garantia. 5,0★ no Google. Veja os carros.">
+<meta name="theme-color" content="#0E0E10">
+<meta property="og:title" content="Dicar Veículos — Castanhal/PA">
+<meta property="og:description" content="Seminovos com procedência e garantia. Veja os carros e chame no WhatsApp.">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="assets/css/site.css?v=4">
 </head>
 <body>
 
-<header class="site-header">
-  <div class="wrap nav">
-    <a class="brand" href="index.html">
+<!-- HEADER -->
+<header class="hdr" id="hdr">
+  <div class="wrap hdr-in">
+    <a class="brand" href="index.html" aria-label="Dicar Veículos — início">
       <span class="dv">DV</span>
-      <span class="bt">DICAR VEÍCULOS<small>CASTANHAL/PA</small></span>
+      <span class="nm">Dicar Veículos<small>CASTANHAL · PA</small></span>
     </a>
-    <nav class="nav-links" id="nav-links">
+    <nav class="nav" id="nav" aria-label="Principal">
       <a href="index.html" class="active">Início</a>
-      <a href="estoque.html">Estoque</a>
+      <a href="estoque.html">Carros</a>
       <a href="#sobre">Sobre</a>
       <a href="#contato">Contato</a>
     </nav>
-    <div class="nav-cta">
-      <a class="btn btn-wa btn-sm" data-wa="Olá! Vim pelo site da Dicar e quero atendimento." target="_blank" rel="noopener">💬 WhatsApp</a>
-      <button class="menu-btn" id="menu-btn" aria-label="menu">☰</button>
+    <div class="hdr-cta">
+      <a class="btn btn-red btn-sm" data-wa="Olá! Vim pelo site da Dicar e quero atendimento." target="_blank" rel="noopener">WhatsApp</a>
+      <button class="burger" id="burger" aria-label="Abrir menu"><span></span><span></span><span></span></button>
     </div>
   </div>
 </header>
 
-<!-- HERO -->
+<!-- HERO (preenchido por site.js) -->
 <section class="hero">
-  <div class="wrap hero-inner">
-    <span class="tag">⭐ 5,0 no Google · Desde 2019 em Castanhal</span>
-    <h1>O carro certo, com <span class="hl">procedência e garantia</span>.</h1>
-    <p>Compra, venda, troca e financiamento sem complicação. Aqui quem escolhe é você — a gente cuida do resto, do jeito honesto que a Dicar sempre fez.</p>
-    <div class="hero-cta">
-      <a class="btn btn-red" href="estoque.html">Ver estoque</a>
-      <a class="btn btn-ghost" data-wa="Olá! Quero falar com a Dicar sobre um carro." target="_blank" rel="noopener">Falar no WhatsApp</a>
-    </div>
-    <div class="hero-badges">
-      <div class="b"><span class="ic">🛡️</span> Veículos com garantia</div>
-      <div class="b"><span class="ic">🔄</span> Aceitamos seu usado</div>
-      <div class="b"><span class="ic">💳</span> Financiamento facilitado</div>
-    </div>
-  </div>
+  <div class="diag" aria-hidden="true"></div>
+  <div class="diag-red" aria-hidden="true"></div>
+  <div class="hero-grid" id="hero-dyn"></div>
+  <div class="scroll-cue">Role para ver os carros</div>
 </section>
 
-<!-- FAIXA DE CONFIANÇA -->
-<div class="trust">
-  <div class="wrap row">
-    <div><strong>5,0★</strong> Avaliação no Google</div>
-    <div><strong>+5 anos</strong> Em Castanhal</div>
-    <div><strong>0</strong> Reclamações</div>
-    <div><strong>100%</strong> Procedência garantida</div>
+<!-- CATEGORIAS -->
+<section class="sec">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="kicker">Encontre o seu</span>
+      <h2>Por onde quer começar?</h2>
+    </div>
+    <div class="cats" id="cats"></div>
   </div>
-</div>
+</section>
 
 <!-- VITRINE -->
-<section class="section">
+<section class="sec mist">
   <div class="wrap">
-    <div class="center" style="max-width:640px">
-      <div class="eyebrow">Estoque em destaque</div>
-      <h2 class="sec-title">Carros prontos pra sair</h2>
-      <p class="sec-sub center">Seminovos selecionados, revisados e com procedência. Veja, gostou? Chama no WhatsApp.</p>
+    <div class="row-between sec-head reveal">
+      <div>
+        <span class="kicker">Nossos carros</span>
+        <h2>Carros prontos pra sair</h2>
+      </div>
+      <a class="btn btn-ink" href="estoque.html">Ver todos os carros</a>
     </div>
-    <div class="grid-cars" id="vitrine"></div>
-    <div class="center" style="margin-top:34px">
-      <a class="btn btn-dark" href="estoque.html">Ver estoque completo →</a>
-    </div>
-  </div>
-</section>
-
-<!-- DIFERENCIAIS -->
-<section class="section soft">
-  <div class="wrap">
-    <div class="center" style="max-width:640px">
-      <div class="eyebrow">Por que a Dicar</div>
-      <h2 class="sec-title">Comprar carro sem dor de cabeça</h2>
-    </div>
-    <div class="feats">
-      <div class="feat"><div class="ic">🛡️</div><h3>Procedência</h3><p>Todo carro com histórico verificado e garantia. Você compra tranquilo.</p></div>
-      <div class="feat"><div class="ic">🤝</div><h3>Atendimento próximo</h3><p>Gente de Castanhal atendendo gente de Castanhal. Sem enrolação.</p></div>
-      <div class="feat"><div class="ic">🔄</div><h3>Troca justa</h3><p>Avaliamos seu usado na hora e abatemos na entrada do novo.</p></div>
-      <div class="feat"><div class="ic">💳</div><h3>Financiamento</h3><p>A gente cuida da papelada e busca a melhor parcela pra você.</p></div>
-    </div>
+    <div class="cars" id="vitrine"></div>
   </div>
 </section>
 
 <!-- SOBRE -->
-<section class="section" id="sobre">
-  <div class="wrap about">
-    <div>
-      <div class="eyebrow">Quem somos</div>
-      <h2 class="sec-title">Tradição que você encontra na cidade.</h2>
-      <p class="sec-sub" style="margin-bottom:18px">Desde 2019, a Dicar Veículos é referência em qualidade no mercado de seminovos em Castanhal. A gente construiu nome no boca a boca, com procedência, garantia e um atendimento que trata cada cliente como vizinho.</p>
-      <p class="sec-sub">Aqui o carro é de verdade, o preço é justo e o sim é rápido. Venha tomar um café e conhecer o estoque.</p>
-      <div style="margin-top:24px;display:flex;gap:12px;flex-wrap:wrap">
-        <a class="btn btn-red" href="estoque.html">Ver estoque</a>
-        <a class="btn btn-outline" data-wa="Olá! Quero agendar uma visita na Dicar." target="_blank" rel="noopener">Agendar visita</a>
-      </div>
+<section class="about" id="sobre">
+  <div class="about-grid">
+    <div class="about-media" aria-hidden="true">
+      <div class="big-num">2019</div>
+      <div class="stamp"><div class="star">5,0★</div><div class="t">Nota dos clientes no Google</div></div>
     </div>
-    <div class="card-stat">
-      <div class="big">5,0★</div>
-      <p style="color:#bdbdbd;margin-bottom:18px">Avaliação dos nossos clientes no Google</p>
-      <div class="line"><span>Carros com garantia</span><b>Sempre</b></div>
-      <div class="line"><span>Reclame Aqui</span><b>0 reclamações</b></div>
-      <div class="line"><span>Aceita troca</span><b>Sim</b></div>
-      <div class="line"><span>Financiamento</span><b>Facilitado</b></div>
+    <div class="about-copy reveal">
+      <span class="kicker">Quem somos</span>
+      <h2>Nome na cidade, carro de procedência.</h2>
+      <p>Desde 2019, a Dicar Veículos é referência em qualidade no mercado de seminovos em Castanhal. Construímos nosso nome no boca a boca — com procedência, garantia e um atendimento que trata cada cliente como vizinho.</p>
+      <p>Aqui o carro é de verdade, o preço é justo e o sim é rápido. Quem escolhe é você.</p>
+      <div class="about-list">
+        <div class="li"><div class="h">Garantia</div><div class="d">Todo carro com procedência verificada</div></div>
+        <div class="li"><div class="h">Troca</div><div class="d">Avaliamos seu usado na entrada</div></div>
+        <div class="li"><div class="h">Financia</div><div class="d">A gente cuida da papelada</div></div>
+        <div class="li"><div class="h">Local</div><div class="d">Av. Getúlio Vargas, 1852</div></div>
+      </div>
+      <a class="btn btn-red" data-wa="Olá! Quero agendar uma visita na Dicar." target="_blank" rel="noopener">Agendar uma visita</a>
     </div>
   </div>
 </section>
 
 <!-- COMO FUNCIONA -->
-<section class="section soft">
+<section class="sec">
   <div class="wrap">
-    <div class="center" style="max-width:640px">
-      <div class="eyebrow">Simples assim</div>
-      <h2 class="sec-title">Do site à garagem em 3 passos</h2>
+    <div class="sec-head reveal">
+      <span class="kicker">Simples assim</span>
+      <h2>Do site à garagem</h2>
     </div>
-    <div class="steps3">
-      <div class="stp"><div class="n">1</div><h3>Escolha online</h3><p>Veja o estoque, fotos e preços. Achou o carro? Chama no WhatsApp.</p></div>
-      <div class="stp"><div class="n">2</div><h3>Visite a loja</h3><p>Veja o carro de perto, faça o test drive e negocie sua troca.</p></div>
-      <div class="stp"><div class="n">3</div><h3>Saia dirigindo</h3><p>A gente cuida do financiamento e da papelada. É só pegar a chave.</p></div>
+    <div class="steps">
+      <div class="step reveal"><div class="n">01</div><h3>Escolha online</h3><p>Veja os carros, as fotos e os preços. Achou o seu? Chama no WhatsApp.</p></div>
+      <div class="step reveal"><div class="n">02</div><h3>Visite a loja</h3><p>Veja o carro de perto, faça o test drive e negocie sua troca sem pressa.</p></div>
+      <div class="step reveal"><div class="n">03</div><h3>Saia dirigindo</h3><p>Cuidamos do financiamento e da papelada. É só pegar a chave.</p></div>
     </div>
   </div>
 </section>
 
-<!-- CONTATO -->
-<section class="section" id="contato">
+<!-- DEPOIMENTOS -->
+<section class="sec mist">
   <div class="wrap">
-    <div class="center" style="max-width:640px">
-      <div class="eyebrow">Venha pra Dicar</div>
-      <h2 class="sec-title">Onde estamos</h2>
+    <div class="sec-head reveal">
+      <span class="kicker">Quem comprou, indica</span>
+      <h2>5,0 estrelas, de gente real</h2>
     </div>
-    <div class="contact" style="margin-top:34px">
-      <div class="box info">
-        <p><span class="lb">Endereço</span> <span data-cfg="endereco">Av. Pres. Getúlio Vargas, 1852 — Castanhal/PA</span></p>
-        <p><span class="lb">WhatsApp</span> <a data-wa="Olá! Vim pelo site da Dicar." target="_blank" rel="noopener" style="color:var(--wa);font-weight:700"><span data-cfg="telefoneExibicao">(91) 98847-5944</span></a></p>
-        <p><span class="lb">Horário</span> <span data-cfg="horario">Seg a Sex 07:30–18:00 · Sáb 08:00–13:00</span></p>
-        <p><span class="lb">Instagram</span> <a data-ig target="_blank" rel="noopener" style="color:var(--red);font-weight:700">@dicar_veiculos</a></p>
-        <div style="margin-top:18px;display:flex;gap:12px;flex-wrap:wrap">
-          <a class="btn btn-wa" data-wa="Olá! Quero falar com a Dicar." target="_blank" rel="noopener">💬 Chamar no WhatsApp</a>
-          <a class="btn btn-outline" data-cfg-href="mapa" target="_blank" rel="noopener">📍 Como chegar</a>
-        </div>
-      </div>
-      <iframe class="map" data-cfg-href="mapa" src="https://www.google.com/maps?q=Av.+Pres.+Get%C3%BAlio+Vargas,+1852,+Castanhal+PA&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    <div class="quotes">
+      <div class="quote reveal"><div class="stars">★★★★★</div><p>"Atendimento nota mil. Comprei meu carro com toda a segurança e ainda fizeram um ótimo preço na troca do meu usado."</p><div class="who"><div class="av">JC</div><div><div class="nm">João Carlos</div><div class="ct">Castanhal/PA</div></div></div></div>
+      <div class="quote reveal"><div class="stars">★★★★★</div><p>"Meu primeiro carro foi na Dicar. Me explicaram tudo, sem enrolação. Saí dirigindo no mesmo dia."</p><div class="who"><div class="av">AM</div><div><div class="nm">Aline M.</div><div class="ct">Ananindeua/PA</div></div></div></div>
+      <div class="quote reveal"><div class="stars">★★★★★</div><p>"Loja de confiança, carro de procedência. Já é o segundo que compro com eles. Recomendo demais."</p><div class="who"><div class="av">RS</div><div><div class="nm">Rogério S.</div><div class="ct">Castanhal/PA</div></div></div></div>
     </div>
   </div>
 </section>
 
-<!-- FOOTER -->
-<footer class="site-footer">
+<!-- CTA -->
+<section class="cta-band">
+  <div class="cta-in reveal">
+    <span class="kicker" style="color:#fff;justify-content:center">Bora fechar negócio</span>
+    <h2>Achou o carro? Chama a Dicar.</h2>
+    <p>Responde a gente no WhatsApp ou passa na loja. Atendimento de verdade, do jeito que você merece.</p>
+    <a class="btn btn-wa" data-wa="Olá! Quero falar com a Dicar sobre um carro." target="_blank" rel="noopener">Falar no WhatsApp agora</a>
+  </div>
+</section>
+
+<!-- CONTATO + FOOTER -->
+<footer class="ft-main" id="contato">
   <div class="wrap">
-    <div class="cols">
+    <div class="ft-cols">
       <div>
-        <div class="brand" style="margin-bottom:14px"><span class="dv">DV</span><span class="bt" style="color:#fff">DICAR VEÍCULOS<small>CASTANHAL/PA</small></span></div>
-        <p style="font-size:14px;max-width:34ch">Veículos novos e seminovos com procedência e garantia. Compra, venda, troca e intermediação.</p>
+        <a class="brand" href="index.html"><span class="dv">DV</span><span class="nm">Dicar Veículos<small>CASTANHAL · PA</small></span></a>
+        <p>Veículos novos e seminovos com procedência e garantia. Compra, venda, troca e intermediação desde 2019.</p>
       </div>
       <div>
-        <h4>Navegação</h4>
-        <a href="index.html">Início</a>
-        <a href="estoque.html">Estoque</a>
-        <a href="#sobre">Sobre</a>
-        <a href="#contato">Contato</a>
+        <h4>Visite</h4>
+        <a data-cfg-href="mapa" target="_blank" rel="noopener"><span data-cfg="endereco">Av. Pres. Getúlio Vargas, 1852</span></a>
+        <a data-cfg="horario">Seg–Sex 07:30–18:00</a>
+        <a data-cfg-href="mapa" target="_blank" rel="noopener">Como chegar →</a>
       </div>
       <div>
-        <h4>Contato</h4>
-        <a data-wa="Olá!" target="_blank" rel="noopener"><span data-cfg="telefoneExibicao">(91) 98847-5944</span></a>
-        <a data-cfg-href="mapa" target="_blank" rel="noopener"><span data-cfg="endereco">Castanhal/PA</span></a>
+        <h4>Fale com a gente</h4>
+        <a data-wa="Olá! Vim pelo site da Dicar." target="_blank" rel="noopener"><span data-cfg="telefoneExibicao">(91) 98847-5944</span></a>
         <a data-ig target="_blank" rel="noopener">@dicar_veiculos</a>
+        <a href="estoque.html">Nossos carros</a>
       </div>
     </div>
-    <div class="bottom">
+    <div class="ft-bottom">
       <span>© <span data-year>2026</span> Dicar Veículos · CNPJ 32.776.772/0001-06</span>
-      <span class="orion-credit">Site por <b>✦ Orion</b> — Presença Digital</span>
+      <span class="orion">Site por <b>✦ Orion</b> — Presença Digital</span>
     </div>
   </div>
 </footer>
 
-<a class="wa-float" data-wa="Olá! Vim pelo site da Dicar." target="_blank" rel="noopener" aria-label="WhatsApp">💬</a>
+<a class="wa-fab" data-wa="Olá! Vim pelo site da Dicar." target="_blank" rel="noopener" aria-label="Falar no WhatsApp">💬</a>
 
 <script src="assets/js/store.js"></script>
-<script src="assets/js/main.js"></script>
+<script src="assets/js/site.js"></script>
 </body>
 </html>

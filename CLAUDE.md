@@ -72,7 +72,12 @@ Usar essas informações como base pra qualquer resposta ou decisão. Não é ne
 
 Pra qualquer tarefa visual (carrossel, post, landing page), consultar `identidade/design-guide.md` como referência de estilo.
 
-Pra construir **site ou landing page** (do zero ou refazendo), usar a skill `frontend-design` junto do `design-guide.md` — ela orienta paleta, tipografia e layout autorais, fugindo do visual "cara de template". Quando o trabalho é pra um cliente, usar a marca **dele** (cores/logo na pasta do cliente), não a da Orion.
+Pra construir **site ou landing page** (do zero ou refazendo), combinar três coisas:
+1. **`frontend-design`** (skill) — a filosofia: direção autoral, fugir do visual "cara de template".
+2. **`ui-ux-pro-max`** (skill) — os dados concretos: paletas (`colors.csv`), pares de fontes (`typography.csv`/`google-fonts.csv`), estilos, diretrizes de UX (`ux-guidelines.csv`).
+3. **`identidade/checklist-site-10k.md`** — o padrão de qualidade: os 8 pontos que todo site da Orion tem que passar **antes de entregar** (ponto de vista, tipografia que trabalha, cor contida, hierarquia que respira, imagem com intenção, movimento sutil, mobile desenhado, e o "caro invisível": performance/WCAG/semântica).
+
+Sempre consultar também o `design-guide.md`. Quando o trabalho é pra um cliente, usar a marca **dele** (cores/logo na pasta do cliente), não a da Orion.
 
 ---
 

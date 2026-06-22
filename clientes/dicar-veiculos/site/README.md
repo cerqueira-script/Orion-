@@ -42,6 +42,24 @@ Já vem com os **3 carros reais** (Polo, Nivus, Mobi — fonte NaPista, jun/2026
 3. **Adicionar fotos reais** dos carros.
 4. **Ligar o banco de dados** (ver abaixo) pra estoque e logins ficarem na nuvem, acessíveis de qualquer lugar.
 
+## Design
+
+Tema **"Editorial Showroom"** — direção autoral premium (inspirada em referências de revendas top),
+mantendo a marca da Dicar (vermelho/preto/branco). Construído com as 3 ferramentas de design da Orion:
+`frontend-design` (direção), `ui-ux-pro-max` (fontes/cores) e o checklist de qualidade `checklist-site-10k.md`.
+
+- **Tipografia:** Bebas Neue (títulos, ar de showroom) + Manrope (corpo) — nada de Inter/Roboto.
+- **Assinatura:** geometria diagonal + nome do modelo em tipografia gigante no herói.
+- **Mobile:** layout repensado pra celular (não é o desktop espremido).
+- **Qualidade:** HTML semântico, meta/OG tags, foco visível, lazy-load, `prefers-reduced-motion`, contraste.
+- Arquivos do tema: `assets/css/site.css` + `assets/js/site.js`. (O painel usa `assets/css/styles.css` + `admin/admin.js`.)
+
+> **Único ponto pendente do checklist:** fotos reais dos carros (hoje há placeholders). É só subir pelo painel.
+
+### Reaproveitar pra outro cliente
+Trocar os **tokens de marca** no topo do `site.css` (`:root` — cores, fontes) + o `seed`/`config` em `store.js`
+(nome, WhatsApp, endereço, carros). O resto se adapta. É o modelo de site de revenda da Orion.
+
 ## Tecnologia
 
 Site estático (HTML/CSS/JS puro) — leve, rápido e barato de hospedar (Netlify/Vercel grátis).

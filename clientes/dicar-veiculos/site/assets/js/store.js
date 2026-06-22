@@ -10,7 +10,7 @@
 (function (global) {
   'use strict';
 
-  var DB_KEY = 'dicar_db_v1';
+  var DB_KEY = 'dicar_db_v2';
   var SESSION_KEY = 'dicar_session_v1';
 
   /* ---------- Dados iniciais (seed) ---------- */
@@ -30,47 +30,25 @@
     },
     veiculos: [
       {
-        id: 'v-polo-2025', real: true, marca: 'Volkswagen', modelo: 'Polo',
+        id: 'v-polo-2025', real: true, tipo: 'Hatch', marca: 'Volkswagen', modelo: 'Polo',
         versao: '1.0 Track', ano: 2025, km: 40000, preco: 79000,
         cambio: 'Manual', combustivel: 'Flex', cor: 'Branco', portas: 4,
-        destaque: true, status: 'disponivel', fotos: [],
+        destaque: true, status: 'disponivel', fotos: ['assets/polo2025.webp'],
         descricao: 'Polo Track 1.0, completo, único dono, revisões em dia. Procedência e garantia Dicar.'
       },
       {
-        id: 'v-nivus-2024', real: true, marca: 'Volkswagen', modelo: 'Nivus',
+        id: 'v-nivus-2024', real: true, tipo: 'SUV', marca: 'Volkswagen', modelo: 'Nivus',
         versao: '1.0 200 TSI Comfortline Aut.', ano: 2024, km: 60814, preco: 110900,
         cambio: 'Automático', combustivel: 'Flex', cor: 'Cinza', portas: 4,
-        destaque: true, status: 'disponivel', fotos: [],
+        destaque: true, status: 'disponivel', fotos: ['assets/nivus2024.webp'],
         descricao: 'Nivus TSI automático, SUV de entrada com baixo consumo e multimídia. Aceita troca.'
       },
       {
-        id: 'v-mobi-2023', real: true, marca: 'Fiat', modelo: 'Mobi',
+        id: 'v-mobi-2023', real: true, tipo: 'Hatch', marca: 'Fiat', modelo: 'Mobi',
         versao: '1.0 Like', ano: 2023, km: 58471, preco: 56000,
         cambio: 'Manual', combustivel: 'Flex', cor: 'Vermelho', portas: 4,
-        destaque: true, status: 'disponivel', fotos: [],
+        destaque: true, status: 'disponivel', fotos: ['assets/mobi2023.webp'],
         descricao: 'Mobi Like econômico, ideal pro primeiro carro. Financiamento facilitado.'
-      },
-      /* ---- exemplos (apague no painel) ---- */
-      {
-        id: 'v-gol-2022', real: false, marca: 'Volkswagen', modelo: 'Gol',
-        versao: '1.0 MPI', ano: 2022, km: 47000, preco: 58900,
-        cambio: 'Manual', combustivel: 'Flex', cor: 'Prata', portas: 4,
-        destaque: false, status: 'disponivel', fotos: [],
-        descricao: '[EXEMPLO] Gol 1.0, completo, pneus novos.'
-      },
-      {
-        id: 'v-strada-2021', real: false, marca: 'Fiat', modelo: 'Strada',
-        versao: '1.4 Freedom CD', ano: 2021, km: 72000, preco: 84900,
-        cambio: 'Manual', combustivel: 'Flex', cor: 'Branco', portas: 4,
-        destaque: false, status: 'disponivel', fotos: [],
-        descricao: '[EXEMPLO] Strada cabine dupla, ótima pra trabalho.'
-      },
-      {
-        id: 'v-onix-2023', real: false, marca: 'Chevrolet', modelo: 'Onix',
-        versao: '1.0 LT', ano: 2023, km: 38000, preco: 72900,
-        cambio: 'Automático', combustivel: 'Flex', cor: 'Preto', portas: 4,
-        destaque: false, status: 'vendido', fotos: [],
-        descricao: '[EXEMPLO] Onix LT automático, baixa quilometragem.'
       }
     ],
     usuarios: [
@@ -106,6 +84,7 @@
       if (filters.status) list = list.filter(function (v) { return v.status === filters.status; });
       if (filters.destaque) list = list.filter(function (v) { return v.destaque; });
       if (filters.marca) list = list.filter(function (v) { return v.marca === filters.marca; });
+      if (filters.tipo) list = list.filter(function (v) { return v.tipo === filters.tipo; });
       if (filters.cambio) list = list.filter(function (v) { return v.cambio === filters.cambio; });
       if (filters.precoMax) list = list.filter(function (v) { return v.preco <= filters.precoMax; });
       if (filters.busca) {
