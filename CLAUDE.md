@@ -13,6 +13,7 @@ Operação da Orion — agência de presença digital. Aqui eu produzo conteúdo
 - `dados/` — arquivos a analisar (CSV, PDF, planilha)
 - `scripts/` — utilitários
 - `templates/` — moldes de skills e perfis
+- `produtos/` — produtos/sistemas reutilizáveis da Orion (ex.: `sistema-revenda`)
 
 ## Quem sou
 

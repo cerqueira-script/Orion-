@@ -43,9 +43,14 @@
 
 ## Escopo com a Orion
 
-- **O que a Orion entrega:** *a definir* (a auditoria aponta site com vitrine, Google Business, reativação de Instagram, marketplaces, padronização de marca/NAP)
+- **O que a Orion entrega:** site profissional com vitrine + **sistema de gestão** (painel: estoque, financeiro, leads, dashboard). Dicar é a **primeira instância** do produto `sistema-revenda`. Ainda na fila: Google Business, marketplaces, padronização de marca/NAP.
 - **Frequência / prazos:** a definir
-- **Status atual:** dossiê + auditoria concluídos (21/06/2026). Próximo passo: definir escopo e prioridades.
+- **Status atual (22/06/2026):**
+  - ✅ Dossiê + auditoria concluídos
+  - ✅ Proposta comercial (md + site + PDF) em `saidas/`
+  - ✅ **Site final pronto** (`site/`) — tema "Editorial Showroom", 3 carros reais com foto, ícones SVG, favicon, schema/OG, foto da loja no "Sobre"
+  - ✅ **Sistema especificado** (ver `produtos/sistema-revenda/sistema-spec.md`) — entra em construção
+  - ⏳ Pendências do cliente: definir **WhatsApp oficial**, depoimentos reais, mais fotos, domínio + Supabase pra publicar
 
 ## Prioridades do digital (da auditoria, por ordem de impacto)
 
