@@ -1,19 +1,28 @@
 /* =========================================================
    Dicar Veículos — estilo (marca: vermelho / preto / branco)
    ========================================================= */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+/* Tema "Editorial Showroom" — mesma identidade do site (site.css).
+   Display: Bebas Neue · Corpo: Manrope · Acento único: vermelho Dicar. */
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700;800&display=swap');
 
 :root{
-  --red:#CE181E; --red-dark:#A01016; --black:#141414; --ink:#1A1A1A;
-  --muted:#6B7280; --line:#E5E7EB; --bg:#FFFFFF; --soft:#F4F4F5; --soft2:#FAFAFA;
-  --wa:#25D366; --wa-dark:#1da851; --gold:#E6B800;
-  --sans:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
-  --shadow:0 1px 3px rgba(0,0,0,.08); --shadow-lg:0 12px 34px rgba(0,0,0,.12);
-  --radius:14px;
+  --red:#E1141B; --red-dark:#B00C12; --black:#0E0E10; --ink:#17181B;
+  --muted:#5E646D; --line:#E2E4E8; --bg:#FFFFFF; --soft:#ECEEF1; --soft2:#F6F7F8;
+  --wa:#25D366; --wa-dark:#1da851; --gold:#B0820A;
+  --ok:#1a8f4a; --ok-bg:#E7F4EC; --warn:#B0820A; --warn-bg:#FBF3E0;
+  --display:'Bebas Neue',Impact,sans-serif;
+  --sans:'Manrope',system-ui,-apple-system,Segoe UI,sans-serif;
+  --shadow:0 1px 2px rgba(14,14,16,.06); --shadow-lg:0 18px 44px rgba(14,14,16,.14);
+  --radius:4px; --ease:cubic-bezier(.22,.61,.36,1);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{font-family:var(--sans);color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+svg{display:block}
+/* o caro invisível: foco visível por teclado, números alinhados, menos movimento */
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,.toggle:focus-within{outline:2px solid var(--red);outline-offset:2px}
+.tnum,.kpi .v,table.adm td{font-variant-numeric:tabular-nums}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
 img{max-width:100%;display:block}
 a{color:inherit;text-decoration:none}
 .wrap{max-width:1180px;margin:0 auto;padding:0 22px}
@@ -161,69 +170,106 @@ h1,h2,h3{line-height:1.12;font-weight:800;letter-spacing:-.02em}
 .dinfo .cta-row{display:flex;gap:12px;flex-wrap:wrap}
 
 /* =========================================================
-   PAINEL ADMIN
+   PAINEL — CENTRAL DE GESTÃO · tema Editorial Showroom
    ========================================================= */
-.admin-body{background:var(--soft);min-height:100vh}
-.login-screen{min-height:100vh;display:grid;place-items:center;background:linear-gradient(120deg,#141414,#3a0d0f);padding:20px}
-.login-card{background:#fff;border-radius:18px;padding:40px;width:100%;max-width:400px;box-shadow:var(--shadow-lg)}
+.admin-body{background:var(--soft2);min-height:100vh}
+/* ícones: Lucide-style, herdam a cor e o tamanho do contexto */
+.admin-body svg{width:18px;height:18px;flex:none;stroke-width:1.75}
+.btn svg{width:18px;height:18px}.iconbtn svg{width:16px;height:16px}
+.sidebar svg{width:19px;height:19px}
+
+.btn{border-radius:2px;letter-spacing:.01em}
+
+/* —— Login —— */
+.login-screen{min-height:100vh;display:grid;place-items:center;background:radial-gradient(120% 120% at 100% 0,#2A0608,var(--black));padding:20px}
+.login-card{background:#fff;border-radius:var(--radius);padding:42px;width:100%;max-width:410px;box-shadow:var(--shadow-lg);border-top:4px solid var(--red)}
 .login-card .brand{justify-content:center;color:var(--ink);margin-bottom:8px}
-.login-card .brand .bt small{color:var(--muted)}
-.login-card h2{text-align:center;font-size:22px;margin:14px 0 4px}
+.login-card .brand .bt{font-family:var(--display);font-size:24px;letter-spacing:.04em}
+.login-card .brand .bt small{font-family:var(--sans);color:var(--muted)}
+.login-card h2{font-family:var(--display);font-weight:400;text-align:center;font-size:30px;letter-spacing:.02em;margin:16px 0 2px}
 .login-card .sub{text-align:center;color:var(--muted);font-size:14px;margin-bottom:24px}
 .field{margin-bottom:16px}
-.field label{display:block;font-size:13px;font-weight:700;margin-bottom:6px}
-.field input,.field select,.field textarea{width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:15px}
+.field label{display:block;font-size:12px;font-weight:700;letter-spacing:.02em;margin-bottom:6px;color:var(--ink)}
+.field input,.field select,.field textarea{width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:3px;font-family:inherit;font-size:15px;color:var(--ink);transition:border-color .15s var(--ease)}
+.field input:hover,.field select:hover,.field textarea:hover{border-color:#c7cbd2}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--red);outline:none;box-shadow:0 0 0 3px rgba(225,20,27,.12)}
 .field textarea{resize:vertical;min-height:80px}
-.login-hint{margin-top:18px;background:var(--soft);border-radius:10px;padding:12px 14px;font-size:12.5px;color:var(--muted);line-height:1.7}
-.login-err{background:#fdecec;color:var(--red-dark);padding:10px 13px;border-radius:8px;font-size:13.5px;margin-bottom:14px;display:none}
+.login-hint{margin-top:18px;background:var(--soft);border-radius:3px;padding:12px 14px;font-size:12.5px;color:var(--muted);line-height:1.7}
+.login-err{background:#fdecec;color:var(--red-dark);padding:10px 13px;border-radius:3px;font-size:13.5px;margin-bottom:14px;display:none}
 
-.admin-shell{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
-.sidebar{background:var(--black);color:#fff;padding:24px 0;position:sticky;top:0;height:100vh}
-.sidebar .brand{padding:0 22px 22px;border-bottom:1px solid #2a2a2a;margin-bottom:14px}
-.sidebar nav a{display:flex;align-items:center;gap:11px;padding:12px 22px;color:#cfcfcf;font-size:14.5px;font-weight:600;cursor:pointer}
-.sidebar nav a:hover{background:#1f1f1f;color:#fff}
-.sidebar nav a.active{background:var(--red);color:#fff}
-.sidebar .who{position:absolute;bottom:0;left:0;right:0;padding:18px 22px;border-top:1px solid #2a2a2a;font-size:13px}
-.sidebar .who .nm{font-weight:700;color:#fff}.sidebar .who .rl{color:#9a9a9a;font-size:12px}
-.sidebar .who a{color:var(--red);font-size:13px;margin-top:6px;display:inline-block;cursor:pointer}
+/* —— Shell / sidebar —— */
+.admin-shell{display:grid;grid-template-columns:248px 1fr;min-height:100vh}
+.sidebar{background:var(--black);color:#fff;padding:22px 0 0;position:sticky;top:0;height:100vh;display:flex;flex-direction:column}
+.sidebar .brand{padding:0 22px 20px;border-bottom:1px solid var(--line-dk,#26282D);margin-bottom:10px}
+.sidebar .brand .dv{width:40px;height:40px;font-family:var(--display);font-size:19px}
+.sidebar .brand .bt{font-family:var(--display);font-size:22px;letter-spacing:.05em}
+.sidebar .brand .bt small{font-family:var(--sans);font-size:9px;letter-spacing:.32em;color:#8b8d94}
+.sidebar nav a,.side-config{display:flex;align-items:center;gap:13px;padding:11px 22px;color:#b9bbc1;font-size:14px;font-weight:600;cursor:pointer;position:relative;transition:color .15s var(--ease),background .15s var(--ease)}
+.sidebar nav a:hover,.side-config:hover{background:#1a1b1f;color:#fff}
+.sidebar nav a.active,.side-config.active{background:#1a1b1f;color:#fff}
+.sidebar nav a.active::before,.side-config.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--red)}
+.sidebar nav a.active svg,.side-config.active svg{color:var(--red)}
+.side-bottom{margin-top:auto}
+.side-config{border-top:1px solid #26282D}
+.sidebar .who{padding:16px 22px;border-top:1px solid #26282D;font-size:13px}
+.sidebar .who .nm{font-weight:700;color:#fff}.sidebar .who .rl{color:#8b8d94;font-size:12px}
+.sidebar .who a{color:#b9bbc1;font-size:12.5px;font-weight:700;margin-top:8px;display:inline-flex;align-items:center;gap:7px;cursor:pointer}
+.sidebar .who a:hover{color:var(--red)}
 
-.admin-main{padding:28px 32px}
-.admin-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;flex-wrap:wrap;gap:12px}
-.admin-top h1{font-size:24px}
-.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:26px}
-.kpi{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:20px}
-.kpi .v{font-size:30px;font-weight:900}.kpi .v.red{color:var(--red)}
-.kpi .l{font-size:13px;color:var(--muted);margin-top:2px}
+/* —— Conteúdo —— */
+.admin-main{padding:30px 34px;max-width:1280px}
+.admin-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.admin-main h1{font-family:var(--display);font-weight:400;font-size:36px;line-height:.95;letter-spacing:.02em;text-transform:uppercase}
+.count-pill{font-family:var(--sans)}
 
+/* KPIs — número gigante em Bebas, rótulo em caps fininho */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:14px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;position:relative;overflow:hidden}
+.kpi .v{font-family:var(--display);font-weight:400;font-size:38px;line-height:1;letter-spacing:.01em;color:var(--ink)}
+.kpi .v.red{color:var(--red)}
+.kpi .l{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:8px}
+
+/* Tabelas */
 .table-wrap{background:#fff;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
 table.adm{width:100%;border-collapse:collapse}
-table.adm th,table.adm td{padding:13px 16px;text-align:left;border-bottom:1px solid var(--line);font-size:14px}
-table.adm th{background:var(--soft);font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+table.adm th,table.adm td{padding:13px 16px;text-align:left;border-bottom:1px solid var(--line);font-size:14px;vertical-align:middle}
+table.adm th{background:var(--soft2);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+table.adm tbody tr{transition:background .12s var(--ease)}
+table.adm tbody tr:hover{background:var(--soft2)}
 table.adm tr:last-child td{border:0}
-table.adm .thumb{width:60px;height:44px;object-fit:cover;border-radius:6px}
-.badge{font-size:11px;font-weight:800;padding:4px 9px;border-radius:50px;text-transform:uppercase;letter-spacing:.04em}
-.badge.ok{background:#e6f6ec;color:#1a8f4a}
-.badge.sold{background:#eee;color:#555}
+table.adm .thumb{width:62px;height:46px;object-fit:cover;border-radius:3px;border:1px solid var(--line)}
+
+/* Badges — formato de etiqueta (reto), paleta contida */
+.badge{display:inline-block;font-size:10.5px;font-weight:800;padding:4px 9px;border-radius:2px;text-transform:uppercase;letter-spacing:.06em;line-height:1.3}
+.badge.ok{background:var(--ok-bg);color:var(--ok)}
+.badge.sold{background:var(--soft);color:var(--muted)}
+.badge.warn{background:var(--warn-bg);color:var(--warn)}
 .badge.role{background:#fdecec;color:var(--red)}
-.rowact{display:flex;gap:8px}
-.iconbtn{border:1px solid var(--line);background:#fff;border-radius:7px;padding:6px 10px;cursor:pointer;font-size:13px}
+
+.rowact{display:flex;gap:6px;justify-content:flex-end}
+.iconbtn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:#fff;border-radius:3px;padding:6px 9px;cursor:pointer;font-family:inherit;font-size:12.5px;font-weight:600;color:var(--ink);transition:.13s var(--ease)}
 .iconbtn:hover{border-color:var(--red);color:var(--red)}
 .iconbtn.del:hover{border-color:var(--red);background:var(--red);color:#fff}
+.iconbtn.sell{border-color:var(--ok);color:var(--ok)}
+.iconbtn.sell:hover{background:var(--ok);color:#fff}
 
-/* Modal */
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;place-items:center;z-index:100;padding:20px;overflow:auto}
+/* Modais */
+.modal-bg{position:fixed;inset:0;background:rgba(14,14,16,.55);display:none;place-items:center;z-index:100;padding:20px;overflow:auto}
 .modal-bg.open{display:grid}
-.modal{background:#fff;border-radius:16px;width:100%;max-width:620px;max-height:90vh;overflow:auto}
+.modal{background:#fff;border-radius:var(--radius);width:100%;max-width:620px;max-height:92vh;overflow:auto;box-shadow:var(--shadow-lg);animation:modal-in .2s var(--ease)}
+@keyframes modal-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 .modal header{padding:20px 24px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
-.modal header h3{font-size:19px}
-.modal .x{border:0;background:none;font-size:24px;cursor:pointer;color:var(--muted)}
+.modal header h3{font-family:var(--display);font-weight:400;font-size:24px;letter-spacing:.02em}
+.modal .x{border:0;background:none;font-size:26px;line-height:1;cursor:pointer;color:var(--muted);width:32px;height:32px;border-radius:3px}
+.modal .x:hover{background:var(--soft);color:var(--ink)}
 .modal .content{padding:24px}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .modal footer{padding:18px 24px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:10px}
-.photo-drop{border:2px dashed var(--line);border-radius:10px;padding:18px;text-align:center;color:var(--muted);font-size:14px;cursor:pointer}
+.photo-drop{border:1.5px dashed var(--line);border-radius:3px;padding:18px;text-align:center;color:var(--muted);font-size:14px;cursor:pointer;transition:.15s var(--ease)}
+.photo-drop:hover{border-color:var(--red);color:var(--red)}
 .photo-prev{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .photo-prev .pp{position:relative}
-.photo-prev img{width:72px;height:54px;object-fit:cover;border-radius:6px;border:1px solid var(--line)}
+.photo-prev img{width:72px;height:54px;object-fit:cover;border-radius:3px;border:1px solid var(--line)}
 .photo-prev .rm{position:absolute;top:-6px;right:-6px;background:var(--red);color:#fff;border:0;border-radius:50%;width:20px;height:20px;cursor:pointer;font-size:12px}
 .hide{display:none!important}
 
@@ -245,3 +291,213 @@ table.adm .thumb{width:60px;height:44px;object-fit:cover;border-radius:6px}
   .form-row{grid-template-columns:1fr}
   .site-footer .cols{grid-template-columns:1fr}
 }
+
+/* =========================================================
+   PAINEL — CENTRAL DE GESTÃO (componentes v2)
+   ========================================================= */
+.muted{color:var(--muted)}
+.count-pill{display:inline-block;background:var(--soft);color:var(--muted);font-family:var(--sans);font-size:13px;font-weight:700;padding:3px 11px;border-radius:50px;vertical-align:middle;margin-left:8px}
+b.pos{color:var(--ok)}b.neg{color:var(--red)}
+
+/* KPI com valor textual (R$): mantém Bebas, só encolhe um degrau */
+.kpi .v.txt{font-size:30px;letter-spacing:.02em}
+
+/* Alertas */
+.alerts{display:grid;gap:10px;margin:18px 0 26px}
+.alert{display:flex;gap:13px;align-items:center;background:#fff;border:1px solid var(--line);border-left-width:3px;border-radius:var(--radius);padding:15px 18px}
+.alert.red{border-left-color:var(--red)}.alert.red .ai{color:var(--red)}
+.alert.orange{border-left-color:var(--warn)}.alert.orange .ai{color:var(--warn)}
+.alert .ai{line-height:0}
+
+/* Duas colunas (comercial / estoque) */
+.dash-cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:22px}
+.panel h3{font-family:var(--display);font-weight:400;font-size:22px;letter-spacing:.02em;margin-bottom:16px}
+.panel .sub-h{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:20px 0 9px}
+.funil-mini{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.funil-mini .fc{background:var(--soft2);border:1px solid var(--line);border-radius:3px;padding:12px 6px;text-align:center}
+.funil-mini .fc .n{font-family:var(--display);font-weight:400;font-size:28px;line-height:1}
+.funil-mini .fc .l{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-top:3px}
+.conv{font-size:14px;color:var(--ink);background:var(--soft2);border:1px solid var(--line);border-radius:3px;padding:9px 13px}
+.conv b{color:var(--red)}
+table.adm.slim th,table.adm.slim td{padding:9px 10px;font-size:13px}
+table.adm.slim tbody tr:hover{background:transparent}
+
+/* Bloco interno do modal de veículo */
+.block-label{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--ink);margin:4px 0 14px}
+.block-label span{color:var(--muted);font-weight:600;text-transform:none;letter-spacing:0}
+.block-label.internal{color:var(--red)}
+.internal-block{margin-top:22px;padding-top:20px;border-top:2px dashed var(--line)}
+.margem-preview{background:var(--ok-bg);border:1px solid #c9e6d4;border-radius:3px;padding:11px 14px;font-size:14px;color:var(--ink);margin-top:6px}
+.margem-preview:empty{display:none}
+
+/* Modal de venda — card do carro */
+.venda-car{display:flex;gap:12px;align-items:center;background:var(--soft2);border:1px solid var(--line);border-radius:3px;padding:12px;margin-bottom:18px}
+.venda-car img{width:78px;height:58px;object-fit:cover;border-radius:3px}
+.venda-car b{font-size:15px}
+
+/* Kanban de leads — cabeçalhos em ink com ponto de cor (cor não é o único sinal) */
+.kanban{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;align-items:start}
+.kanban-col{background:var(--soft2);border:1px solid var(--line);border-radius:var(--radius);padding:8px}
+.kc-head{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:9px 11px;border-radius:3px;color:#fff;background:var(--ink);display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
+.kc-head::before{content:'';width:8px;height:8px;border-radius:50%;background:currentColor;flex:none}
+.kc-head span{background:rgba(255,255,255,.22);border-radius:2px;padding:1px 7px;font-size:11px;font-variant-numeric:tabular-nums}
+.kc-head.novo{color:#aeb3bb}.kc-head.atendimento{color:#7aa2ff}
+.kc-head.negociando{background:var(--red)}.kc-head.negociando::before{background:#fff}
+.kc-head.fechado{color:#6bd897}.kc-head.perdido{color:#8b8d94}
+.kc-body{display:flex;flex-direction:column;gap:8px;min-height:30px}
+.kc-empty{text-align:center;color:#b8bcc4;font-size:13px;padding:8px}
+.lead-card{background:#fff;border:1px solid var(--line);border-radius:3px;padding:11px 12px;box-shadow:var(--shadow);transition:box-shadow .15s var(--ease),transform .15s var(--ease)}
+.lead-card:hover{box-shadow:var(--shadow-lg);transform:translateY(-2px)}
+.lc-top{display:flex;justify-content:space-between;align-items:center;font-size:14px;margin-bottom:5px}
+.lc-due{background:#fdecec;color:var(--red);font-size:10px;font-weight:800;padding:2px 7px;border-radius:2px;text-transform:uppercase;letter-spacing:.03em}
+.lc-int{font-size:12.5px;color:var(--ink);margin-bottom:3px}
+.lc-tel{font-size:12.5px;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
+.lc-meta{font-size:11.5px;color:var(--muted);margin-top:3px}
+.lc-obs{font-size:12px;color:#444;background:var(--soft2);border-radius:3px;padding:6px 8px;margin-top:7px}
+.lc-move{width:100%;margin-top:9px;padding:6px 8px;border:1px solid var(--line);border-radius:3px;font-family:inherit;font-size:12.5px}
+.lc-act{display:flex;gap:6px;align-items:center;margin-top:8px}
+.lc-act .iconbtn{padding:5px 8px;font-size:12px}
+.lc-wa{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;font-size:12px;font-weight:700;color:var(--wa-dark);border:1px solid var(--wa);border-radius:3px;padding:5px 8px}
+.lc-wa:hover{background:var(--wa);color:#fff}
+
+/* Permissões — linhas + toggle */
+.perm-row{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:16px 22px;border-bottom:1px solid var(--line)}
+.perm-row:last-child{border:0}
+.perm-row b{font-size:15px}
+.toggle{position:relative;display:inline-block;width:46px;height:26px;flex-shrink:0;cursor:pointer}
+.toggle input{opacity:0;width:0;height:0;position:absolute}
+.toggle .track{position:absolute;inset:0;background:#cbd0d8;border-radius:50px;transition:.18s}
+.toggle .track::before{content:'';position:absolute;left:3px;top:3px;width:20px;height:20px;background:#fff;border-radius:50%;transition:.18s}
+.toggle input:checked + .track{background:var(--red)}
+.toggle input:checked + .track::before{transform:translateX(20px)}
+
+/* Abas (dentro de Configurações) */
+.tabs{display:flex;gap:4px;border-bottom:2px solid var(--line);margin-bottom:24px}
+.tab{background:none;border:0;border-bottom:2px solid transparent;margin-bottom:-2px;padding:11px 18px;font-family:inherit;font-size:14.5px;font-weight:700;color:var(--muted);cursor:pointer}
+.tab:hover{color:var(--ink)}
+.tab.active{color:var(--red);border-bottom-color:var(--red)}
+.tablink{margin-left:auto;display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:700;color:var(--muted);padding:11px 4px;cursor:pointer}
+.tablink:hover{color:var(--red)}
+.tablink svg{width:15px;height:15px}
+.tablink svg:last-child{width:13px;height:13px;opacity:.7}
+
+/* Confirmação de salvo / selects de relatório */
+.save-ok{color:var(--ok);font-weight:700;opacity:0;transition:opacity .2s;display:inline-block;margin-top:10px}
+.rel-select{padding:9px 12px;border:1px solid var(--line);border-radius:3px;font-family:inherit;font-size:14px;background:#fff;color:var(--ink)}
+
+/* Ícones em contextos pequenos (cards, alertas, links) */
+.alert .ai svg{width:20px;height:20px}
+.lc-int,.lc-due,.lc-tel{display:flex;align-items:center;gap:6px}
+.lc-int svg,.lc-wa svg{width:14px;height:14px}
+.lc-due{display:inline-flex}.lc-due svg{width:12px;height:12px}
+.sidebar .who a svg{width:15px;height:15px}
+.iconbtn svg{stroke-width:2}
+
+/* Toast — feedback de transbordo entre seções */
+#toast-wrap{position:fixed;right:20px;bottom:20px;z-index:200;display:flex;flex-direction:column;gap:10px;max-width:calc(100vw - 40px)}
+.toast{display:flex;gap:11px;align-items:center;background:var(--ink);color:#fff;border-radius:var(--radius);padding:13px 16px;box-shadow:var(--shadow-lg);width:380px;max-width:100%;font-size:13.5px;line-height:1.4;transform:translateX(120%);opacity:0;transition:transform .25s var(--ease),opacity .25s var(--ease)}
+.toast.in{transform:none;opacity:1}
+.toast b{color:#fff}
+.toast .ti{color:#6bd897;line-height:0;flex:none}
+.toast .ti svg{width:20px;height:20px}
+
+/* Selo de interessados (no Estoque) */
+.int-pill{display:inline-flex;align-items:center;gap:4px;background:var(--soft);border:1px solid var(--line);color:var(--muted);border-radius:50px;font-family:var(--sans);font-size:11px;font-weight:800;padding:2px 9px 2px 7px;cursor:pointer;vertical-align:middle;transition:.13s var(--ease)}
+.int-pill:hover{border-color:var(--red);color:var(--red)}
+.int-pill svg{width:13px;height:13px}
+
+/* Chip de filtro (Leads filtrado por veículo) */
+.filter-chip{display:inline-flex;align-items:center;gap:10px;background:#fdecec;color:var(--red-dark);border:1px solid #f3c4c6;border-radius:50px;padding:7px 8px 7px 16px;font-size:13px;margin-bottom:16px}
+.filter-chip b{color:var(--red-dark)}
+.filter-chip button{border:0;background:rgba(176,12,18,.12);color:inherit;width:22px;height:22px;border-radius:50%;cursor:pointer;font-size:15px;line-height:1;display:grid;place-items:center}
+.filter-chip button:hover{background:var(--red);color:#fff}
+
+/* Botão "Fechar venda" no card do lead */
+.lc-sell{width:100%;margin-top:8px;display:inline-flex;align-items:center;justify-content:center;gap:7px;background:var(--ok);color:#fff;border:0;border-radius:3px;padding:8px;font-family:inherit;font-size:12.5px;font-weight:700;cursor:pointer;transition:.13s var(--ease)}
+.lc-sell:hover{background:#15803d}
+.lc-sell svg{width:15px;height:15px}
+
+/* Ações do topo (toggle + botão) */
+.top-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+
+/* Segmented control (Kanban / Lista) */
+.segmented{display:inline-flex;border:1px solid var(--line);border-radius:4px;overflow:hidden;background:#fff}
+.seg{display:inline-flex;align-items:center;gap:7px;border:0;background:#fff;padding:9px 14px;font-family:inherit;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;transition:.13s var(--ease)}
+.seg + .seg{border-left:1px solid var(--line)}
+.seg:hover{color:var(--ink)}
+.seg.active{background:var(--ink);color:#fff}
+.seg svg{width:16px;height:16px}
+
+/* Toolbar de busca/filtro (lista de clientes) */
+.toolbar{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.search-box{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:4px;padding:0 12px;background:#fff;flex:1;min-width:220px;max-width:440px}
+.search-box svg{width:16px;height:16px;color:var(--muted);flex:none}
+.search-box input{border:0;outline:none;padding:11px 0;font-family:inherit;font-size:14px;width:100%;background:transparent;color:var(--ink)}
+.toolbar select{padding:10px 12px;border:1px solid var(--line);border-radius:4px;font-family:inherit;font-size:14px;background:#fff;color:var(--ink)}
+
+/* Badges de etapa (CRM) */
+.badge.et-novo{background:#eef0f3;color:#5E646D}
+.badge.et-atendimento{background:#e7efff;color:#2563eb}
+.badge.et-negociando{background:#fdecec;color:var(--red)}
+.badge.et-fechado{background:var(--ok-bg);color:var(--ok)}
+.badge.et-perdido{background:#eef0f3;color:#9aa0a8}
+
+/* Drag & drop do kanban */
+.lead-card{position:relative}
+.lead-card[draggable="true"]{cursor:grab}
+.lead-card.dragging{opacity:.45;cursor:grabbing}
+.lc-grip{position:absolute;top:8px;right:8px;color:#c3c7ce;line-height:0}
+.lc-grip svg{width:16px;height:16px}
+.lc-top{padding-right:24px}
+.kanban-col.drag-over{outline:2px dashed var(--red);outline-offset:-3px}
+.kanban-col.drag-over .kc-body{min-height:64px}
+
+/* Combobox pesquisável (venda → veículo): busca, mas só aceita item da lista */
+.combo{position:relative}
+.combo-list{position:absolute;left:0;right:0;top:calc(100% + 4px);background:#fff;border:1px solid var(--line);border-radius:4px;box-shadow:var(--shadow-lg);max-height:240px;overflow:auto;z-index:30;display:none}
+.combo-list.open{display:block}
+.combo-opt{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 13px;font-size:14px;cursor:pointer;border-bottom:1px solid var(--soft)}
+.combo-opt:last-child{border-bottom:0}
+.combo-opt:hover,.combo-opt.active{background:var(--soft)}
+.combo-pr{color:var(--muted);font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;flex:none}
+.combo-empty{padding:13px;color:var(--muted);font-size:13px}
+.combo-new{display:flex;align-items:center;gap:8px;padding:11px 13px;font-size:13.5px;font-weight:700;color:var(--red);cursor:pointer;border-top:1px solid var(--line);background:var(--soft2)}
+.combo-new:hover{background:#fdecec}
+.combo-new svg{width:15px;height:15px;flex:none}
+.combo-new b{font-weight:800}
+
+/* Linha de venda cancelada (esmaecida) */
+tr.row-off td{opacity:.5}
+tr.row-off td:last-child{opacity:1}
+
+/* Ações rápidas no topo do popup de cliente */
+.modal-quick{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.modal-quick:empty{display:none}
+.cl-fechar-btn{background:var(--ok);color:#fff}
+.cl-fechar-btn:hover{background:#15803d}
+.cl-del-btn{color:var(--red);border-color:#f3c4c6}
+.cl-del-btn:hover{background:var(--red);color:#fff;border-color:var(--red)}
+
+/* Contador de caracteres + dica de campo */
+.char-count{float:right;font-size:11px;font-weight:600;color:var(--muted)}
+.char-count.over{color:var(--red)}
+.hint{display:block;font-size:11.5px;color:var(--muted);margin-top:5px}
+
+@media(max-width:1100px){
+  .dash-cols{grid-template-columns:1fr}
+  .kanban{grid-template-columns:repeat(2,1fr);overflow-x:visible}
+}
+@media(max-width:620px){
+  .admin-main{padding:22px 18px}
+  .admin-main h1{font-size:30px}
+  .kanban{grid-template-columns:1fr}
+  .funil-mini{grid-template-columns:repeat(2,1fr)}
+  .rowact{flex-wrap:wrap}
+}
+
+/* App-like: trava zoom (via viewport) e bloqueia seleção de texto acidental.
+   Inputs/textareas seguem selecionáveis pra não atrapalhar formulários. */
+html{touch-action:manipulation}
+body{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;-webkit-touch-callout:none}
+input,textarea,[contenteditable]{-webkit-user-select:text;-moz-user-select:text;-ms-user-select:text;user-select:text}

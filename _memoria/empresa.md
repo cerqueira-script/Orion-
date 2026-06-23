@@ -16,6 +16,7 @@
 - Gestão e desenvolvimento de redes sociais
 - Fortalecimento da identidade digital da marca
 - Campanhas de tráfego pago
+- Sistemas de gestão sob medida (ex.: **Sistema de Revenda** — site + painel para revendas de veículos; 1ª instância: Dicar Veículos)
 
 ## Contexto adicional
 

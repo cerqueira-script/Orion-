@@ -1,8 +1,11 @@
 # Sistema de Revenda — Produto Orion
 
-> **Especificação v1.** Sistema de gestão + site para revendas de veículos.
+> **Especificação v2.** Sistema de gestão + site para revendas de veículos.
 > Produto **reutilizável** da Orion: um molde, uma instância por cliente.
 > Primeira instância: **Dicar Veículos** (`clientes/dicar-veiculos/`).
+>
+> **v2 (jun/2026):** sem módulo financeiro de lucro/margem — foco em estoque,
+> clientes (CRM) e vendas. "Leads" virou "Clientes". Entrou módulo de Vendas.
 
 ---
 
@@ -10,116 +13,131 @@
 
 Um sistema que faz duas coisas:
 1. **Gerencia** o estoque e o site (o cliente atualiza tudo sozinho).
-2. **Ajuda a vender** (CRM de leads, controle financeiro, dashboard de gestão).
+2. **Ajuda a vender** (CRM de clientes, registro de vendas, dashboard de gestão).
 
-Não é só um "CMS de site" — é a **central de controle da revenda**.
+Não é só um "CMS de site" — é a **central de controle da revenda**. Não faz controle
+financeiro de lucro/margem (varia muito entre lojas e agrega complexidade sem foco);
+cuida de **estoque, clientes, vendas e operação comercial**.
 
 ---
 
 ## Arquitetura (modelo reutilizável)
 
 - **Frontend (site público)** + **Painel (sistema)** — HTML/CSS/JS, sem build pesado.
-- **Backend:** Supabase (Postgres + Auth + Storage) — **uma instância por cliente** (dados isolados).
+- **Camada de dados única:** `assets/js/store.js`. Hoje roda em **localStorage (demo)**;
+  pra produção, só esse arquivo troca por chamadas ao Supabase.
+- **Backend (produção):** Supabase (Postgres + Auth + Storage) — **uma instância por cliente** (dados isolados).
 - **Hospedagem:** Netlify/Vercel (grátis) + domínio próprio do cliente.
 - **Marca via config** (cores, logo, nome, contatos) — trocar = novo cliente.
+- **Identidade visual:** tema "Editorial Showroom" (Bebas Neue + Manrope, acento único, cantos retos, ícones SVG). Site e painel compartilham a mesma linguagem.
+- **App-like:** zoom travado + seleção de texto desabilitada (inputs liberados).
 - **Molde** em `produtos/sistema-revenda/`; cada cliente = cópia + Supabase próprio.
 
 ### Como instanciar para um cliente novo
-1. Copiar `produtos/sistema-revenda/` → `clientes/<cliente>/site/`
-2. Criar projeto Supabase + rodar o schema do banco
-3. Preencher a config (marca, cores, logo, WhatsApp, endereço)
-4. Deploy no Netlify + apontar o domínio
+1. Copiar a base → `clientes/<cliente>/site/`
+2. Criar projeto Supabase + rodar `db/schema.sql`
+3. Trocar `store.js` por chamadas reais (Auth + DB + Storage)
+4. Preencher a config (marca, cores, logo, WhatsApp, endereço)
+5. Deploy no Netlify + apontar o domínio
 
 ---
 
 ## Acessos
 
-- **Dono (admin):** acesso total, define permissões, vê financeiro.
+- **Dono (admin):** acesso total, define permissões.
 - **Vendedor (funcionário):** acesso conforme as permissões que o dono liberar.
 
 ---
 
-## Módulos (v1)
+## Módulos
 
 ### 1. Estoque
-**Dados públicos** (vão pro site): marca, modelo, versão, ano, km, **preço anunciado**, câmbio, combustível, cor, portas, tipo, fotos (galeria), descrição, destaque, status.
+**Dados públicos** (vão pro site): marca, modelo, versão/título, ano, km, **preço anunciado**, câmbio, combustível, cor, portas, tipo, fotos (galeria), descrição, destaque, situação.
 
-**Status:** disponível · reservado · vendido.
+**Situação:** disponível · **negociando** · vendido.
 
 **Dados internos** (nunca aparecem no site):
 - **Origem:** próprio da loja **ou** consignado
-- Se consignado: **nome + telefone do consignante** + **valor de repasse**
-- **Custo** (quanto a loja pagou, se próprio)
-- **Valor mínimo de venda** (piso de negociação)
-- **Margem** (calculada: preço − custo/repasse)
-- **Data de entrada** (alimenta "tempo em estoque" / encalhados)
-- **Status do documento:** OK · pendente (alimenta alerta)
+- Se consignado: **nome + telefone do consignante** (visível conforme permissão)
+- **Placa**
+- **Status do documento:** OK · pendente (alimenta indicador)
+- **Data de entrada** (alimenta "tempo em estoque" / parados)
+- **Observações internas** (anotações que ficam só no painel)
+
+**Busca e filtros:** por marca, modelo/versão, tipo, situação, origem + ordenação (preço, km, ano). **Destaques fixados no topo** quando não há filtro ativo.
+
+**Limites (segurança):** até **10 fotos/veículo**, **5 MB/foto**, formatos JPG/PNG/WEBP; limites de caracteres com contador (título 100, descrição 2.000, marca/modelo 50, obs 500).
+
+**Destaque:** no máximo **3 veículos** em destaque. Ao vender/remover um destacado, **entra automaticamente o que está há mais tempo em estoque** — sem tirar a troca manual.
 
 ### 2. Permissões configuráveis (dono no controle)
-Tela onde o dono liga/desliga o que cada vendedor pode ver/fazer:
+Tela (em Configurações) onde o dono liga/desliga o que cada vendedor pode ver/fazer:
 
 | Permissão | Padrão p/ vendedor |
 |---|---|
-| Ver **valor mínimo** de venda | ✅ ligado |
-| Ver **custo / margem (lucro)** | ❌ desligado |
-| Ver **dados do consignante** | ❌ desligado |
 | **Editar preço** anunciado | ❌ desligado |
+| Ver **dados do consignante** | ❌ desligado |
 | **Registrar venda** | ✅ ligado |
-| **Gerenciar leads** | ✅ ligado |
+| **Gerenciar clientes** (CRM) | ✅ ligado |
 
-### 3. Leads / mini-CRM (registro manual)
-O vendedor cadastra os contatos que chegam (WhatsApp, telefone, loja).
-- **Campos:** nome, telefone, carro de interesse, origem, vendedor responsável, observações, próximo contato (follow-up).
+### 3. Clientes / mini-CRM (registro manual)
+O vendedor cadastra os contatos que chegam (WhatsApp, telefone, loja, Instagram…).
+- **Campos:** nome, telefone, **cidade**, veículo de interesse (pesquisável no estoque **ou** texto livre pra algo fora do estoque), origem, vendedor responsável, observações, próximo contato (follow-up).
 - **Funil:** Novo → Em atendimento → Negociando → **Fechado** / **Perdido**.
+- **Duas visões:** **Kanban** (arrastar e soltar entre etapas) e **Lista** (tabela). Busca (nome/telefone/cidade) + filtro por **vendedor** e por **etapa** em ambas.
+- **Card do kanban** mostra só o essencial; clicar abre o **popup** com tudo + editar + ações rápidas (WhatsApp, Fechar venda).
+- **Cadastro rápido** por modal sem sair da tela.
 
-### 4. Venda (ao marcar "Vendido")
-Mini-formulário: **valor final**, **comprador** (puxa de um lead), **vendedor**, data.
-→ Calcula a **margem real** e alimenta o dashboard/relatório.
+### 4. Venda
+**Toda venda vincula veículo + cliente.** Aberta por qualquer caminho: botão "Vender" no estoque, "Fechar venda" no cliente, "Nova venda" na aba Vendas, ou ao marcar um veículo como "Vendido" na edição (abre o popup de venda).
+- **Veículo:** seletor **pesquisável e fechado** (só estoque, não aceita texto livre).
+- **Cliente:** **pesquisável**; se não existir, **cadastra na hora** (botão no próprio campo).
+- **Campos:** veículo, cliente (+tel/cidade), vendedor, valor final, data, status.
+- Ao confirmar: gera **nº sequencial** (#0001…), marca o veículo como **vendido**, fecha o cliente vinculado e completa os destaques.
 
-### 5. Dashboard inicial (painel de controle)
-**Visão geral:**
-- Veículos em estoque (qtd) + **valor total do estoque** (patrimônio)
-- **Próprios × consignados** (quantidade e valor de cada)
-- **Vendidos no mês** + **faturamento do mês**
-- **Ticket médio**
-- **Lucro/margem do mês** *(restrito a quem tem permissão)*
+### 5. Vendas (módulo próprio)
+Tabela com **nº, cliente (+cidade), veículo, valor, data, vendedor, status**. Filtro por mês + resumo (vendas, faturamento, ticket médio). **Cancelar venda** → status "Cancelada" e o **veículo volta ao estoque** (recalcula o mês).
 
-**Comercial:**
-- **Ranking de vendedores** (quantidade + valor vendido)
-- **Propostas em andamento** + **taxa de conversão**
-
-**Estoque:**
-- **Encalhados** (mais tempo parados) · **tempo médio** em estoque · por marca
-
-**Alertas:**
-- 🔴 Veículos **abaixo da margem mínima**
-- 🟠 Veículos com **documentação pendente**
-
-### 6. Relatórios (área restrita)
-- **Vendas por período** (filtra mês), com quebra **por vendedor** e **lucro por veículo**.
+### 6. Dashboard
+**Indicadores (cards):** veículos em estoque · **valor em estoque** · próprios × consignados (qtd e valor) · vendas no mês · faturamento do mês · ticket médio · docs pendentes.
+**Comercial:** funil de clientes · clientes ativos · taxa de conversão · ranking de vendedores do mês.
+**Estoque:** **5 veículos mais tempo parados** (foto, nome, dias em estoque).
 
 ### 7. Configurações da loja
-WhatsApp oficial, endereço, horário, redes, marca (nome/cores/logo).
+WhatsApp oficial, endereço, horário, redes, marca. Abas: **Dados da loja · Permissões do vendedor · Funcionários · Ver site**.
+
+---
+
+## Site público
+- Vitrine com **destaques** (máx. 3) + catálogo com busca/filtros.
+- **Vendidos somem do site**; **negociando aparece** (selo "Negociando", ainda à venda).
+- Destaques primeiro quando não há filtro ativo.
 
 ---
 
 ## Fase 2 (depois — dependem de integração)
 
-- Visualizações/interesse por carro (analytics no site)
+- Visualizações/interesse por veículo (analytics no site)
 - Alerta de anúncios vencendo (integração com marketplaces)
 - Exportar estoque pra marketplaces (OLX, Webmotors, iCarros)
-- Auto-post no Instagram quando entra carro novo
-- Relatórios avançados (comparativos mensais, histórico longo, giro de estoque)
+- Auto-post no Instagram quando entra veículo novo
+- Relatórios avançados (comparativos mensais, giro de estoque)
 - Simulador de financiamento no site
 
 ---
 
 ## Status
 
-- [x] Especificação fechada
-- [ ] Modelagem do banco (Supabase)
-- [ ] Painel: estoque + financeiro + origem/consignado
-- [ ] Painel: permissões configuráveis
-- [ ] Painel: leads / CRM
-- [ ] Painel: venda + dashboard + relatório
-- [ ] Instanciar para a Dicar (conectar Supabase + deploy)
+- [x] Especificação v2
+- [x] Painel: estoque (financeiro removido) + origem/consignado + placa + obs internas
+- [x] Painel: busca/filtros + destaques fixados + destaque automático (máx. 3)
+- [x] Painel: permissões configuráveis (em Configurações)
+- [x] Painel: clientes / CRM (Kanban com drag&drop + Lista, busca/filtros/vendedor, popup)
+- [x] Painel: venda (vincula veículo+cliente sempre) + módulo Vendas (nº/status/cancelar) + dashboard comercial
+- [x] Site: vendidos fora, negociando com selo, destaques primeiro, zoom/seleção travados
+- [ ] **Modelagem do banco atualizada** — `db/schema.sql` reescrito pra v2 (sem financeiro, leads→clientes+cidade, vendas com numero/status, placa, obs_internas)
+- [ ] Instanciar para a Dicar (criar projeto Supabase + trocar store.js por chamadas reais + deploy)
+
+> **Build v2 entregue na demo** (localStorage) em `clientes/dicar-veiculos/site/admin/`.
+> Toda leitura/escrita passa por `assets/js/store.js` — a única camada a trocar pra ligar o Supabase.
+> Acessos demo: admin/admin123 (dono) · vendedor/venda123.

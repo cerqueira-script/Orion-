@@ -75,11 +75,12 @@
   /* ---------- card ---------- */
   function card(v) {
     var sold = v.status === 'vendido';
+    var neg = v.status === 'negociando';
     var msg = 'Olá! Tenho interesse no ' + v.marca + ' ' + v.modelo + ' ' + v.versao + ' (' + v.ano + '). Está disponível?';
     return '' +
     '<article class="card reveal">' +
       '<a class="ph" href="veiculo.html?id=' + v.id + '" aria-label="' + v.marca + ' ' + v.modelo + '">' +
-        '<span class="tag' + (sold ? ' sold' : '') + '">' + (sold ? 'Vendido' : 'Disponível') + '</span>' +
+        '<span class="tag' + (sold ? ' sold' : (neg ? ' neg' : '')) + '">' + (sold ? 'Vendido' : (neg ? 'Negociando' : 'Disponível')) + '</span>' +
         '<span class="yrtag">' + v.ano + '</span>' +
         '<img src="' + Store.foto(v) + '" alt="' + v.marca + ' ' + v.modelo + ' ' + v.ano + '" loading="lazy">' +
       '</a>' +
@@ -100,8 +101,8 @@
   /* ---------- HOME ---------- */
   function initHome() {
     var heroBox = $('#hero-dyn'); if (!heroBox) return;
-    var feats = Store.getVehicles({ destaque: true, status: 'disponivel' });
-    if (!feats.length) feats = Store.getVehicles({ status: 'disponivel' });
+    var feats = Store.getPublicVehicles({ destaque: true });
+    if (!feats.length) feats = Store.getPublicVehicles({});
     var idx = 0;
 
     function renderHero(i) {
@@ -114,7 +115,7 @@
           '<p class="hero-sub">' + v.marca + ' ' + v.versao + ' — procedência e garantia Dicar.</p>' +
           '<div class="hero-price"><span class="v">' + Store.fmtPreco(v.preco) + '</span><span class="lbl">à vista ou financiado</span></div>' +
           '<div class="hero-actions">' +
-            '<a class="btn btn-red" href="veiculo.html?id=' + v.id + '">Ver este carro</a>' +
+            '<a class="btn btn-red" href="veiculo.html?id=' + v.id + '">Ver este veículo</a>' +
             '<a class="btn btn-line on-dark" target="_blank" rel="noopener" href="' + Store.waLink(msg) + '">Falar no WhatsApp</a>' +
           '</div>' +
           '<div class="hero-specs">' +
@@ -143,7 +144,7 @@
     // vitrine
     var vit = $('#vitrine');
     if (vit) {
-      var list = Store.getVehicles({ status: 'disponivel' }).slice(0, 6);
+      var list = Store.getPublicVehicles({}).slice(0, 6);
       vit.innerHTML = list.map(card).join('');
     }
     // categorias
@@ -157,7 +158,7 @@
         { nm: 'Automáticos', ic: ICON.auto, q: 'cambio=Automático' },
         { nm: 'Ver todos', ic: ICON.todos, q: '' }
       ];
-      var all = Store.getVehicles({ status: 'disponivel' });
+      var all = Store.getPublicVehicles({});
       catsBox.innerHTML = defs.map(function (d) {
         var n = d.q.indexOf('tipo=') === 0 ? all.filter(function (v) { return v.tipo === d.q.split('=')[1]; }).length
               : d.q.indexOf('cambio=') === 0 ? all.filter(function (v) { return v.cambio === d.q.split('=')[1]; }).length
@@ -193,13 +194,16 @@
     function lbl() { fPrecoV.textContent = 'Até ' + Store.fmtPreco(fPreco.value); }
     function apply() {
       lbl();
-      var list = Store.getVehicles({
+      var list = Store.getPublicVehicles({
         busca: fBusca.value || null, marca: fMarca.value || null, tipo: fTipo.value || null,
         cambio: fCambio.value || null, precoMax: Number(fPreco.value) >= max ? null : Number(fPreco.value),
         ordenar: fOrd.value || null
       });
+      // sem filtro/ordenação ativos: destaques primeiro
+      var semFiltro = !fBusca.value && !fMarca.value && !fTipo.value && !fCambio.value && !fOrd.value && Number(fPreco.value) >= max;
+      if (semFiltro) list = list.slice().sort(function (a, b) { return (b.destaque ? 1 : 0) - (a.destaque ? 1 : 0); });
       grid.innerHTML = list.length ? list.map(card).join('')
-        : '<div class="empty">Nenhum carro com esses filtros. <a href="#" id="clr">Limpar filtros</a></div>';
+        : '<div class="empty">Nenhum veículo com esses filtros. <a href="#" id="clr">Limpar filtros</a></div>';
       countEl.innerHTML = '<b>' + list.length + '</b> veículo' + (list.length === 1 ? '' : 's');
       $$('.reveal', grid).forEach(function (e) { e.classList.add('in'); });
       var c = $('#clr'); if (c) c.onclick = function (e) { e.preventDefault(); reset(); };
@@ -224,11 +228,12 @@
     var box = $('#detalhe'); if (!box) return;
     var id = new URLSearchParams(location.search).get('id');
     var v = id && Store.getVehicle(id);
-    if (!v) { box.innerHTML = '<div class="empty">Veículo não encontrado. <a href="estoque.html">Ver os carros</a></div>'; return; }
+    if (!v || v.status === 'vendido') { box.innerHTML = '<div class="empty">Este veículo não está mais disponível. <a href="estoque.html">Ver os veículos à venda</a></div>'; return; }
     document.title = v.marca + ' ' + v.modelo + ' ' + v.versao + ' · Dicar Veículos';
     injectVehicleLD(v);
     var fotos = (v.fotos && v.fotos.length) ? v.fotos : [Store.placeholder(v)];
     var sold = v.status === 'vendido';
+    var neg = v.status === 'negociando';
     var msg = 'Olá! Tenho interesse no ' + v.marca + ' ' + v.modelo + ' ' + v.versao + ' (' + v.ano + '), ' + Store.fmtPreco(v.preco) + '. Está disponível?';
     var msgF = 'Olá! Quero simular o financiamento do ' + v.marca + ' ' + v.modelo + ' (' + v.ano + ').';
 
@@ -238,7 +243,7 @@
         (fotos.length > 1 ? '<div class="thumbs">' + fotos.map(function (f, i) { return '<img class="' + (i ? '' : 'active') + '" data-i="' + i + '" src="' + f + '" alt="">'; }).join('') + '</div>' : '') +
       '</div>' +
       '<div class="dt">' +
-        '<div class="mk">' + v.marca + (sold ? ' · Vendido' : '') + '</div>' +
+        '<div class="mk">' + v.marca + (neg ? ' · Em negociação' : '') + '</div>' +
         '<h1>' + v.modelo + '</h1><div class="vs">' + v.versao + ' · ' + v.ano + '</div>' +
         '<div class="price">' + Store.fmtPreco(v.preco) + '</div>' +
         '<div class="pnote">Procedência e garantia · aceitamos seu usado na troca</div>' +
@@ -248,7 +253,7 @@
           (sold ? '<span class="btn btn-ink">Este veículo já foi vendido</span>'
                 : '<a class="btn btn-wa" target="_blank" rel="noopener" href="' + Store.waLink(msg) + '">Falar no WhatsApp</a>' +
                   '<a class="btn btn-red" target="_blank" rel="noopener" href="' + Store.waLink(msgF) + '">Simular financiamento</a>') +
-          '<a class="btn btn-line on-light" href="estoque.html">Ver os carros</a>' +
+          '<a class="btn btn-line on-light" href="estoque.html">Ver os veículos</a>' +
         '</div>' +
       '</div>';
     var m = $('#mimg');

@@ -2,18 +2,18 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
 <title>Painel — Dicar Veículos</title>
-<link rel="stylesheet" href="../assets/css/styles.css">
+<link rel="stylesheet" href="../assets/css/styles.css?v=17">
 </head>
 <body class="admin-body">
 
 <!-- ===== LOGIN ===== -->
 <div class="login-screen" id="login-screen">
   <form class="login-card" id="login-form">
-    <div class="brand"><span class="dv">DV</span><span class="bt">DICAR VEÍCULOS<small>PAINEL DE ESTOQUE</small></span></div>
+    <div class="brand"><span class="dv">DV</span><span class="bt">DICAR VEÍCULOS<small>CENTRAL DE GESTÃO</small></span></div>
     <h2>Entrar no painel</h2>
-    <p class="sub">Gerencie o estoque do site da Dicar</p>
+    <p class="sub">A central de controle da sua revenda</p>
     <div class="login-err" id="login-err">Usuário ou senha incorretos.</div>
     <div class="field">
       <label for="li-user">Usuário</label>
@@ -27,7 +27,7 @@
     <div class="login-hint">
       <b>Acessos de demonstração:</b><br>
       Dono (admin): <b>admin</b> / <b>admin123</b><br>
-      Funcionário: <b>vendedor</b> / <b>venda123</b>
+      Vendedor: <b>vendedor</b> / <b>venda123</b>
     </div>
   </form>
 </div>
@@ -35,18 +35,20 @@
 <!-- ===== PAINEL ===== -->
 <div class="admin-shell hide" id="shell">
   <aside class="sidebar">
-    <div class="brand"><span class="dv">DV</span><span class="bt" style="color:#fff">DICAR<small>PAINEL</small></span></div>
+    <div class="brand"><span class="dv">DV</span><span class="bt" style="color:#fff">DICAR<small>GESTÃO</small></span></div>
     <nav id="menu">
-      <a data-view="dash" class="active">📊 Painel</a>
-      <a data-view="veiculos">🚗 Veículos</a>
-      <a data-view="funcionarios" data-admin>👥 Funcionários</a>
-      <a data-view="config" data-admin>⚙️ Configurações</a>
-      <a href="../index.html" target="_blank">🌐 Ver site</a>
+      <a data-view="dash" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg> Painel</a>
+      <a data-view="veiculos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13l1.8-5A2 2 0 0 1 6.7 6.6h10.6A2 2 0 0 1 19.2 8L21 13"/><path d="M3 13v4h2"/><path d="M21 13v4h-2"/><path d="M7 17h10"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg> Estoque</a>
+      <a data-view="clientes" data-perm="gerenciarClientes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Clientes</a>
+      <a data-view="vendas" data-perm="registrarVenda"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="1.5"/><circle cx="12" cy="12" r="2.3"/><path d="M5 12h.01M19 12h.01"/></svg> Vendas</a>
     </nav>
-    <div class="who">
-      <div class="nm" id="who-nm">—</div>
-      <div class="rl" id="who-rl">—</div>
-      <a id="logout">Sair →</a>
+    <div class="side-bottom">
+      <a data-view="config" data-admin class="side-config"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h9"/><path d="M19 6h1"/><path d="M4 12h3"/><path d="M13 12h7"/><path d="M4 18h9"/><path d="M19 18h1"/><circle cx="16" cy="6" r="2.2"/><circle cx="10" cy="12" r="2.2"/><circle cx="16" cy="18" r="2.2"/></svg> Configurações</a>
+      <div class="who">
+        <div class="nm" id="who-nm">—</div>
+        <div class="rl" id="who-rl">—</div>
+        <a id="logout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg> Sair</a>
+      </div>
     </div>
   </aside>
 
@@ -60,17 +62,24 @@
     <form id="form-veiculo">
       <div class="content">
         <input type="hidden" id="ve-id">
+
+        <p class="block-label">Dados do anúncio <span>(aparecem no site)</span></p>
         <div class="form-row">
-          <div class="field"><label>Marca</label><input id="ve-marca" required></div>
-          <div class="field"><label>Modelo</label><input id="ve-modelo" required></div>
+          <div class="field"><label>Marca</label><input id="ve-marca" maxlength="50" required></div>
+          <div class="field"><label>Modelo</label><input id="ve-modelo" maxlength="50" required></div>
         </div>
-        <div class="field"><label>Versão</label><input id="ve-versao" placeholder="Ex.: 1.0 Track"></div>
+        <div class="form-row">
+          <div class="field"><label>Versão / título</label><input id="ve-versao" maxlength="100" placeholder="Ex.: 1.0 Track"></div>
+          <div class="field"><label>Tipo</label>
+            <select id="ve-tipo"><option>Hatch</option><option>Sedan</option><option>SUV</option><option>Picape</option><option>Utilitário</option><option>Moto</option><option>Caminhão</option></select>
+          </div>
+        </div>
         <div class="form-row">
           <div class="field"><label>Ano</label><input id="ve-ano" type="number" min="1990" max="2030" required></div>
           <div class="field"><label>Quilometragem</label><input id="ve-km" type="number" min="0" required></div>
         </div>
         <div class="form-row">
-          <div class="field"><label>Preço (R$)</label><input id="ve-preco" type="number" min="0" required></div>
+          <div class="field"><label>Preço anunciado (R$)</label><input id="ve-preco" type="number" min="0" required></div>
           <div class="field"><label>Câmbio</label>
             <select id="ve-cambio"><option>Manual</option><option>Automático</option></select>
           </div>
@@ -79,30 +88,159 @@
           <div class="field"><label>Combustível</label>
             <select id="ve-combustivel"><option>Flex</option><option>Gasolina</option><option>Diesel</option><option>Elétrico</option><option>Híbrido</option></select>
           </div>
-          <div class="field"><label>Cor</label><input id="ve-cor"></div>
+          <div class="field"><label>Cor</label><input id="ve-cor" maxlength="30"></div>
         </div>
         <div class="form-row">
           <div class="field"><label>Portas</label>
             <select id="ve-portas"><option>2</option><option>4</option></select>
           </div>
           <div class="field"><label>Situação</label>
-            <select id="ve-status"><option value="disponivel">Disponível</option><option value="vendido">Vendido</option></select>
+            <select id="ve-status"><option value="disponivel">Disponível</option><option value="negociando">Negociando</option><option value="vendido">Vendido</option></select>
           </div>
         </div>
-        <div class="field"><label>Descrição</label><textarea id="ve-descricao" placeholder="Detalhes, opcionais, estado de conservação..."></textarea></div>
         <div class="field">
-          <label><input type="checkbox" id="ve-destaque" style="width:auto;margin-right:6px"> Mostrar em destaque na página inicial</label>
+          <label>Descrição <span class="char-count" id="cc-descricao"></span></label>
+          <textarea id="ve-descricao" maxlength="2000" placeholder="Detalhes, opcionais, estado de conservação..."></textarea>
         </div>
         <div class="field">
-          <label>Fotos do veículo</label>
-          <label class="photo-drop" for="ve-fotos">📷 Clique para adicionar fotos</label>
-          <input type="file" id="ve-fotos" accept="image/*" multiple class="hide">
+          <label><input type="checkbox" id="ve-destaque" style="width:auto;margin-right:6px"> Mostrar em destaque na página inicial</label>
+          <span class="hint">No máximo 3 veículos em destaque ao mesmo tempo.</span>
+        </div>
+        <div class="field">
+          <label>Fotos do veículo <span class="char-count" id="cc-fotos"></span></label>
+          <label class="photo-drop" for="ve-fotos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-4px;margin-right:6px"><path d="M14.5 4h-5L8 6H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-4l-1.5-2Z"/><circle cx="12" cy="13" r="3.5"/></svg>Clique para adicionar fotos</label>
+          <input type="file" id="ve-fotos" accept="image/jpeg,image/png,image/webp" multiple class="hide">
+          <span class="hint">Até 10 fotos · 5 MB cada · JPG, PNG ou WEBP</span>
           <div class="photo-prev" id="ve-fotos-prev"></div>
+        </div>
+
+        <!-- ===== Bloco interno (origem / controle) ===== -->
+        <div class="internal-block" id="ve-internal">
+          <p class="block-label internal">🔒 Controle interno <span>(nunca aparece no site)</span></p>
+          <div class="field"><label>Origem do veículo</label>
+            <select id="ve-origem">
+              <option value="proprio">Próprio da loja</option>
+              <option value="consignado">Consignado (de terceiro)</option>
+            </select>
+          </div>
+          <div id="ve-consignado-fields" class="hide" data-perm-field="verConsignante">
+            <div class="form-row">
+              <div class="field"><label>Nome do consignante</label><input id="ve-consignante-nome" maxlength="80"></div>
+              <div class="field"><label>Telefone do consignante</label><input id="ve-consignante-tel" maxlength="20"></div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="field"><label>Placa</label><input id="ve-placa" maxlength="8" placeholder="ABC1D23" style="text-transform:uppercase"></div>
+            <div class="field"><label>Documentação</label>
+              <select id="ve-doc"><option value="ok">OK</option><option value="pendente">Pendente</option></select>
+            </div>
+          </div>
+          <div class="field"><label>Data de entrada no estoque</label><input id="ve-data-entrada" type="date"></div>
+          <div class="field">
+            <label>Observações internas <span class="char-count" id="cc-ve-obs"></span></label>
+            <textarea id="ve-obs-internas" maxlength="500" placeholder="Anotações que ficam só no painel (não vão pro site): defeitos, combinados, histórico..."></textarea>
+          </div>
         </div>
       </div>
       <footer>
         <button type="button" class="btn btn-outline" data-close>Cancelar</button>
         <button type="submit" class="btn btn-red">Salvar veículo</button>
+      </footer>
+    </form>
+  </div>
+</div>
+
+<!-- ===== MODAL VENDA ===== -->
+<div class="modal-bg" id="modal-venda">
+  <div class="modal" style="max-width:520px">
+    <header><h3>Registrar venda</h3><button class="x" data-close-s>×</button></header>
+    <form id="form-venda">
+      <div class="content">
+        <input type="hidden" id="sv-cliente-id">
+        <input type="hidden" id="sv-veiculo-id">
+
+        <div class="field"><label>Cliente</label>
+          <div class="combo">
+            <input id="sv-cliente-busca" type="text" autocomplete="off" role="combobox" aria-expanded="false" placeholder="Buscar cliente pelo nome…">
+            <div class="combo-list" id="sv-cliente-list" role="listbox"></div>
+          </div>
+          <span class="hint" id="sv-cliente-hint">Pesquise um cliente. Se não achar, dá pra cadastrar na hora.</span>
+        </div>
+        <div class="form-row">
+          <div class="field"><label>Telefone</label><input id="sv-tel" maxlength="20"></div>
+          <div class="field"><label>Cidade</label><input id="sv-cidade" maxlength="60"></div>
+        </div>
+
+        <div class="field"><label>Veículo vendido</label>
+          <div class="combo">
+            <input type="text" id="sv-veiculo-busca" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" placeholder="Digite pra buscar no estoque…">
+            <div class="combo-list" id="sv-veiculo-list" role="listbox"></div>
+          </div>
+          <span class="hint">Pesquise e selecione — só veículos do estoque entram aqui.</span>
+        </div>
+        <div class="venda-car" id="sv-car"></div>
+
+        <div class="form-row">
+          <div class="field"><label>Vendedor</label><select id="sv-vendedor"></select></div>
+          <div class="field"><label>Data da venda</label><input id="sv-data" type="date"></div>
+        </div>
+        <div class="form-row">
+          <div class="field"><label>Valor final da venda (R$)</label><input id="sv-valor" type="number" min="0" required></div>
+          <div class="field"><label>Status</label>
+            <select id="sv-status"><option>Concluída</option><option>Cancelada</option></select>
+          </div>
+        </div>
+      </div>
+      <footer>
+        <button type="button" class="btn btn-outline" data-close-s>Cancelar</button>
+        <button type="submit" class="btn btn-red">Confirmar venda</button>
+      </footer>
+    </form>
+  </div>
+</div>
+
+<!-- ===== MODAL CLIENTE ===== -->
+<div class="modal-bg" id="modal-cliente">
+  <div class="modal" style="max-width:500px">
+    <header><h3 id="mc-title">Novo cliente</h3><button class="x" data-close-c>×</button></header>
+    <form id="form-cliente">
+      <div class="content">
+        <input type="hidden" id="cl-id">
+        <div class="modal-quick" id="cl-actions"></div>
+        <div class="form-row">
+          <div class="field"><label>Nome</label><input id="cl-nome" maxlength="80" required></div>
+          <div class="field"><label>Telefone</label><input id="cl-tel" maxlength="20"></div>
+        </div>
+        <div class="form-row">
+          <div class="field"><label>Cidade</label><input id="cl-cidade" maxlength="60"></div>
+          <div class="field"><label>Origem do contato</label>
+            <select id="cl-origem"><option>WhatsApp</option><option>Telefone</option><option>Loja</option><option>Instagram</option><option>Site</option><option>Indicação</option></select>
+          </div>
+        </div>
+        <div class="field"><label>Veículo de interesse</label>
+          <input id="cl-veiculo-busca" list="dl-veiculos" autocomplete="off" placeholder="Buscar no estoque ou digitar livremente">
+          <span class="hint">Selecione um do estoque ou escreva qualquer veículo (ex.: "Corolla Cross XRX").</span>
+        </div>
+        <div class="form-row">
+          <div class="field"><label>Vendedor responsável</label><select id="cl-vendedor"></select></div>
+          <div class="field"><label>Etapa</label>
+            <select id="cl-etapa">
+              <option value="novo">Novo</option><option value="atendimento">Em atendimento</option>
+              <option value="negociando">Negociando</option><option value="fechado">Fechado</option>
+              <option value="perdido">Perdido</option>
+            </select>
+          </div>
+        </div>
+        <div class="field"><label>Próximo contato</label><input id="cl-proximo" type="date"></div>
+        <div class="field">
+          <label>Observações <span class="char-count" id="cc-obs"></span></label>
+          <textarea id="cl-obs" maxlength="500"></textarea>
+        </div>
+      </div>
+      <footer>
+        <button type="button" class="btn btn-outline cl-del-btn" id="cl-del" style="margin-right:auto">Remover</button>
+        <button type="button" class="btn btn-outline" data-close-c>Cancelar</button>
+        <button type="submit" class="btn btn-red">Salvar cliente</button>
       </footer>
     </form>
   </div>
@@ -115,12 +253,12 @@
     <form id="form-user">
       <div class="content">
         <input type="hidden" id="us-orig">
-        <div class="field"><label>Nome</label><input id="us-nome" required></div>
-        <div class="field"><label>Usuário (login)</label><input id="us-user" required></div>
-        <div class="field"><label>Senha</label><input id="us-senha" required></div>
+        <div class="field"><label>Nome</label><input id="us-nome" maxlength="60" required></div>
+        <div class="field"><label>Usuário (login)</label><input id="us-user" maxlength="30" required></div>
+        <div class="field"><label>Senha</label><input id="us-senha" maxlength="40" required></div>
         <div class="field"><label>Nível de acesso</label>
           <select id="us-role">
-            <option value="funcionario">Funcionário (só veículos)</option>
+            <option value="funcionario">Vendedor (acesso conforme permissões)</option>
             <option value="admin">Administrador (acesso total)</option>
           </select>
         </div>
@@ -133,7 +271,10 @@
   </div>
 </div>
 
-<script src="../assets/js/store.js"></script>
-<script src="admin.js"></script>
+<!-- listas pesquisáveis (preenchidas via JS) -->
+<datalist id="dl-veiculos"></datalist>
+
+<script src="../assets/js/store.js?v=17"></script>
+<script src="admin.js?v=17"></script>
 </body>
 </html>

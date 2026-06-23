@@ -145,6 +145,7 @@ h1,h2,h3{font-family:var(--display);font-weight:400;line-height:.9;text-transfor
 .card:hover .ph img{transform:scale(1.05)}
 .card .tag{position:absolute;top:0;left:0;background:var(--red);color:#fff;font-family:var(--display);font-size:14px;letter-spacing:.08em;padding:6px 14px}
 .card .tag.sold{background:var(--ink)}
+.card .tag.neg{background:#B5810C}
 .card .yrtag{position:absolute;top:12px;right:12px;background:rgba(14,14,16,.78);color:#fff;font-weight:700;font-size:12px;padding:4px 10px;border-radius:2px;backdrop-filter:blur(4px)}
 .card .bd{padding:20px;display:flex;flex-direction:column;flex:1}
 .card .mk{font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--red)}
@@ -310,3 +311,9 @@ h1,h2,h3{font-family:var(--display);font-weight:400;line-height:.9;text-transfor
   .reveal{opacity:1;transform:none;transition:none}
 }
 :focus-visible{outline:2px solid var(--red);outline-offset:2px}
+
+/* App-like: trava zoom (via viewport) e bloqueia seleção de texto acidental.
+   Inputs/textareas seguem selecionáveis pra não atrapalhar formulários. */
+html{touch-action:manipulation}
+body{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;-webkit-touch-callout:none}
+input,textarea,[contenteditable]{-webkit-user-select:text;-moz-user-select:text;-ms-user-select:text;user-select:text}
