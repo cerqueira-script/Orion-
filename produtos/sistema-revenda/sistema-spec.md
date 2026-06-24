@@ -45,8 +45,8 @@ cuida de **estoque, clientes, vendas e operação comercial**.
 
 ## Acessos
 
-- **Dono (admin):** acesso total, define permissões.
-- **Vendedor (funcionário):** acesso conforme as permissões que o dono liberar.
+- **Dono (admin):** acesso total, define permissões, **vê o negócio inteiro**.
+- **Vendedor (funcionário):** acesso conforme as permissões; **vê só o que é dele** — dashboard pessoal (minhas vendas/clientes/retornos/funil), Clientes e Vendas já filtrados nele, e o "vendedor responsável" travado no próprio nome. O dono vê tudo e pode filtrar por vendedor.
 
 ---
 
@@ -103,6 +103,7 @@ Tabela com **nº, cliente (+cidade), veículo, valor, data, vendedor, status**. 
 **Indicadores (cards):** veículos em estoque · **valor em estoque** · próprios × consignados (qtd e valor) · vendas no mês · faturamento do mês · ticket médio · docs pendentes.
 **Comercial:** funil de clientes · clientes ativos · taxa de conversão · ranking de vendedores do mês.
 **Estoque:** **5 veículos mais tempo parados** (foto, nome, dias em estoque).
+**Gráficos (SVG):** faturamento por mês (linha) + estoque por tipo (barra). No painel do **vendedor**, viram "minhas vendas por mês" + estoque por tipo.
 
 ### 7. Configurações da loja
 WhatsApp oficial, endereço, horário, redes, marca. Abas: **Dados da loja · Permissões do vendedor · Funcionários · Ver site**.

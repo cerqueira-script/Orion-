@@ -486,36 +486,51 @@
     /* =================================================================
        DASHBOARD — só os indicadores operacionais (sem financeiro de lucro)
        ================================================================= */
-    dashboard: function () {
+    // dashboard(vendedorUser): se passado, foca no que é do vendedor (vendas, funil,
+    // retornos); estoque continua global (o pátio é compartilhado). Sem vendedor = visão do dono.
+    dashboard: function (vendedorUser) {
       var db = load();
-      var vs = db.veiculos;
-      var disp = vs.filter(function (v) { return v.status !== 'vendido'; });
+      var self = this;
+      var disp = db.veiculos.filter(function (v) { return v.status !== 'vendido'; });
       var proprios = disp.filter(function (v) { return v.origem === 'proprio'; });
       var consig = disp.filter(function (v) { return v.origem === 'consignado'; });
       var mesAtual = new Date().toISOString().slice(0, 7);
-      var vendasMes = db.vendas.filter(function (s) { return (s.dataVenda || '').slice(0, 7) === mesAtual && s.status !== 'Cancelada'; });
+      var hoje = new Date().toISOString().slice(0, 10);
+
+      var vendasMes = db.vendas.filter(function (s) {
+        return (s.dataVenda || '').slice(0, 7) === mesAtual && s.status !== 'Cancelada'
+          && (!vendedorUser || s.vendedor === vendedorUser);
+      });
       var fatMes = vendasMes.reduce(function (a, s) { return a + (s.valorFinal || 0); }, 0);
 
-      var self = this;
       var parados = disp.map(function (v) { return { v: v, dias: self.diasParado(v) }; })
         .sort(function (a, b) { return b.dias - a.dias; });
-
       var docPendente = disp.filter(function (v) { return v.docStatus === 'pendente'; });
 
-      // ----- comercial (funil de clientes + conversão + ranking de vendedores) -----
+      // clientes do vendedor (ou todos, pro dono)
+      var clientes = vendedorUser ? db.clientes.filter(function (c) { return c.vendedor === vendedorUser; }) : db.clientes;
       var funil = { novo: 0, atendimento: 0, negociando: 0, fechado: 0, perdido: 0 };
-      db.clientes.forEach(function (c) { if (funil[c.etapa] != null) funil[c.etapa]++; });
+      clientes.forEach(function (c) { if (funil[c.etapa] != null) funil[c.etapa]++; });
       var ativos = funil.novo + funil.atendimento + funil.negociando;
       var encerrados = funil.fechado + funil.perdido;
       var conversao = encerrados ? Math.round((funil.fechado / encerrados) * 100) : 0;
-      var rank = {};
-      vendasMes.forEach(function (s) {
-        var k = s.vendedor || '—';
-        if (!rank[k]) rank[k] = { vendedor: k, nome: self.userName(k), qtd: 0, valor: 0 };
-        rank[k].qtd++; rank[k].valor += s.valorFinal || 0;
-      });
-      var ranking = Object.keys(rank).map(function (k) { return rank[k]; })
-        .sort(function (a, b) { return b.valor - a.valor; });
+
+      // retornos pendentes (follow-up vencido ou hoje), em ordem
+      var retornos = clientes.filter(function (c) {
+        return c.proximoContato && c.proximoContato <= hoje && c.etapa !== 'fechado' && c.etapa !== 'perdido';
+      }).sort(function (a, b) { return (a.proximoContato || '').localeCompare(b.proximoContato || ''); });
+
+      // ranking só na visão do dono
+      var ranking = [];
+      if (!vendedorUser) {
+        var rank = {};
+        vendasMes.forEach(function (s) {
+          var k = s.vendedor || '—';
+          if (!rank[k]) rank[k] = { vendedor: k, nome: self.userName(k), qtd: 0, valor: 0 };
+          rank[k].qtd++; rank[k].valor += s.valorFinal || 0;
+        });
+        ranking = Object.keys(rank).map(function (k) { return rank[k]; }).sort(function (a, b) { return b.valor - a.valor; });
+      }
 
       return {
         totalEstoque: disp.length,
@@ -530,14 +545,16 @@
         funil: funil,
         clientesAtivos: ativos,
         conversao: conversao,
-        ranking: ranking
+        ranking: ranking,
+        retornos: retornos
       };
     },
 
-    /* RELATÓRIO de vendas por período (mês YYYY-MM ou tudo) */
-    relatorio: function (mes) {
+    /* RELATÓRIO de vendas por período (mês YYYY-MM ou tudo) + filtro opcional por vendedor */
+    relatorio: function (mes, vendedorUser) {
       var vendas = load().vendas.slice();
       if (mes) vendas = vendas.filter(function (s) { return (s.dataVenda || '').slice(0, 7) === mes; });
+      if (vendedorUser) vendas = vendas.filter(function (s) { return s.vendedor === vendedorUser; });
       vendas.sort(function (a, b) { return (b.numero || 0) - (a.numero || 0); });
       return vendas;
     },
@@ -545,6 +562,32 @@
       var set = {};
       load().vendas.forEach(function (s) { if (s.dataVenda) set[s.dataVenda.slice(0, 7)] = 1; });
       return Object.keys(set).sort().reverse();
+    },
+
+    /* ---- Dados pra gráficos ---- */
+    // faturamento dos últimos n meses (inclui o atual), opcional por vendedor
+    faturamentoPorMes: function (n, vendedorUser) {
+      n = n || 6;
+      var vendas = load().vendas.filter(function (s) {
+        return s.status !== 'Cancelada' && (!vendedorUser || s.vendedor === vendedorUser);
+      });
+      var now = new Date(), res = [];
+      for (var i = n - 1; i >= 0; i--) {
+        var d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        var ym = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+        var total = vendas.filter(function (s) { return (s.dataVenda || '').slice(0, 7) === ym; })
+          .reduce(function (a, s) { return a + (s.valorFinal || 0); }, 0);
+        res.push({ ym: ym, label: Store.fmtMes(ym), valor: total });
+      }
+      return res;
+    },
+    // veículos em estoque (não vendidos) agrupados por tipo
+    estoquePorTipo: function () {
+      var disp = load().veiculos.filter(function (v) { return v.status !== 'vendido'; });
+      var map = {};
+      disp.forEach(function (v) { var t = v.tipo || 'Outro'; map[t] = (map[t] || 0) + 1; });
+      return Object.keys(map).map(function (k) { return { tipo: k, qtd: map[k] }; })
+        .sort(function (a, b) { return b.qtd - a.qtd; });
     }
   };
 

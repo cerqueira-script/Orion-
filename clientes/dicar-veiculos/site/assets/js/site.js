@@ -22,6 +22,9 @@
     fuel: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3s5 5.5 5 9a5 5 0 0 1-10 0c0-3.5 5-9 5-9z"/></svg>'
   };
 
+  /* Logo do WhatsApp (dimensionado em em -> escala com a fonte de cada botão) */
+  var WA_ICO = '<svg class="wa-ico" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="M16 3C9 3 3.5 8.5 3.5 15.5c0 2.3.6 4.5 1.8 6.4L3 29l7.3-2.2c1.8 1 3.9 1.5 5.7 1.5 7 0 12.5-5.5 12.5-12.5S23 3 16 3zm0 22.8c-1.7 0-3.4-.5-4.9-1.3l-.4-.2-4.3 1.3 1.3-4.2-.3-.4a10 10 0 0 1-1.6-5.4C5.5 9.6 10.2 5 16 5s10.5 4.6 10.5 10.3S21.8 25.8 16 25.8zm5.8-7.7c-.3-.2-1.9-.9-2.2-1-.3-.1-.5-.2-.7.2-.2.3-.8 1-1 1.2-.2.2-.4.2-.7.1-1.7-.9-2.9-1.6-4-3.5-.3-.5.3-.5.8-1.5.1-.2 0-.4 0-.5 0-.2-.7-1.7-1-2.3-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.5s1.1 2.9 1.2 3.1c.2.2 2.1 3.3 5.2 4.6 2 .8 2.7.9 3.7.8.6-.1 1.9-.8 2.2-1.5.3-.7.3-1.4.2-1.5-.1-.2-.3-.2-.6-.4z"/></svg>';
+
   /* ---------- dados estruturados do veículo (schema.org) p/ Google ---------- */
   function injectVehicleLD(v) {
     var ld = {
@@ -51,7 +54,11 @@
   /* ---------- config (contatos) ---------- */
   function bindConfig() {
     var cfg = Store.getConfig();
-    $$('[data-wa]').forEach(function (a) { a.href = Store.waLink(a.getAttribute('data-wa') || ''); });
+    $$('[data-wa]').forEach(function (a) {
+      a.href = Store.waLink(a.getAttribute('data-wa') || '');
+      // botões que levam pro WhatsApp ganham o logo (pula a já-iconada e o botão flutuante)
+      if (a.classList.contains('btn') && !a.querySelector('svg')) a.insertAdjacentHTML('afterbegin', WA_ICO);
+    });
     $$('[data-cfg]').forEach(function (el) { var k = el.getAttribute('data-cfg'); if (cfg[k]) el.textContent = cfg[k]; });
     $$('[data-cfg-href]').forEach(function (el) { var k = el.getAttribute('data-cfg-href'); if (cfg[k]) el.href = cfg[k]; });
     $$('[data-ig]').forEach(function (a) { a.href = 'https://instagram.com/' + cfg.instagram; });
@@ -103,7 +110,7 @@
         '</div>' +
         '<div class="price">' + Store.fmtPreco(v.preco) + '<small>à vista ou financiado</small></div>' +
         (sold ? '<span class="btn btn-ink btn-sm">Vendido</span>'
-              : '<a class="btn btn-wa btn-sm" target="_blank" rel="noopener" href="' + Store.waLink(msg) + '">WhatsApp</a>') +
+              : '<a class="btn btn-wa btn-sm" target="_blank" rel="noopener" href="' + Store.waLink(msg) + '">' + WA_ICO + 'WhatsApp</a>') +
       '</div>' +
     '</article>';
   }
@@ -126,7 +133,7 @@
           '<div class="hero-price"><span class="v">' + Store.fmtPreco(v.preco) + '</span><span class="lbl">à vista ou financiado</span></div>' +
           '<div class="hero-actions">' +
             '<a class="btn btn-red" href="veiculo.html?id=' + v.id + '">Ver este veículo</a>' +
-            '<a class="btn btn-line on-dark" target="_blank" rel="noopener" href="' + Store.waLink(msg) + '">Falar no WhatsApp</a>' +
+            '<a class="btn btn-line on-dark" target="_blank" rel="noopener" href="' + Store.waLink(msg) + '">' + WA_ICO + 'Falar no WhatsApp</a>' +
           '</div>' +
           '<div class="hero-specs">' +
             specHero(v.ano, 'Ano') + specHero(Store.fmtKm(v.km).replace(' km', ''), 'KM') +
@@ -213,7 +220,7 @@
             '<h3>Não achou o que procura?</h3>' +
             '<p>Toda semana entra carro novo. Diz pra gente o que você quer — a gente acha pra você.</p>' +
             '<div class="empty-acts">' +
-              '<a class="btn btn-wa" target="_blank" rel="noopener" href="' + Store.waLink('Olá! Não achei o carro que procuro no site da Dicar. Podem me ajudar?') + '">Falar no WhatsApp</a>' +
+              '<a class="btn btn-wa" target="_blank" rel="noopener" href="' + Store.waLink('Olá! Não achei o carro que procuro no site da Dicar. Podem me ajudar?') + '">' + WA_ICO + 'Falar no WhatsApp</a>' +
               '<a href="#" id="clr" class="empty-clr">Limpar filtros</a>' +
             '</div>' +
           '</div>' + sugsHTML();
@@ -352,20 +359,22 @@
     var multi = fotos.length > 1;
     box.innerHTML =
       '<div class="gal">' +
-        '<div class="slider" id="gslider">' +
-          fotos.map(function (f, i) {
-            return '<button type="button" class="slide" data-i="' + i + '" aria-label="Ampliar foto ' + (i + 1) + '">' +
-              '<img src="' + f + '" alt="' + v.modelo + ' — foto ' + (i + 1) + '"' + (i ? ' loading="lazy"' : '') + '>' +
-            '</button>';
-          }).join('') +
+        '<div class="gal-stage">' +
+          '<div class="slider" id="gslider">' +
+            fotos.map(function (f, i) {
+              return '<button type="button" class="slide" data-i="' + i + '" aria-label="Ampliar foto ' + (i + 1) + '">' +
+                '<img src="' + f + '" alt="' + v.modelo + ' — foto ' + (i + 1) + '"' + (i ? ' loading="lazy"' : '') + '>' +
+              '</button>';
+            }).join('') +
+          '</div>' +
+          (multi ? '<span class="gcount" id="gcount"><b>1</b> / ' + fotos.length + '</span>' +
+                   '<button type="button" class="gnav prev" id="gprev" aria-label="Foto anterior">‹</button>' +
+                   '<button type="button" class="gnav next" id="gnext" aria-label="Próxima foto">›</button>' : '') +
+          '<button type="button" class="gfull" id="gfull" aria-label="Ver em tela cheia"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button>' +
         '</div>' +
-        (multi ? '<span class="gcount" id="gcount"><b>1</b> / ' + fotos.length + '</span>' +
-                 '<button type="button" class="gnav prev" id="gprev" aria-label="Foto anterior">‹</button>' +
-                 '<button type="button" class="gnav next" id="gnext" aria-label="Próxima foto">›</button>' +
-                 '<div class="dots" id="gdots">' + fotos.map(function (_f, i) {
+        (multi ? '<div class="dots" id="gdots">' + fotos.map(function (_f, i) {
                    return '<button type="button" class="' + (i ? '' : 'on') + '" data-i="' + i + '" aria-label="Ver foto ' + (i + 1) + '"></button>';
                  }).join('') + '</div>' : '') +
-        '<button type="button" class="gfull" id="gfull" aria-label="Ver em tela cheia"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button>' +
       '</div>' +
       '<div class="dt">' +
         '<div class="mk">' + v.marca + (neg ? ' · Em negociação' : '') + '</div>' +
@@ -376,9 +385,9 @@
         (v.descricao ? '<div class="desc">' + v.descricao + '</div>' : '') +
         '<div class="acts">' +
           (sold ? '<span class="btn btn-ink">Este veículo já foi vendido</span>'
-                : '<a class="btn btn-wa" target="_blank" rel="noopener" href="' + Store.waLink(msg) + '">Falar no WhatsApp</a>' +
+                : '<a class="btn btn-wa" target="_blank" rel="noopener" href="' + Store.waLink(msg) + '">' + WA_ICO + 'Falar no WhatsApp</a>' +
                   '<a class="btn btn-red" target="_blank" rel="noopener" href="' + Store.waLink(msgF) + '">Simular financiamento</a>') +
-          '<a class="btn btn-line on-light" href="estoque.html">Ver os veículos</a>' +
+          '<a class="acts-back" href="estoque.html">← Ver todos os veículos</a>' +
         '</div>' +
       '</div>';
     initGallery(box, fotos, v.modelo);

@@ -113,6 +113,7 @@
 
   /* ===================== DASHBOARD ===================== */
   function renderDash() {
+    if (session.role === 'funcionario') return renderDashVendedor();
     var d = Store.dashboard();
     var html =
       '<div class="admin-top"><h1>Olá, ' + esc(session.nome.split(' ')[0]) + '</h1>' +
@@ -166,10 +167,121 @@
 
     html += '</div>';
 
+    // ----- Gráficos: faturamento por mês (linha) + estoque por tipo (barra) -----
+    var fatMeses = Store.faturamentoPorMes(6);
+    var porTipo = Store.estoquePorTipo();
+    html += '<div class="dash-cols">' +
+      '<div class="panel"><h3>Faturamento por mês</h3>' +
+        (fatMeses.some(function (m) { return m.valor > 0; })
+          ? chartLine(fatMeses.map(function (m) { return { label: m.label, value: m.valor }; }), { fmt: fmtK })
+          : '<p class="muted">Sem vendas registradas ainda.</p>') +
+      '</div>' +
+      '<div class="panel"><h3>Estoque por tipo</h3>' +
+        (porTipo.length
+          ? chartBar(porTipo.map(function (t) { return { label: t.tipo, value: t.qtd }; }))
+          : '<p class="muted">Estoque vazio.</p>') +
+      '</div>' +
+    '</div>';
+
     $('#main').innerHTML = html;
     $('#add-top').onclick = function () { openVeiculo(); };
   }
+  /* Dashboard do VENDEDOR — visão pessoal (o que é dele) */
+  function renderDashVendedor() {
+    var d = Store.dashboard(session.user);
+    var html =
+      '<div class="admin-top"><h1>Olá, ' + esc(session.nome.split(' ')[0]) + '</h1>' +
+        (can('registrarVenda') ? '<button class="btn btn-red" id="add-top">' + ic('plus') + ' Nova venda</button>' : '') +
+      '</div>';
+    html += '<div class="kpis">' +
+      kpi(d.vendidosMes, 'Minhas vendas no mês') +
+      kpi(P(d.faturamentoMes), 'Meu faturamento', true) +
+      kpi(d.clientesAtivos, 'Meus clientes ativos') +
+      kpi(d.totalEstoque, 'Veículos disponíveis') +
+    '</div>';
+    html += '<div class="dash-cols">';
+    // Meus retornos (follow-ups)
+    html += '<div class="panel"><h3>Meus retornos</h3>' +
+      '<p class="muted" style="margin:-8px 0 14px;font-size:13px">Clientes pra dar retorno hoje (ou atrasados). Clique pra abrir.</p>' +
+      (d.retornos.length
+        ? '<table class="adm slim"><tbody>' + d.retornos.map(function (c) {
+            var v = c.veiculoId ? Store.getVehicle(c.veiculoId) : null;
+            var alvo = v ? (v.marca + ' ' + v.modelo) : (c.interesse || '—');
+            return '<tr data-open="' + c.id + '" style="cursor:pointer"><td><b>' + esc(c.nome) + '</b><br><span class="muted" style="font-size:12px">' + esc(alvo) + '</span></td>' +
+              '<td style="text-align:right"><span class="badge warn">' + Store.fmtData(c.proximoContato) + '</span></td></tr>';
+          }).join('') + '</tbody></table>'
+        : '<p class="muted">Nenhum retorno pendente. Tudo em dia!</p>') +
+    '</div>';
+    // Meu funil
+    html += '<div class="panel"><h3>Meu funil</h3>' +
+      '<div class="funil-mini">' +
+        funilCell('Novos', d.funil.novo) + funilCell('Atendimento', d.funil.atendimento) +
+        funilCell('Negociando', d.funil.negociando) + funilCell('Fechados', d.funil.fechado) +
+      '</div>' +
+      '<div class="conv">Conversão: <b>' + d.conversao + '%</b> · Ticket médio: <b>' + P(d.ticketMedio) + '</b></div>' +
+    '</div>';
+    html += '</div>';
+    // ----- Gráficos: minhas vendas por mês (linha) + estoque por tipo (barra) -----
+    var fatMeses = Store.faturamentoPorMes(6, session.user);
+    var porTipo = Store.estoquePorTipo();
+    html += '<div class="dash-cols">' +
+      '<div class="panel"><h3>Minhas vendas por mês</h3>' +
+        (fatMeses.some(function (m) { return m.valor > 0; })
+          ? chartLine(fatMeses.map(function (m) { return { label: m.label, value: m.valor }; }), { fmt: fmtK })
+          : '<p class="muted">Você ainda não registrou vendas.</p>') +
+      '</div>' +
+      '<div class="panel"><h3>Estoque por tipo</h3>' +
+        (porTipo.length
+          ? chartBar(porTipo.map(function (t) { return { label: t.tipo, value: t.qtd }; }))
+          : '<p class="muted">Estoque vazio.</p>') +
+      '</div>' +
+    '</div>';
+    $('#main').innerHTML = html;
+    var add = $('#add-top'); if (add) add.onclick = function () { openVenda({ origem: 'dash' }); };
+    $$('#main [data-open]').forEach(function (r) { r.onclick = function () { openCliente(r.getAttribute('data-open')); }; });
+  }
   function funilCell(l, n) { return '<div class="fc"><div class="n">' + n + '</div><div class="l">' + l + '</div></div>'; }
+  function fmtK(v) { return v >= 1000 ? 'R$' + Math.round(v / 1000) + 'k' : 'R$' + (v || 0); }
+
+  /* gráficos em SVG puro (sem dependência) */
+  function chartLine(points, opts) {
+    opts = opts || {};
+    if (!points.length) return '<p class="muted">Sem dados.</p>';
+    var W = 520, H = 210, padL = 30, padR = 30, padT = 24, padB = 30;
+    var max = Math.max.apply(null, points.map(function (p) { return p.value; })) || 1;
+    var n = points.length, stepX = (W - padL - padR) / (n > 1 ? n - 1 : 1);
+    function X(i) { return padL + stepX * i; }
+    function Y(v) { return (H - padB) - (H - padT - padB) * (v / max); }
+    var inner = '<line x1="' + padL + '" y1="' + (H - padB) + '" x2="' + (W - padR) + '" y2="' + (H - padB) + '" stroke="#E2E4E8"/>';
+    var area = 'M' + X(0) + ' ' + (H - padB) + ' ' + points.map(function (p, i) { return 'L' + X(i) + ' ' + Y(p.value); }).join(' ') + ' L' + X(n - 1) + ' ' + (H - padB) + ' Z';
+    var line = points.map(function (p, i) { return (i ? 'L' : 'M') + X(i) + ' ' + Y(p.value); }).join(' ');
+    inner += '<path d="' + area + '" fill="rgba(225,20,27,.08)"/>';
+    inner += '<path d="' + line + '" fill="none" stroke="var(--red)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>';
+    points.forEach(function (p, i) {
+      var x = X(i), y = Y(p.value);
+      inner += '<circle cx="' + x + '" cy="' + y + '" r="3.5" fill="#fff" stroke="var(--red)" stroke-width="2"/>';
+      inner += '<text x="' + x + '" y="' + (H - padB + 16) + '" text-anchor="middle" class="ch-lab">' + esc(p.label) + '</text>';
+      if (p.value > 0) inner += '<text x="' + x + '" y="' + (y - 9) + '" text-anchor="middle" class="ch-val">' + (opts.fmt ? opts.fmt(p.value) : p.value) + '</text>';
+    });
+    return '<svg class="chart" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Gráfico de linha">' + inner + '</svg>';
+  }
+  function chartBar(items, opts) {
+    opts = opts || {};
+    if (!items.length) return '<p class="muted">Sem dados.</p>';
+    var W = 520, H = 210, padL = 10, padR = 10, padT = 24, padB = 30;
+    var max = Math.max.apply(null, items.map(function (i) { return i.value; })) || 1;
+    var n = items.length, slot = (W - padL - padR) / n, barW = Math.min(48, slot * 0.6);
+    var inner = '<line x1="' + padL + '" y1="' + (H - padB) + '" x2="' + (W - padR) + '" y2="' + (H - padB) + '" stroke="#E2E4E8"/>';
+    items.forEach(function (it, i) {
+      var cx = padL + slot * i + slot / 2;
+      var h = Math.round((H - padT - padB) * it.value / max);
+      var y = (H - padB) - h;
+      inner += '<rect x="' + (cx - barW / 2) + '" y="' + y + '" width="' + barW + '" height="' + h + '" rx="2" fill="var(--red)"/>';
+      inner += '<text x="' + cx + '" y="' + (y - 7) + '" text-anchor="middle" class="ch-val">' + (opts.fmt ? opts.fmt(it.value) : it.value) + '</text>';
+      inner += '<text x="' + cx + '" y="' + (H - padB + 16) + '" text-anchor="middle" class="ch-lab">' + esc(it.label) + '</text>';
+    });
+    return '<svg class="chart" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Gráfico de barras">' + inner + '</svg>';
+  }
   function kpi(v, l, red) {
     var txt = (typeof v === 'string' && /\D/.test(v)) ? ' txt' : '';
     return '<div class="kpi"><div class="v' + (red ? ' red' : '') + txt + '">' + v + '</div><div class="l">' + l + '</div></div>';
@@ -473,10 +585,11 @@
     $('#sv-cliente-hint').textContent = c ? 'Cliente selecionado.' : 'Pesquise um cliente. Se não achar, dá pra cadastrar na hora.';
     cliComboClose();
     // vendedor
-    var vendedorSel = c && c.vendedor ? c.vendedor : session.user;
+    var vendedorSel = session.role === 'funcionario' ? session.user : (c && c.vendedor ? c.vendedor : session.user);
     $('#sv-vendedor').innerHTML = Store.getUsers().map(function (u) {
       return '<option value="' + esc(u.user) + '"' + (u.user === vendedorSel ? ' selected' : '') + '>' + esc(u.nome) + '</option>';
     }).join('');
+    $('#sv-vendedor').disabled = (session.role === 'funcionario');  // vendedor registra em seu próprio nome
     $('#sv-data').value = new Date().toISOString().slice(0, 10);
     $('#sv-status').value = 'Concluída';
     $('#sv-valor').removeAttribute('data-auto');
@@ -652,15 +765,17 @@
     }
     return list;
   }
-  function clientesTemFiltro() { return !!(clientesBusca || clientesVendedorFiltro || clientesEtapaFiltro); }
   function renderClientes() {
+    var ehVend = session.role === 'funcionario';
+    if (ehVend) clientesVendedorFiltro = session.user;   // vendedor só vê os dele
+    var temLimpar = clientesBusca || clientesEtapaFiltro || (!ehVend && clientesVendedorFiltro);
     var carro = clientesFiltroVeiculo ? Store.getVehicle(clientesFiltroVeiculo) : null;
-    var total = Store.getClientes().length;
+    var total = clientesFiltrados().length;
     var chip = carro
       ? '<div class="filter-chip">Interessados em <b>' + esc(carro.marca + ' ' + carro.modelo) + '</b><button id="clear-filtro" aria-label="Limpar filtro">×</button></div>'
       : '';
     $('#main').innerHTML =
-      '<div class="admin-top"><h1>Clientes <span class="count-pill">' + total + '</span></h1>' +
+      '<div class="admin-top"><h1>' + (ehVend ? 'Meus clientes' : 'Clientes') + ' <span class="count-pill">' + total + '</span></h1>' +
         '<div class="top-actions">' +
           '<div class="segmented">' +
             '<button class="seg' + (clientesView === 'kanban' ? ' active' : '') + '" data-cv="kanban">' + ic('kanban') + ' Kanban</button>' +
@@ -671,13 +786,14 @@
       chip +
       '<div class="toolbar">' +
         '<div class="search-box">' + ic('search') + '<input id="cli-busca" placeholder="Buscar por nome, telefone ou cidade" value="' + esc(clientesBusca) + '"></div>' +
-        '<select id="cli-vendedor-f"><option value="">Todos os vendedores</option>' +
-          Store.getUsers().map(function (u) { return '<option value="' + esc(u.user) + '"' + (clientesVendedorFiltro === u.user ? ' selected' : '') + '>' + esc(u.nome) + '</option>'; }).join('') +
-        '</select>' +
+        (ehVend ? '' :
+          '<select id="cli-vendedor-f"><option value="">Todos os vendedores</option>' +
+            Store.getUsers().map(function (u) { return '<option value="' + esc(u.user) + '"' + (clientesVendedorFiltro === u.user ? ' selected' : '') + '>' + esc(u.nome) + '</option>'; }).join('') +
+          '</select>') +
         '<select id="cli-etapa-f"><option value="">Todas as etapas</option>' +
           ETAPAS.map(function (e) { return '<option value="' + e.k + '"' + (clientesEtapaFiltro === e.k ? ' selected' : '') + '>' + e.l + '</option>'; }).join('') +
         '</select>' +
-        (clientesTemFiltro() ? '<button class="btn btn-outline btn-sm" id="cli-clear">Limpar</button>' : '') +
+        (temLimpar ? '<button class="btn btn-outline btn-sm" id="cli-clear">Limpar</button>' : '') +
       '</div>' +
       '<div id="cli-body"></div>';
     $('#add-c').onclick = function () { openCliente(); };
@@ -685,9 +801,13 @@
     $$('#main [data-cv]').forEach(function (b) { b.onclick = function () { clientesView = b.getAttribute('data-cv'); renderClientes(); }; });
     var bs = $('#cli-busca');
     bs.oninput = function () { clientesBusca = bs.value; renderCliBody(); };
-    $('#cli-vendedor-f').onchange = function () { clientesVendedorFiltro = this.value; renderClientes(); };
+    var vf = $('#cli-vendedor-f'); if (vf) vf.onchange = function () { clientesVendedorFiltro = this.value; renderClientes(); };
     $('#cli-etapa-f').onchange = function () { clientesEtapaFiltro = this.value; renderClientes(); };
-    if (clientesTemFiltro()) $('#cli-clear').onclick = function () { clientesBusca = clientesVendedorFiltro = clientesEtapaFiltro = ''; renderClientes(); };
+    if (temLimpar) $('#cli-clear').onclick = function () {
+      clientesBusca = ''; clientesEtapaFiltro = '';
+      if (!ehVend) clientesVendedorFiltro = '';   // vendedor mantém o próprio filtro
+      renderClientes();
+    };
     renderCliBody();
   }
   function renderCliBody() {
@@ -806,6 +926,8 @@
     else if (presetVeiculo) { var pv = Store.getVehicle(presetVeiculo); vbusca = pv ? veiculoLabel(pv) : ''; }
     $('#cl-veiculo-busca').value = vbusca;
     fillVendedorSelect($('#cl-vendedor'), c ? c.vendedor : session.user);
+    // vendedor não reatribui cliente pra outro: trava no próprio nome
+    $('#cl-vendedor').disabled = (session.role === 'funcionario');
     $('#cl-etapa').value = c ? c.etapa : 'novo';
     $('#cl-proximo').value = c ? (c.proximoContato || '') : '';
     $('#cl-obs').value = c ? (c.obs || '') : '';
@@ -854,7 +976,7 @@
     var meses = Store.mesesComVenda();
     var sel = '';
     $('#main').innerHTML =
-      '<div class="admin-top"><h1>Vendas</h1>' +
+      '<div class="admin-top"><h1>' + (session.role === 'funcionario' ? 'Minhas vendas' : 'Vendas') + '</h1>' +
         '<div class="top-actions">' +
           '<select id="vn-mes" class="rel-select"><option value="">Todo o período</option>' +
             meses.map(function (m) { return '<option value="' + m + '"' + (m === sel ? ' selected' : '') + '>' + Store.fmtMes(m) + '</option>'; }).join('') +
@@ -867,8 +989,9 @@
     renderVendasBody('');
   }
   function renderVendasBody(mes) {
-    var vendas = Store.relatorio(mes).filter(function (s) { return s.status !== 'Cancelada'; });
-    var todas = Store.relatorio(mes);
+    var vend = session.role === 'funcionario' ? session.user : null;   // vendedor vê só as dele
+    var vendas = Store.relatorio(mes, vend).filter(function (s) { return s.status !== 'Cancelada'; });
+    var todas = Store.relatorio(mes, vend);
     var fat = vendas.reduce(function (a, s) { return a + s.valorFinal; }, 0);
     var ticket = vendas.length ? Math.round(fat / vendas.length) : 0;
     var html = '<div class="kpis">' +

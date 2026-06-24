@@ -174,7 +174,7 @@ h1,h2,h3{line-height:1.12;font-weight:800;letter-spacing:-.02em}
    ========================================================= */
 .admin-body{background:var(--soft2);min-height:100vh}
 /* ícones: Lucide-style, herdam a cor e o tamanho do contexto */
-.admin-body svg{width:18px;height:18px;flex:none;stroke-width:1.75}
+.admin-body svg:not(.chart){width:18px;height:18px;flex:none;stroke-width:1.75}
 .btn svg{width:18px;height:18px}.iconbtn svg{width:16px;height:16px}
 .sidebar svg{width:19px;height:19px}
 
@@ -484,6 +484,11 @@ tr.row-off td:last-child{opacity:1}
 .cl-fechar-btn:hover{background:#15803d}
 .cl-del-btn{color:var(--red);border-color:#f3c4c6}
 .cl-del-btn:hover{background:var(--red);color:#fff;border-color:var(--red)}
+
+/* Gráficos (SVG) */
+.chart{width:100%;aspect-ratio:520/210;height:auto;display:block;margin-top:4px}
+.chart .ch-val{font-family:var(--sans);font-size:11px;font-weight:700;fill:var(--ink)}
+.chart .ch-lab{font-family:var(--sans);font-size:10px;font-weight:600;fill:var(--muted);text-transform:uppercase;letter-spacing:.03em}
 
 /* Contador de caracteres + dica de campo */
 .char-count{float:right;font-size:11px;font-weight:600;color:var(--muted)}
