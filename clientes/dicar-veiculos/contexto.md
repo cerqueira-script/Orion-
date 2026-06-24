@@ -45,12 +45,14 @@
 
 - **O que a Orion entrega:** site profissional com vitrine + **sistema de gestão** (painel: estoque, financeiro, leads, dashboard). Dicar é a **primeira instância** do produto `sistema-revenda`. Ainda na fila: Google Business, marketplaces, padronização de marca/NAP.
 - **Frequência / prazos:** a definir
-- **Status atual (22/06/2026):**
+- **Status atual (24/06/2026):**
   - ✅ Dossiê + auditoria concluídos
   - ✅ Proposta comercial (md + site + PDF) em `saidas/`
   - ✅ **Site final pronto** (`site/`) — tema "Editorial Showroom", 3 carros reais com foto, ícones SVG, favicon, schema/OG, foto da loja no "Sobre"
+  - ✅ **Refino mobile (24/06)** — cards horizontais (foto + infos + WhatsApp), galeria do veículo com carrossel/contador/tela cheia, filtros em pílulas (busca própria + preço em cápsula + tipos dinâmicos), estado vazio com 3 sugestões e "Ver semelhantes"; tipo **"Sedã"** alinhado entre sistema e site (era "Sedan" no painel/dados)
   - ✅ **Sistema especificado** (ver `produtos/sistema-revenda/sistema-spec.md`) — entra em construção
   - ⏳ Pendências do cliente: definir **WhatsApp oficial**, depoimentos reais, mais fotos, domínio + Supabase pra publicar
+  - ⏳ **Verificar:** 3 fotos `.webp` (polo/nivus/mobi) estão deletadas no repo — confirmar se é intencional (senão as imagens do site quebram)
 
 ## Prioridades do digital (da auditoria, por ordem de impacto)
 
