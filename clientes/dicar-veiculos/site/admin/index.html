@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
 <title>Painel — Dicar Veículos</title>
-<link rel="stylesheet" href="../assets/css/styles.css?v=17">
+<link rel="stylesheet" href="../assets/css/styles.css?v=21">
 </head>
 <body class="admin-body">
 
@@ -34,6 +34,11 @@
 
 <!-- ===== PAINEL ===== -->
 <div class="admin-shell hide" id="shell">
+  <header class="admin-topbar">
+    <div class="brand"><span class="dv">DV</span><span class="bt">DICAR<small>GESTÃO</small></span></div>
+    <button class="admin-burger" id="admin-burger" aria-label="Abrir menu" aria-expanded="false"><span></span><span></span><span></span></button>
+  </header>
+  <div class="admin-backdrop" id="admin-backdrop"></div>
   <aside class="sidebar">
     <div class="brand"><span class="dv">DV</span><span class="bt" style="color:#fff">DICAR<small>GESTÃO</small></span></div>
     <nav id="menu">
@@ -71,7 +76,7 @@
         <div class="form-row">
           <div class="field"><label>Versão / título</label><input id="ve-versao" maxlength="100" placeholder="Ex.: 1.0 Track"></div>
           <div class="field"><label>Tipo</label>
-            <select id="ve-tipo"><option>Hatch</option><option>Sedan</option><option>SUV</option><option>Picape</option><option>Utilitário</option><option>Moto</option><option>Caminhão</option></select>
+            <select id="ve-tipo"><option>Hatch</option><option>Sedã</option><option>SUV</option><option>Picape</option><option>Utilitário</option><option>Moto</option><option>Caminhão</option></select>
           </div>
         </div>
         <div class="form-row">
@@ -110,7 +115,7 @@
           <label>Fotos do veículo <span class="char-count" id="cc-fotos"></span></label>
           <label class="photo-drop" for="ve-fotos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-4px;margin-right:6px"><path d="M14.5 4h-5L8 6H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-4l-1.5-2Z"/><circle cx="12" cy="13" r="3.5"/></svg>Clique para adicionar fotos</label>
           <input type="file" id="ve-fotos" accept="image/jpeg,image/png,image/webp" multiple class="hide">
-          <span class="hint">Até 10 fotos · 5 MB cada · JPG, PNG ou WEBP</span>
+          <span class="hint">Até 10 fotos · 5 MB cada · JPG, PNG ou WEBP. Arraste pra reordenar; a 1ª é a capa (ou toque na ★).</span>
           <div class="photo-prev" id="ve-fotos-prev"></div>
         </div>
 
@@ -274,7 +279,7 @@
 <!-- listas pesquisáveis (preenchidas via JS) -->
 <datalist id="dl-veiculos"></datalist>
 
-<script src="../assets/js/store.js?v=17"></script>
-<script src="admin.js?v=17"></script>
+<script src="../assets/js/store.js?v=21"></script>
+<script src="admin.js?v=21"></script>
 </body>
 </html>

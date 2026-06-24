@@ -267,10 +267,16 @@ table.adm .thumb{width:62px;height:46px;object-fit:cover;border-radius:3px;borde
 .modal footer{padding:18px 24px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:10px}
 .photo-drop{border:1.5px dashed var(--line);border-radius:3px;padding:18px;text-align:center;color:var(--muted);font-size:14px;cursor:pointer;transition:.15s var(--ease)}
 .photo-drop:hover{border-color:var(--red);color:var(--red)}
-.photo-prev{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-.photo-prev .pp{position:relative}
-.photo-prev img{width:72px;height:54px;object-fit:cover;border-radius:3px;border:1px solid var(--line)}
-.photo-prev .rm{position:absolute;top:-6px;right:-6px;background:var(--red);color:#fff;border:0;border-radius:50%;width:20px;height:20px;cursor:pointer;font-size:12px}
+.photo-prev{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.photo-prev .pp{position:relative;cursor:grab}
+.photo-prev .pp.dragging{opacity:.4}
+.photo-prev .pp.over{outline:2px dashed var(--red);outline-offset:3px;border-radius:4px}
+.photo-prev img{width:78px;height:58px;object-fit:cover;border-radius:3px;border:1px solid var(--line)}
+.photo-prev .pp.cover img{border-color:var(--red);box-shadow:0 0 0 1px var(--red)}
+.photo-prev .rm{position:absolute;top:-7px;right:-7px;background:var(--red);color:#fff;border:0;border-radius:50%;width:20px;height:20px;cursor:pointer;font-size:12px;line-height:1}
+.photo-prev .pp-set{position:absolute;top:-7px;left:-7px;background:#fff;border:1px solid var(--line);color:#b0820a;border-radius:50%;width:20px;height:20px;cursor:pointer;font-size:11px;line-height:1;padding:0}
+.photo-prev .pp-set:hover{background:#b0820a;color:#fff;border-color:#b0820a}
+.photo-prev .pp-cap{position:absolute;left:0;bottom:0;background:var(--red);color:#fff;font-size:9px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:2px 6px;border-radius:0 4px 0 3px}
 .hide{display:none!important}
 
 /* ---------- Responsivo ---------- */
@@ -501,3 +507,47 @@ tr.row-off td:last-child{opacity:1}
 html{touch-action:manipulation}
 body{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;-webkit-touch-callout:none}
 input,textarea,[contenteditable]{-webkit-user-select:text;-moz-user-select:text;-ms-user-select:text;user-select:text}
+
+/* =========================================================
+   PAINEL NO CELULAR — hambúrguer + gaveta (igual ao site)
+   ========================================================= */
+.admin-topbar,.admin-backdrop{display:none}
+@media(max-width:900px){
+  .admin-shell{grid-template-columns:1fr;overflow-x:hidden}
+  /* barra de topo: marca + hambúrguer */
+  .admin-topbar{display:flex;align-items:center;justify-content:space-between;height:56px;padding:0 14px;position:sticky;top:0;z-index:75;background:var(--black);color:#fff}
+  .admin-topbar .brand{display:flex;align-items:center;gap:10px}
+  .admin-topbar .brand .dv{width:34px;height:34px;border-radius:50%;background:var(--red);display:grid;place-items:center;font-family:var(--display);font-size:16px;color:#fff;border:2px solid #fff}
+  .admin-topbar .brand .bt{font-family:var(--display);font-size:18px;letter-spacing:.05em;color:#fff;line-height:1}
+  .admin-burger{display:flex;flex-direction:column;justify-content:center;gap:5px;width:42px;height:42px;background:none;border:0;cursor:pointer;padding:9px}
+  .admin-burger span{width:22px;height:2px;background:#fff;border-radius:2px;transition:.25s var(--ease)}
+  .admin-shell.nav-open .admin-burger span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+  .admin-shell.nav-open .admin-burger span:nth-child(2){opacity:0}
+  .admin-shell.nav-open .admin-burger span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+  /* gaveta */
+  .sidebar{position:fixed;top:56px;left:0;height:calc(100dvh - 56px);width:264px;max-width:84vw;transform:translateX(-100%);transition:transform .28s var(--ease);z-index:70;box-shadow:var(--shadow-lg);overflow-y:auto;padding-top:18px}
+  .admin-shell.nav-open .sidebar{transform:none}
+  .sidebar .brand{display:none}  /* a marca já está na barra de topo */
+  /* fundo escurecido */
+  .admin-backdrop{display:block;position:fixed;inset:56px 0 0;background:rgba(14,14,16,.5);opacity:0;visibility:hidden;transition:opacity .25s,visibility .25s;z-index:65}
+  .admin-shell.nav-open .admin-backdrop{opacity:1;visibility:visible}
+  .admin-main{padding:18px 14px;max-width:none;overflow-x:hidden}
+  .table-wrap{overflow-x:auto}
+  .toolbar .search-box{min-width:100%;max-width:none}
+}
+@media(max-width:620px){
+  .admin-main h1{font-size:28px}
+  .admin-top{gap:12px;flex-direction:column;align-items:stretch}
+  .admin-top > .btn{width:100%;justify-content:center}
+  .kpis{grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
+  .kpi{padding:14px}
+  .kpi .v{font-size:30px}
+  .kpi .v.txt{font-size:24px}
+  .top-actions{width:100%;justify-content:space-between}
+  .segmented{flex:1}
+  .modal{max-width:100%}
+  .modal .content{padding:18px}
+  .modal footer{flex-wrap:wrap}
+  .modal footer .btn{flex:1;justify-content:center}
+  .funil-mini{grid-template-columns:repeat(2,1fr)}
+}

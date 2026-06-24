@@ -132,29 +132,35 @@ h1,h2,h3{font-family:var(--display);font-weight:400;line-height:.9;text-transfor
 .cat:hover .ic{color:var(--red)}
 .cat .nm{font-family:var(--display);font-size:20px;letter-spacing:.03em}
 .cat .ct{font-size:12px;color:var(--steel)}
+/* botão de filtro (no celular, no lugar dos cards de categoria) */
+.cat-cta{display:none}
+.cat-cta svg{width:20px;height:20px}
 
 /* =================== CARD DE CARRO =================== */
 .cars{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
 .card{position:relative;cursor:pointer;background:var(--paper);border:1px solid var(--line);border-radius:4px;overflow:hidden;display:flex;flex-direction:column;transition:transform .25s var(--ease),box-shadow .25s}
 /* card inteiro clicável (link esticado a partir do nome do veículo) */
 .card .nm::after{content:'';position:absolute;inset:0;z-index:1}
-.card .ft .btn{position:relative;z-index:2}
+.card .bd .btn{position:relative;z-index:2;width:100%;justify-content:center;margin-top:14px}
 .card:hover{transform:translateY(-5px);box-shadow:0 24px 50px rgba(14,14,16,.13)}
-.card .ph{position:relative;aspect-ratio:16/11;background:var(--mist);overflow:hidden}
+.card .ph{position:relative;aspect-ratio:16/11;background:var(--mist);overflow:hidden}   /* desktop: foto no topo */
 .card .ph img{width:100%;height:100%;object-fit:cover;transition:transform .5s var(--ease)}
 .card:hover .ph img{transform:scale(1.05)}
 .card .tag{position:absolute;top:0;left:0;background:var(--red);color:#fff;font-family:var(--display);font-size:14px;letter-spacing:.08em;padding:6px 14px}
 .card .tag.sold{background:var(--ink)}
 .card .tag.neg{background:#B5810C}
-.card .yrtag{position:absolute;top:12px;right:12px;background:rgba(14,14,16,.78);color:#fff;font-weight:700;font-size:12px;padding:4px 10px;border-radius:2px;backdrop-filter:blur(4px)}
-.card .bd{padding:20px;display:flex;flex-direction:column;flex:1}
+.card .bd{padding:18px 20px 20px;display:flex;flex-direction:column;flex:1}
 .card .mk{font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--red)}
-.card .nm{font-family:var(--display);font-size:30px;line-height:.92;margin:4px 0 2px;letter-spacing:.02em}
-.card .vs{font-size:13.5px;color:var(--steel);margin-bottom:16px}
-.card .specs{display:flex;gap:18px;flex-wrap:wrap;font-size:12.5px;color:var(--steel);padding:14px 0;border-top:1px solid var(--line);margin-top:auto}
+.card .nm{display:block;font-family:var(--display);font-size:30px;line-height:.92;margin:4px 0 2px;letter-spacing:.02em}
+.card .vs{font-size:13.5px;color:var(--steel)}
+.card .specs{display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--steel);padding:14px 0;border-top:1px solid var(--line);margin-top:auto}
+.card .specs span{display:inline-flex;align-items:center;gap:6px}
+.card .specs svg{width:15px;height:15px;color:var(--steel);flex:0 0 auto}
 .card .specs b{color:var(--ink);font-weight:700}
-.card .ft{display:flex;align-items:center;justify-content:space-between;gap:12px;border-top:1px solid var(--line);padding-top:16px}
-.card .price{font-family:var(--display);font-size:30px;line-height:1}
+.card .specs .sp-ano{display:none}     /* no desktop o ano já aparece pelo título; specs mostram km/câmbio/combustível */
+.card .price{font-family:var(--display);font-size:30px;line-height:1;margin:14px 0 0}
+.card .price small{font-family:var(--sans);font-size:11px;color:var(--steel);font-weight:600;display:block;letter-spacing:.04em}
+.card .price{font-family:var(--display);font-size:30px;line-height:1;margin-top:10px}
 .card .price small{font-family:var(--sans);font-size:11px;color:var(--steel);font-weight:600;display:block;letter-spacing:.04em}
 
 /* =================== SOBRE (split diagonal) =================== */
@@ -215,7 +221,7 @@ h1,h2,h3{font-family:var(--display);font-weight:400;line-height:.9;text-transfor
 .wa-fab svg{width:30px;height:30px}
 
 /* =================== PÁGINAS INTERNAS =================== */
-.page-hero{background:var(--ink);color:#fff;padding:140px 0 60px;position:relative;overflow:hidden}
+.page-hero{background:var(--ink);color:#fff;padding:116px 0 44px;position:relative;overflow:hidden}
 .page-hero::after{content:'';position:absolute;top:0;right:0;width:34%;height:100%;background:var(--ink-2);clip-path:polygon(40% 0,100% 0,100% 100%,0 100%)}
 .page-hero .in{position:relative;z-index:2}
 .page-hero .bc{font-size:13px;color:#9aa0a6;margin-bottom:12px}
@@ -224,9 +230,27 @@ h1,h2,h3{font-family:var(--display);font-weight:400;line-height:.9;text-transfor
 .page-hero p{color:#c0c4c9;margin-top:8px}
 
 /* estoque layout */
-.shop{display:grid;grid-template-columns:280px 1fr;gap:32px;padding:48px 0}
-.filters{align-self:start;position:sticky;top:96px;background:var(--paper);border:1px solid var(--line);border-radius:4px;padding:26px}
-.filters h3{font-family:var(--display);font-size:22px;letter-spacing:.04em;margin-bottom:18px}
+.shop{padding-top:34px;padding-bottom:56px}
+/* barra de busca (cápsula própria, fora dos filtros) */
+.searchbar{display:flex;align-items:center;gap:11px;height:48px;padding:0 18px;border:1px solid var(--line);border-radius:30px;background:#fff;margin-bottom:12px;transition:border-color .2s}
+.searchbar:focus-within{border-color:var(--red)}
+.searchbar svg{width:19px;height:19px;color:var(--steel);flex:0 0 auto}
+.searchbar input{flex:1;min-width:0;border:0;outline:0;background:none;font-family:inherit;font-size:15px;color:var(--ink)}
+.searchbar input::placeholder{color:var(--steel)}
+/* barra de filtros em pílulas (estilo marketplace) */
+.filterbar{display:flex;align-items:center;gap:10px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:2px 0 6px;margin-bottom:10px}
+.filterbar::-webkit-scrollbar{display:none}
+.pill{flex:0 0 auto;display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 17px;border:1px solid var(--line);border-radius:30px;background:#fff;font-family:var(--sans);font-weight:600;font-size:14px;color:var(--ink);cursor:pointer;white-space:nowrap;transition:border-color .2s,color .2s,background .2s}
+.pill:hover{border-color:var(--ink)}
+.pill svg{width:16px;height:16px}
+.pill.active{border-color:var(--red);color:var(--red);background:#fff5f5}
+/* selects nativos como pílula (abrem o seletor do sistema no celular) */
+select.pill{appearance:none;-webkit-appearance:none;-moz-appearance:none;padding-right:36px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%235E646D' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+select.pill:focus{outline:none;border-color:var(--red)}
+select.pill.on{border-color:var(--red);color:var(--red);font-weight:700;background-color:#fff5f5;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23E1141B' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")}
+.pill-clear{border-style:dashed;color:var(--steel);font-weight:600}
+.pill-clear:hover{border-color:var(--red);color:var(--red)}
+.pill-clear[hidden]{display:none}
 .fg{margin-bottom:20px}
 .fg label{display:block;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--steel);margin-bottom:8px}
 .fg input,.fg select{width:100%;padding:12px 13px;border:1px solid var(--line);border-radius:3px;font-family:inherit;font-size:14px;background:#fff;transition:border-color .2s}
@@ -235,16 +259,55 @@ h1,h2,h3{font-family:var(--display);font-weight:400;line-height:.9;text-transfor
 .shop-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;flex-wrap:wrap;gap:12px}
 .shop-top .ct{font-size:14px;color:var(--steel)}.shop-top .ct b{font-family:var(--display);font-size:26px;color:var(--ink);margin-right:4px}
 .shop .cars{grid-template-columns:repeat(3,1fr)}
-.empty{grid-column:1/-1;padding:60px;text-align:center;color:var(--steel);background:var(--paper);border:1px dashed var(--line);border-radius:4px}
-.empty a{color:var(--red);font-weight:700}
+.empty{grid-column:1/-1;padding:clamp(40px,7vw,72px) 28px;text-align:center;background:var(--mist-2);border:1.5px dashed var(--line);border-radius:10px}
+.empty h3{font-family:var(--display);font-size:clamp(30px,5.5vw,46px);line-height:.95;letter-spacing:.02em;color:var(--ink);margin-bottom:12px}
+.empty p{color:var(--steel);font-size:16px;max-width:44ch;margin:0 auto 24px}
+.empty-acts{display:flex;gap:16px;justify-content:center;align-items:center;flex-wrap:wrap}
+.empty-clr{color:var(--red);font-weight:700}
+/* sugestões quando o filtro não acha nada */
+.sugs-wrap{grid-column:1/-1;margin-top:34px}
+.sugs-head{font-family:var(--display);font-size:26px;letter-spacing:.03em;text-align:center;margin-bottom:18px}
+.sugs{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.sug{position:relative;background:var(--paper);border:1px solid var(--line);border-radius:6px;overflow:hidden;display:flex;flex-direction:column;transition:transform .2s var(--ease),box-shadow .2s}
+.sug:hover{transform:translateY(-4px);box-shadow:0 18px 40px rgba(14,14,16,.12)}
+.sug-ph{aspect-ratio:16/11;background:var(--mist);overflow:hidden;display:block}
+.sug-ph img{width:100%;height:100%;object-fit:cover}
+.sug-bd{padding:14px 16px 16px;display:flex;flex-direction:column}
+.sug-mk{font-size:10.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--red)}
+.sug-nm{font-family:var(--display);font-size:24px;letter-spacing:.02em;line-height:1;margin-top:3px}
+.sug-price{font-family:var(--display);font-size:22px;margin:8px 0 12px}
+.sug-btn{width:100%;justify-content:center}
 
 /* detalhe */
 .detail{display:grid;grid-template-columns:1.35fr 1fr;gap:44px;padding:48px 0}
-.gal .main{aspect-ratio:16/11;background:var(--mist);border-radius:4px;overflow:hidden;border:1px solid var(--line)}
-.gal .main img{width:100%;height:100%;object-fit:cover}
-.gal .thumbs{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
-.gal .thumbs img{width:92px;height:66px;object-fit:cover;border-radius:3px;border:2px solid var(--line);cursor:pointer;transition:.2s}
-.gal .thumbs img.active,.gal .thumbs img:hover{border-color:var(--red)}
+/* galeria: carrossel deslizável com contador, bolinhas e tela cheia */
+.gal{position:relative}
+.gal .slider{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:4px;background:var(--mist);scrollbar-width:none}
+.gal .slider::-webkit-scrollbar{display:none}
+.gal .slide{flex:0 0 100%;scroll-snap-align:center;aspect-ratio:16/11;border:0;margin:0;padding:0;background:none;cursor:zoom-in;display:block}
+.gal .slide img{width:100%;height:100%;object-fit:cover}
+.gal .gcount{position:absolute;top:12px;right:12px;z-index:3;background:rgba(14,14,16,.78);color:#fff;font-family:var(--display);font-size:18px;letter-spacing:.06em;padding:5px 14px;border-radius:30px;backdrop-filter:blur(4px);pointer-events:none}
+.gal .gnav{position:absolute;top:50%;transform:translateY(-50%);z-index:3;width:44px;height:44px;border-radius:50%;border:0;background:rgba(255,255,255,.92);color:var(--ink);font-size:28px;line-height:0;cursor:pointer;display:grid;place-items:center;box-shadow:0 4px 14px rgba(0,0,0,.18);transition:background .2s}
+.gal .gnav:hover{background:#fff}
+.gal .gnav.prev{left:12px}.gal .gnav.next{right:12px}
+.gal .gfull{position:absolute;bottom:14px;right:12px;z-index:3;width:40px;height:40px;border-radius:50%;border:0;background:rgba(14,14,16,.7);color:#fff;cursor:pointer;display:grid;place-items:center;backdrop-filter:blur(4px);transition:background .2s}
+.gal .gfull:hover{background:var(--red)}
+.gal .gfull svg{width:18px;height:18px}
+.gal .dots{display:flex;justify-content:center;gap:8px;margin-top:14px}
+.gal .dots button{width:8px;height:8px;border-radius:50%;border:0;background:var(--line);cursor:pointer;padding:0;transition:.2s var(--ease)}
+.gal .dots button.on{background:var(--red);width:22px;border-radius:4px}
+
+/* tela cheia (lightbox) */
+body.lb-open{overflow:hidden}
+.lightbox{position:fixed;inset:0;z-index:200;background:rgba(8,8,10,.96);display:flex;align-items:center;animation:lbin .2s var(--ease)}
+@keyframes lbin{from{opacity:0}to{opacity:1}}
+.lightbox .lb-track{display:flex;width:100%;height:100%;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.lightbox .lb-track::-webkit-scrollbar{display:none}
+.lightbox .lb-slide{flex:0 0 100%;scroll-snap-align:center;display:grid;place-items:center;padding:24px}
+.lightbox .lb-slide img{max-width:100%;max-height:88vh;object-fit:contain;border-radius:4px}
+.lightbox .lb-close{position:absolute;top:16px;right:18px;z-index:3;width:46px;height:46px;border-radius:50%;border:0;background:rgba(255,255,255,.12);color:#fff;font-size:30px;line-height:0;cursor:pointer;transition:background .2s}
+.lightbox .lb-close:hover{background:rgba(255,255,255,.26)}
+.lightbox .lb-count{position:absolute;top:24px;left:50%;transform:translateX(-50%);z-index:3;color:#fff;font-family:var(--display);font-size:20px;letter-spacing:.08em}
 .dt .mk{font-size:12px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--red)}
 .dt h1{font-family:var(--display);font-size:clamp(44px,6vw,72px);line-height:.9;margin:6px 0 2px}
 .dt .vs{color:var(--steel);margin-bottom:20px}
@@ -262,6 +325,9 @@ h1,h2,h3{font-family:var(--display);font-weight:400;line-height:.9;text-transfor
 .reveal.in{opacity:1;transform:none}
 
 /* =================== RESPONSIVO =================== */
+@media(max-width:960px){
+  .wrap{padding:0 18px}
+}
 @media(max-width:1000px){
   .cats{grid-template-columns:repeat(3,1fr)}
   .cars,.shop .cars{grid-template-columns:repeat(2,1fr)}
@@ -269,12 +335,11 @@ h1,h2,h3{font-family:var(--display);font-weight:400;line-height:.9;text-transfor
   .about-grid{grid-template-columns:1fr}
   .about-media{min-height:300px;clip-path:none}
   .about-copy{padding:56px 24px}
-  .shop{grid-template-columns:1fr}
-  .filters{position:static}
+  .shop{padding-top:24px;padding-bottom:48px}
   .detail{grid-template-columns:1fr}
 }
 @media(max-width:760px){
-  .nav{position:fixed;inset:70px 0 auto 0;background:var(--ink);flex-direction:column;align-items:flex-start;gap:0;padding:8px 24px 20px;transform:translateY(-120%);transition:transform .3s var(--ease);color:#fff}
+  .nav{position:fixed;inset:70px 0 auto 0;background:var(--ink);flex-direction:column;align-items:flex-start;gap:0;padding:8px 24px 20px;transform:translateY(-200%);transition:transform .3s var(--ease);color:#fff}
   .nav.open{transform:none}
   .nav a{width:100%;padding:14px 0;border-bottom:1px solid var(--line-dk);color:#fff}
   .burger{display:flex}
@@ -298,8 +363,36 @@ h1,h2,h3{font-family:var(--display);font-weight:400;line-height:.9;text-transfor
   .hero-actions .btn{width:100%;justify-content:center}
   .hero-specs{display:grid;grid-template-columns:1fr 1fr;gap:16px}
   .hero-specs .sp{border:0;padding:0;margin:0}
-  .cats{grid-template-columns:repeat(2,1fr)}
-  .cars,.shop .cars{grid-template-columns:1fr}
+  .cats{display:none}                    /* no celular, vira um botão de filtro */
+  .cat-cta{display:inline-flex;width:100%;justify-content:center;margin-top:24px}
+  .cars,.shop .cars{grid-template-columns:1fr;gap:14px}
+  /* card horizontal: foto à esquerda, TODAS as infos ao lado, botão full-width embaixo */
+  .card{flex-flow:row wrap;align-items:stretch}
+  .card .ph{flex:0 0 43%;aspect-ratio:1/1;align-self:stretch}     /* foto quadrada à esquerda */
+  .card .bd{flex:1 1 0;min-width:0;padding:12px 15px;justify-content:center}
+  .card .tag{font-size:9px}
+  .card .mk{font-size:5.5px}
+  .card .nm{font-size:18px;margin:2px 0 0;line-height:1}
+  .card .vs{font-size:7px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .card .specs{margin-top:8px;padding:0;border:0;gap:5px 14px;font-size:8px}
+  .card .specs .sp-ano{display:inline-flex}
+  .card .specs .sp-cam,.card .specs .sp-fuel{display:none}
+  .card .price{margin-top:8px;font-size:18px}
+  .card .price small{display:none}      /* mantém o card enxuto */
+  .card .bd .btn{margin-top:10px;padding:7px 12px;font-size:11.5px;gap:6px}
+  /* sugestões compactas no celular: foto à esquerda */
+  .sugs{grid-template-columns:1fr;gap:12px}
+  .sug{flex-direction:row;align-items:stretch}
+  .sug-ph{flex:0 0 40%;aspect-ratio:1/1}
+  .sug-bd{flex:1 1 0;min-width:0;justify-content:center;padding:12px 14px}
+  .sug-nm{font-size:21px}
+  .sug-price{font-size:19px;margin:6px 0 10px}
+  /* galeria no celular: swipe é o gesto principal, sem setas */
+  .gal .gnav{display:none}
+  /* header das páginas internas mais baixo no celular (libera espaço pro conteúdo) */
+  .page-hero{padding:96px 0 28px}
+  .page-hero h1{font-size:clamp(38px,11vw,64px)}
+  .page-hero p{font-size:14px}
   .ft-cols{grid-template-columns:1fr}
   .sec{padding:64px 0}
   .strip-in{display:grid;grid-template-columns:1fr 1fr;gap:16px 18px}.strip .it .big{font-size:30px}

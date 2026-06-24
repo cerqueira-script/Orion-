@@ -70,7 +70,7 @@ create table if not exists veiculos (
   id            uuid primary key default gen_random_uuid(),
 
   -- ----- públicos (vão pro site) -----
-  tipo          text,                       -- Hatch, SUV, Sedan, Picape...
+  tipo          text,                       -- Hatch, SUV, Sedã, Picape...
   marca         text not null,
   modelo        text not null,
   versao        text,

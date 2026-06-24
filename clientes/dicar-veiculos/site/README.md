@@ -16,30 +16,31 @@ Abra o arquivo **`index.html`** no navegador (duplo clique). Funciona offline.
 
 | Acesso | Usuário | Senha | Pode fazer |
 |---|---|---|---|
-| **Dono (admin)** | `admin` | `admin123` | Tudo: veículos, funcionários e configurações |
-| **Funcionário** | `vendedor` | `venda123` | Só gerenciar veículos (adicionar/editar/remover) |
+| **Dono (admin)** | `admin` | `admin123` | Tudo: estoque, clientes, vendas, permissões, funcionários e configurações |
+| **Vendedor** | `vendedor` | `venda123` | Conforme as permissões que o dono liberar (estoque, clientes/CRM, registrar vendas) |
 
 ⚠️ Trocar essas senhas antes de colocar no ar.
 
 ## O que o painel faz
 
-- **Adicionar / editar / remover veículos** (marca, modelo, versão, ano, km, preço, câmbio, combustível, cor, portas, descrição)
-- **Upload de fotos** de cada carro
-- Marcar carro como **destaque** (aparece na home) ou **vendido**
-- **Funcionários:** o dono cria logins e define o nível (admin ou funcionário)
-- **Configurações:** WhatsApp oficial, telefone, endereço, horário, Instagram e link do mapa — tudo reflete no site
+- **Estoque:** adicionar/editar/remover veículos, com busca, filtros (marca/tipo/situação/origem) e ordenação. Fotos com **capa escolhível** (arrastar ou ★), **máx. 3 destaques** (entra outro automático quando vende), situação disponível/negociando/vendido. Campos internos que não vão pro site: origem (próprio/consignado), consignante, **placa**, documentação e **observações internas**.
+- **Clientes (CRM):** funil em **Kanban** (arrastar entre etapas) ou **Lista**, com busca e filtro por vendedor/etapa. Card abre num popup pra ver tudo e editar.
+- **Vendas:** toda venda vincula **veículo + cliente** (com nº e status). Dá pra cadastrar o cliente na hora e **cancelar** uma venda (o veículo volta ao estoque).
+- **Dashboard:** indicadores de estoque/vendas + bloco comercial (funil, conversão, ranking) + veículos parados.
+- **Configurações:** dados da loja (WhatsApp, telefone, endereço, horário, Instagram, mapa — refletem no site), permissões do vendedor e funcionários.
 
-## Estoque inicial
+## Estoque inicial (demo)
 
-Já vem com os **3 carros reais** (Polo, Nivus, Mobi — fonte NaPista, jun/2026) e **3 exemplos**
-(Gol, Strada, Onix) só pra vitrine ficar cheia na demo. Os exemplos têm "[EXEMPLO]" na descrição —
-é só apagar no painel.
+Já vem com os **3 veículos reais** (Polo, Nivus, Mobi — fonte NaPista, jun/2026, com foto) e vários
+**exemplos** (HB20, Onix, Corolla, T-Cross, Kwid, Strada, Renegade + alguns já vendidos) só pra a demo
+ficar cheia. Os exemplos aparecem marcados como "exemplo" — é só apagar no painel. Também já vem com
+clientes em todas as etapas e algumas vendas registradas, pra testar os filtros e o dashboard.
 
 ## ⚠️ Antes de publicar de verdade
 
 1. **Definir o número oficial de WhatsApp** (hoje há 3 circulando) e ajustar em *Painel → Configurações*.
 2. **Trocar as senhas** do painel.
-3. **Adicionar fotos reais** dos carros.
+3. **Adicionar fotos reais** dos veículos.
 4. **Ligar o banco de dados** (ver abaixo) pra estoque e logins ficarem na nuvem, acessíveis de qualquer lugar.
 
 ## Design
@@ -54,11 +55,11 @@ mantendo a marca da Dicar (vermelho/preto/branco). Construído com as 3 ferramen
 - **Qualidade:** HTML semântico, meta/OG tags, foco visível, lazy-load, `prefers-reduced-motion`, contraste.
 - Arquivos do tema: `assets/css/site.css` + `assets/js/site.js`. (O painel usa `assets/css/styles.css` + `admin/admin.js`.)
 
-> **Único ponto pendente do checklist:** fotos reais dos carros (hoje há placeholders). É só subir pelo painel.
+> **Único ponto pendente do checklist:** fotos reais dos veículos (hoje há placeholders). É só subir pelo painel.
 
 ### Reaproveitar pra outro cliente
 Trocar os **tokens de marca** no topo do `site.css` (`:root` — cores, fontes) + o `seed`/`config` em `store.js`
-(nome, WhatsApp, endereço, carros). O resto se adapta. É o modelo de site de revenda da Orion.
+(nome, WhatsApp, endereço, veículos). O resto se adapta. É o modelo de site de revenda da Orion.
 
 ## Tecnologia
 

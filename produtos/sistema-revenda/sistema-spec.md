@@ -31,6 +31,7 @@ cuida de **estoque, clientes, vendas e operação comercial**.
 - **Marca via config** (cores, logo, nome, contatos) — trocar = novo cliente.
 - **Identidade visual:** tema "Editorial Showroom" (Bebas Neue + Manrope, acento único, cantos retos, ícones SVG). Site e painel compartilham a mesma linguagem.
 - **App-like:** zoom travado + seleção de texto desabilitada (inputs liberados).
+- **Mobile (painel):** menu **hambúrguer + gaveta** (igual ao site), tabelas com scroll horizontal, modais full-width. O site público já é responsivo.
 - **Molde** em `produtos/sistema-revenda/`; cada cliente = cópia + Supabase próprio.
 
 ### Como instanciar para um cliente novo
@@ -66,7 +67,7 @@ cuida de **estoque, clientes, vendas e operação comercial**.
 
 **Busca e filtros:** por marca, modelo/versão, tipo, situação, origem + ordenação (preço, km, ano). **Destaques fixados no topo** quando não há filtro ativo.
 
-**Limites (segurança):** até **10 fotos/veículo**, **5 MB/foto**, formatos JPG/PNG/WEBP; limites de caracteres com contador (título 100, descrição 2.000, marca/modelo 50, obs 500).
+**Fotos:** galeria com **capa escolhível** — arrastar pra reordenar (a 1ª é a capa) ou tocar na **★** (mobile). Limites (segurança): até **10 fotos/veículo**, **5 MB/foto**, formatos JPG/PNG/WEBP; limites de caracteres com contador (título 100, descrição 2.000, marca/modelo 50, obs 500).
 
 **Destaque:** no máximo **3 veículos** em destaque. Ao vender/remover um destacado, **entra automaticamente o que está há mais tempo em estoque** — sem tirar a troca manual.
 
@@ -135,7 +136,8 @@ WhatsApp oficial, endereço, horário, redes, marca. Abas: **Dados da loja · Pe
 - [x] Painel: clientes / CRM (Kanban com drag&drop + Lista, busca/filtros/vendedor, popup)
 - [x] Painel: venda (vincula veículo+cliente sempre) + módulo Vendas (nº/status/cancelar) + dashboard comercial
 - [x] Site: vendidos fora, negociando com selo, destaques primeiro, zoom/seleção travados
-- [ ] **Modelagem do banco atualizada** — `db/schema.sql` reescrito pra v2 (sem financeiro, leads→clientes+cidade, vendas com numero/status, placa, obs_internas)
+- [x] Fotos com capa escolhível (arrastar/★) + painel responsivo (menu hambúrguer/gaveta)
+- [x] **Modelagem do banco atualizada** — `db/schema.sql` reescrito pra v2 (sem financeiro, leads→clientes+cidade, vendas com numero/status, placa, obs_internas)
 - [ ] Instanciar para a Dicar (criar projeto Supabase + trocar store.js por chamadas reais + deploy)
 
 > **Build v2 entregue na demo** (localStorage) em `clientes/dicar-veiculos/site/admin/`.

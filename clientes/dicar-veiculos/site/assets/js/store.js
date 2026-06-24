@@ -98,7 +98,7 @@
         docStatus: 'ok', dataEntrada: '2026-04-10'
       },
       {
-        id: 'v-corolla-2022', real: false, tipo: 'Sedan', marca: 'Toyota', modelo: 'Corolla',
+        id: 'v-corolla-2022', real: false, tipo: 'Sedã', marca: 'Toyota', modelo: 'Corolla',
         versao: 'XEI 2.0', ano: 2022, km: 51000, preco: 129900,
         cambio: 'Automático', combustivel: 'Flex', cor: 'Preto', portas: 4,
         destaque: false, status: 'disponivel', fotos: [],
@@ -162,7 +162,7 @@
         docStatus: 'ok', dataEntrada: '2026-04-02'
       },
       {
-        id: 'v-civic-2020', real: false, tipo: 'Sedan', marca: 'Honda', modelo: 'Civic',
+        id: 'v-civic-2020', real: false, tipo: 'Sedã', marca: 'Honda', modelo: 'Civic',
         versao: 'EXL 2.0', ano: 2020, km: 75000, preco: 94000,
         cambio: 'Automático', combustivel: 'Flex', cor: 'Preto', portas: 4,
         destaque: false, status: 'vendido', fotos: [],
@@ -262,9 +262,13 @@
       if (!db.clientes) db.clientes = [];
       if (!db.vendas) db.vendas = [];
       if (db.seqVenda == null) db.seqVenda = 0;
-      // migração: o status "reservado" passou a se chamar "negociando"
+      // migração: o status "reservado" passou a se chamar "negociando";
+      // e o tipo "Sedan" foi padronizado para "Sedã" (alinhar sistema ↔ site)
       var mig = false;
-      (db.veiculos || []).forEach(function (v) { if (v.status === 'reservado') { v.status = 'negociando'; mig = true; } });
+      (db.veiculos || []).forEach(function (v) {
+        if (v.status === 'reservado') { v.status = 'negociando'; mig = true; }
+        if (v.tipo === 'Sedan') { v.tipo = 'Sedã'; mig = true; }
+      });
       if (mig) save(db);
       return db;
     } catch (e) { return clone(SEED); }
@@ -342,6 +346,11 @@
     },
     marcas: function () {
       var set = {}; load().veiculos.forEach(function (v) { set[v.marca] = 1; });
+      return Object.keys(set).sort();
+    },
+    // tipos distintos existentes no estoque (pro filtro do site nascer dos dados, sem lista fixa)
+    tipos: function () {
+      var set = {}; load().veiculos.forEach(function (v) { if (v.tipo) set[v.tipo] = 1; });
       return Object.keys(set).sort();
     },
     saveVehicle: function (v) {
