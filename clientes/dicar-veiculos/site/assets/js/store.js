@@ -26,7 +26,43 @@
     descricao: 2000,
     marca: 50,
     modelo: 50,
-    obs: 500
+    obs: 500          // [PERFIL] titulo/marca/modelo são rótulos de carro
+  };
+
+  /* ═══════════════════════════════════════════════════════════════════
+     [PERFIL: carro] — o que é específico do nicho de revenda de veículos
+     ───────────────────────────────────────────────────────────────────
+     Decisão (remodelagem v3): NÃO generalizar agora. Só ISOLAR aqui tudo
+     que muda quando a Orion adaptar a plataforma a outro segmento
+     (móveis, imóveis, serviços…). O resto do arquivo é [NÚCLEO] e deve
+     servir a qualquer catálogo. Pra um novo perfil: trocar este bloco +
+     o formulário do item no painel + os rótulos da UI. Sem reescrever o núcleo.
+     ═══════════════════════════════════════════════════════════════════ */
+  var PERFIL = {
+    id: 'carro',
+    entidade: 'veículo',
+    entidadePlural: 'veículos',
+    schemaType: 'AutoDealer',          // tipo schema.org do negócio (antes chumbado no HTML)
+    // facetas de igualdade filtráveis do catálogo (usadas por site e painel)
+    facetas: ['marca', 'tipo', 'cambio', 'origem'],
+    // nome de exibição de um item do catálogo
+    nome: function (item) {
+      if (!item) return '—';
+      return (item.marca + ' ' + item.modelo + ' ' + (item.versao || '')).trim();
+    },
+    // imagem-fallback quando o item não tem foto (silhueta de carro)
+    placeholder: function (item) {
+      var txt = (item.marca + ' ' + item.modelo).toUpperCase();
+      var svg =
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">' +
+        '<rect width="400" height="300" fill="#1a1a1a"/>' +
+        '<path d="M70 195 l20-45 a25 25 0 0 1 22-14 h96 a25 25 0 0 1 20 10 l28 38 32 8 a12 12 0 0 1 10 12 v18 h-30 a22 22 0 0 0-44 0 h-70 a22 22 0 0 0-44 0 h-26 a10 10 0 0 1-10-10 v-13 a12 12 0 0 1 8-12z" fill="#2b2b2b"/>' +
+        '<circle cx="128" cy="208" r="16" fill="#0d0d0d" stroke="#CE181E" stroke-width="4"/>' +
+        '<circle cx="242" cy="208" r="16" fill="#0d0d0d" stroke="#CE181E" stroke-width="4"/>' +
+        '<text x="200" y="266" fill="#8a8a8a" font-family="Arial" font-size="15" font-weight="bold" text-anchor="middle">' + txt + '</text>' +
+        '</svg>';
+      return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+    }
   };
 
   /* ---------- Dados iniciais (seed) ---------- */
@@ -40,7 +76,36 @@
       cep: '68740-005',
       horario: 'Seg a Sex 07:30–18:00 · Sáb 08:00–13:00',
       instagram: 'dicar_veiculos',
-      mapa: 'https://www.google.com/maps?q=Av.+Pres.+Get%C3%BAlio+Vargas,+1852,+Castanhal+PA'
+      mapa: 'https://www.google.com/maps?q=Av.+Pres.+Get%C3%BAlio+Vargas,+1852,+Castanhal+PA',
+      // Ferramentas de anúncio/medição — preenchidas pelo painel (Config › Anúncios).
+      // O site lê daqui em runtime: dá pra ativar/trocar SEM novo deploy.
+      ads: { gtmId: '', ga4Id: '', metaPixelId: '', googleAdsId: '', googleAdsLabel: '' },
+      // Dados estruturados do negócio — FONTE ÚNICA do schema JSON-LD (AutoDealer)
+      // que o site.js injeta. Antes isso vivia chumbado no index.html (duplicado).
+      // Mudar telefone/endereço/horário aqui reflete no rodapé E no schema, num lugar só.
+      negocio: {
+        alternateName: 'Dicar Veículos Castanhal',
+        descricao: 'Revenda de carros novos e seminovos com procedência e garantia em Castanhal/PA. Compra, venda, troca e financiamento.',
+        streetAddress: 'Av. Pres. Getúlio Vargas, 1852',
+        addressLocality: 'Castanhal',
+        addressRegion: 'PA',
+        postalCode: '68740-005',   // ⚠️ a confirmar com o cliente (Receita indica 68741-000)
+        addressCountry: 'BR',
+        priceRange: 'R$ 50.000 - R$ 120.000',
+        ratingValue: '5.0',
+        reviewCount: '5',
+        imagem: 'assets/loja.webp',
+        logo: 'assets/favicon.svg',
+        // dias em inglês (schema.org); abre/fecha em 24h
+        horarios: [
+          { dias: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'], abre: '07:30', fecha: '18:00' },
+          { dias: ['Saturday'], abre: '08:00', fecha: '13:00' }
+        ],
+        areaServed: ['Castanhal', 'Ananindeua', 'Marituba', 'Belém', 'Capanema', 'São Miguel do Guamá', 'Igarapé-Açu', 'Santa Maria do Pará', 'Vigia', 'Maracanã', 'Curuçá', 'Inhangapi', 'Terra Alta', 'Santo Antônio do Tauá', 'Ourém', 'Bragança']
+      },
+      // Redes sociais — geridas em "Conexões & Medição". O Instagram canônico
+      // segue em config.instagram (usado no rodapé/WhatsApp); aqui ficam as demais.
+      redes: { facebook: '', youtube: '', tiktok: '', linkedin: '' }
     },
     // Permissões do papel "funcionário" (admin vê/faz tudo).
     permissoes: {
@@ -252,13 +317,22 @@
     seqVenda: 3
   };
 
-  /* ---------- Persistência ---------- */
+  /* ---------- Persistência ----------
+     Cache em memória: evita reparsear o JSON do localStorage a cada chamada.
+     O painel e o site chamam load() dezenas de vezes por render — com muitos
+     veículos (e fotos), reparsear toda vez fica caro. O cache é invalidado em
+     todo save()/reset e quando outra aba altera o banco. */
+  var _cache = null;
   function load() {
+    if (_cache) return _cache;
     try {
       var raw = global.localStorage.getItem(DB_KEY);
-      if (!raw) { save(SEED); return clone(SEED); }
+      if (!raw) { var seed = clone(SEED); save(seed); return seed; }
       var db = JSON.parse(raw);
       if (!db.permissoes) db.permissoes = clone(SEED.permissoes);
+      if (db.config && !db.config.ads) db.config.ads = clone(SEED.config.ads);
+      if (db.config && !db.config.negocio) db.config.negocio = clone(SEED.config.negocio);
+      if (db.config && !db.config.redes) db.config.redes = clone(SEED.config.redes);
       if (!db.clientes) db.clientes = [];
       if (!db.vendas) db.vendas = [];
       if (db.seqVenda == null) db.seqVenda = 0;
@@ -269,11 +343,14 @@
         if (v.status === 'reservado') { v.status = 'negociando'; mig = true; }
         if (v.tipo === 'Sedan') { v.tipo = 'Sedã'; mig = true; }
       });
+      _cache = db;
       if (mig) save(db);
       return db;
     } catch (e) { return clone(SEED); }
   }
-  function save(db) { global.localStorage.setItem(DB_KEY, JSON.stringify(db)); }
+  function save(db) { _cache = db; global.localStorage.setItem(DB_KEY, JSON.stringify(db)); }
+  // outra aba (ex.: painel aberto junto com o site) alterou o banco → recarrega
+  try { global.addEventListener('storage', function (e) { if (e.key === DB_KEY) _cache = null; }); } catch (e) {}
   function clone(o) { return JSON.parse(JSON.stringify(o)); }
   function uid(p) { return (p || 'id') + '-' + Date.now() + '-' + Math.floor(Math.random() * 1000); }
   var MAX_DESTAQUE = 3;
@@ -291,11 +368,40 @@
   /* ---------- API pública ---------- */
   var Store = {
     LIMITS: LIMITS,
-    reset: function () { global.localStorage.removeItem(DB_KEY); return load(); },
+    reset: function () { _cache = null; global.localStorage.removeItem(DB_KEY); return load(); },
 
     getConfig: function () { return load().config; },
     saveConfig: function (cfg) {
       var db = load(); db.config = Object.assign(db.config, cfg); save(db); return db.config;
+    },
+
+    /* ---- Anúncios/medição (Pixel, GA4, Google Ads, GTM) ---- */
+    getAds: function () {
+      var a = (load().config || {}).ads || {};
+      return Object.assign({ gtmId: '', ga4Id: '', metaPixelId: '', googleAdsId: '', googleAdsLabel: '' }, a);
+    },
+    saveAds: function (ads) {
+      var db = load();
+      db.config.ads = Object.assign(db.config.ads || {}, ads);
+      save(db); return db.config.ads;
+    },
+
+    /* ---- Redes sociais ---- */
+    getRedes: function () {
+      var r = (load().config || {}).redes || {};
+      return Object.assign({ facebook: '', youtube: '', tiktok: '', linkedin: '' }, r);
+    },
+    saveRedes: function (redes) {
+      var db = load();
+      db.config.redes = Object.assign(db.config.redes || {}, redes);
+      save(db); return db.config.redes;
+    },
+    // URLs públicas (Instagram + redes preenchidas) p/ o schema sameAs do site
+    redesSameAs: function () {
+      var cfg = load().config || {}, r = cfg.redes || {}, out = [];
+      if (cfg.instagram) out.push('https://instagram.com/' + cfg.instagram);
+      ['facebook', 'youtube', 'tiktok', 'linkedin'].forEach(function (k) { if (r[k]) out.push(r[k]); });
+      return out;
     },
 
     /* ---- Permissões ---- */
@@ -313,18 +419,17 @@
     getVehicles: function (filters) {
       var list = load().veiculos.slice();
       filters = filters || {};
+      // [NÚCLEO] filtros genéricos do catálogo (servem a qualquer perfil)
       if (filters.status) list = list.filter(function (v) { return v.status === filters.status; });
       if (filters.destaque) list = list.filter(function (v) { return v.destaque; });
-      if (filters.marca) list = list.filter(function (v) { return v.marca === filters.marca; });
-      if (filters.tipo) list = list.filter(function (v) { return v.tipo === filters.tipo; });
-      if (filters.cambio) list = list.filter(function (v) { return v.cambio === filters.cambio; });
-      if (filters.origem) list = list.filter(function (v) { return v.origem === filters.origem; });
+      // [PERFIL] facetas de igualdade do nicho (marca/tipo/cambio/origem)
+      PERFIL.facetas.forEach(function (f) {
+        if (filters[f]) list = list.filter(function (v) { return v[f] === filters[f]; });
+      });
       if (filters.precoMax) list = list.filter(function (v) { return v.preco <= filters.precoMax; });
       if (filters.busca) {
         var q = filters.busca.toLowerCase();
-        list = list.filter(function (v) {
-          return (v.marca + ' ' + v.modelo + ' ' + v.versao).toLowerCase().indexOf(q) > -1;
-        });
+        list = list.filter(function (v) { return PERFIL.nome(v).toLowerCase().indexOf(q) > -1; });
       }
       if (filters.ordenar === 'preco-asc') list.sort(function (a, b) { return a.preco - b.preco; });
       else if (filters.ordenar === 'preco-desc') list.sort(function (a, b) { return b.preco - a.preco; });
@@ -340,19 +445,16 @@
       var found = load().veiculos.filter(function (v) { return v.id === id; });
       return found.length ? found[0] : null;
     },
-    nomeVeiculo: function (v) {
-      if (!v) return '—';
-      return (v.marca + ' ' + v.modelo + ' ' + (v.versao || '')).trim();
-    },
-    marcas: function () {
-      var set = {}; load().veiculos.forEach(function (v) { set[v.marca] = 1; });
+    // nome de exibição do item — delega ao [PERFIL] (nome antigo mantido p/ compat)
+    nomeVeiculo: function (v) { return PERFIL.nome(v); },
+    // [NÚCLEO] valores distintos de uma faceta, direto dos dados (sem lista fixa)
+    valoresFaceta: function (campo) {
+      var set = {}; load().veiculos.forEach(function (v) { if (v[campo]) set[v[campo]] = 1; });
       return Object.keys(set).sort();
     },
-    // tipos distintos existentes no estoque (pro filtro do site nascer dos dados, sem lista fixa)
-    tipos: function () {
-      var set = {}; load().veiculos.forEach(function (v) { if (v.tipo) set[v.tipo] = 1; });
-      return Object.keys(set).sort();
-    },
+    // [PERFIL] atalhos de faceta usados pelo site/painel de carro
+    marcas: function () { return this.valoresFaceta('marca'); },
+    tipos: function () { return this.valoresFaceta('tipo'); },
     saveVehicle: function (v) {
       var db = load();
       var saved = v;
@@ -392,6 +494,23 @@
         if (i > -1) db.clientes[i] = Object.assign(db.clientes[i], c); else db.clientes.unshift(c);
       }
       save(db); return c;
+    },
+    // [NÚCLEO] cria um lead a partir do site público (formulário/clique no WhatsApp).
+    // Pronto p/ a captura automática da Fase 3: entra como "novo", origem "Site",
+    // sem vendedor atribuído. Hoje (demo) grava no localStorage; em produção, no Supabase.
+    criarLeadDoSite: function (dados) {
+      dados = dados || {};
+      return this.saveCliente({
+        nome: (dados.nome || '').trim() || 'Contato do site',
+        telefone: dados.telefone || '',
+        cidade: dados.cidade || '',
+        veiculoId: dados.veiculoId || '',
+        interesse: dados.interesse || '',
+        origem: 'Site',
+        vendedor: '',
+        obs: dados.obs || '',
+        etapa: 'novo'
+      });
     },
     deleteCliente: function (id) {
       var db = load(); db.clientes = db.clientes.filter(function (c) { return c.id !== id; }); save(db);
@@ -607,18 +726,7 @@
     var p = ym.split('-'); return meses[Number(p[1]) - 1] + '/' + p[0];
   };
   Store.fmtNumeroVenda = function (n) { return '#' + String(n || 0).padStart(4, '0'); };
-  Store.placeholder = function (v) {
-    var txt = (v.marca + ' ' + v.modelo).toUpperCase();
-    var svg =
-      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">' +
-      '<rect width="400" height="300" fill="#1a1a1a"/>' +
-      '<path d="M70 195 l20-45 a25 25 0 0 1 22-14 h96 a25 25 0 0 1 20 10 l28 38 32 8 a12 12 0 0 1 10 12 v18 h-30 a22 22 0 0 0-44 0 h-70 a22 22 0 0 0-44 0 h-26 a10 10 0 0 1-10-10 v-13 a12 12 0 0 1 8-12z" fill="#2b2b2b"/>' +
-      '<circle cx="128" cy="208" r="16" fill="#0d0d0d" stroke="#CE181E" stroke-width="4"/>' +
-      '<circle cx="242" cy="208" r="16" fill="#0d0d0d" stroke="#CE181E" stroke-width="4"/>' +
-      '<text x="200" y="266" fill="#8a8a8a" font-family="Arial" font-size="15" font-weight="bold" text-anchor="middle">' + txt + '</text>' +
-      '</svg>';
-    return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
-  };
+  Store.placeholder = function (v) { return PERFIL.placeholder(v); };   // [PERFIL] silhueta de carro
   Store.foto = function (v) {
     return (v.fotos && v.fotos.length) ? v.fotos[0] : Store.placeholder(v);
   };
@@ -627,5 +735,61 @@
     return 'https://wa.me/' + cfg.whatsapp + '?text=' + encodeURIComponent(texto || 'Olá! Vi um veículo no site da Dicar e quero mais informações.');
   };
 
+  /* ---------- Eventos de desempenho digital (first-party, sem PII) ----------
+     Stream SEPARADO do banco principal: assim registrar um clique não reescreve
+     o JSON de veículos (com fotos) toda vez. Em produção: tabela própria no Supabase.
+     Guarda só ação + timestamp + id/nome do veículo (quando houver). */
+  var EVENTS_KEY = 'dicar_eventos_v1';
+  var WA_ACTIONS = ['contato_whatsapp', 'simular_financiamento', 'avaliar_veiculo'];
+  function loadEvents() { try { return JSON.parse(global.localStorage.getItem(EVENTS_KEY)) || []; } catch (e) { return []; } }
+  function saveEvents(arr) { try { global.localStorage.setItem(EVENTS_KEY, JSON.stringify(arr)); } catch (e) {} }
+  function diaISO(t) { var d = new Date(t); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+
+  Store.logEvent = function (action, data) {
+    if (!action) return;
+    data = data || {};
+    var arr = loadEvents();
+    arr.push({ a: action, t: Date.now(), id: data.id || '', nome: data.nome || '' });
+    if (arr.length > 1000) arr = arr.slice(arr.length - 1000);   // capa o histórico
+    saveEvents(arr);
+  };
+  // contagens agregadas; opts.desde (timestamp) filtra por período
+  Store.eventStats = function (opts) {
+    opts = opts || {};
+    var arr = loadEvents();
+    if (opts.desde) arr = arr.filter(function (e) { return e.t >= opts.desde; });
+    var c = {}, vistos = {};
+    arr.forEach(function (e) {
+      c[e.a] = (c[e.a] || 0) + 1;
+      if (e.a === 'ver_veiculo' && e.id) vistos[e.id] = (vistos[e.id] || 0) + 1;
+    });
+    var wa = WA_ACTIONS.reduce(function (s, k) { return s + (c[k] || 0); }, 0);
+    var topId = '', topN = 0;
+    Object.keys(vistos).forEach(function (id) { if (vistos[id] > topN) { topN = vistos[id]; topId = id; } });
+    return {
+      total: arr.length, whatsapp: wa, verVeiculo: c.ver_veiculo || 0,
+      simulacoes: c.simular_financiamento || 0, avaliacoes: c.avaliar_veiculo || 0,
+      veiculoMaisVistoId: topId, veiculoMaisVistoN: topN
+    };
+  };
+  // série dos últimos N dias p/ gráfico. action = nome do evento ou 'whatsapp' (grupo)
+  Store.eventosPorDia = function (action, dias) {
+    dias = dias || 7;
+    var arr = loadEvents(), hoje = new Date(), res = [];
+    for (var i = dias - 1; i >= 0; i--) {
+      var d = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate() - i);
+      var key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+      var label = String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0');
+      var n = arr.filter(function (e) {
+        if (diaISO(e.t) !== key) return false;
+        return action === 'whatsapp' ? WA_ACTIONS.indexOf(e.a) > -1 : e.a === action;
+      }).length;
+      res.push({ label: label, value: n });
+    }
+    return res;
+  };
+  Store.resetEventos = function () { saveEvents([]); };
+
+  Store.PERFIL = PERFIL;     // [PERFIL] exposto p/ o site (ex.: tipo de schema do negócio)
   global.Store = Store;
 })(window);

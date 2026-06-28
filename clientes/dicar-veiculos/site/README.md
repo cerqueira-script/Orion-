@@ -8,7 +8,7 @@ Marca da Dicar (vermelho/preto/branco). **Sem mensalidade de licença** — feit
 Abra o arquivo **`index.html`** no navegador (duplo clique). Funciona offline.
 
 - **Site público:** `index.html` (início), `estoque.html`, `veiculo.html`
-- **Painel de gestão:** `admin/index.html`
+- **Painel de gestão:** `painel/index.html`
 
 > Dica pra apresentar: o mapa de "Como chegar" só carrega com internet — o resto roda offline.
 
@@ -53,7 +53,9 @@ mantendo a marca da Dicar (vermelho/preto/branco). Construído com as 3 ferramen
 - **Assinatura:** geometria diagonal + nome do modelo em tipografia gigante no herói.
 - **Mobile:** layout repensado pra celular (não é o desktop espremido).
 - **Qualidade:** HTML semântico, meta/OG tags, foco visível, lazy-load, `prefers-reduced-motion`, contraste.
-- Arquivos do tema: `assets/css/site.css` + `assets/js/site.js`. (O painel usa `assets/css/styles.css` + `admin/admin.js`.)
+- **Site** (público): `index.html`, `estoque.html`, `veiculo.html` + `assets/css/site.css` + `assets/js/site.js`.
+- **Painel** (sistema): `painel/index.html` + `assets/css/painel.css` + `assets/js/painel.js`.
+- **Compartilhado:** `assets/js/store.js` (camada de dados) + as fotos (`assets/*.webp`) + `favicon.svg`.
 
 > **Único ponto pendente do checklist:** fotos reais dos veículos (hoje há placeholders). É só subir pelo painel.
 

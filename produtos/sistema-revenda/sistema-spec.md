@@ -1,5 +1,12 @@
 # Sistema de Revenda — Produto Orion
 
+> **⚠️ Reconciliação de posicionamento (27/06/2026).** Este "Sistema de Revenda" é a
+> **1ª adaptação da Plataforma Orion** (núcleo horizontal de presença digital), não um
+> produto-fim isolado. O que é específico de revenda é o **cadastro do catálogo** (carro)
+> que alimenta o site — o resto (gestão de site, conteúdo, leads, integrações) é núcleo
+> reaproveitável entre segmentos. Próximo movimento de produto: remodelar pra separar
+> **núcleo × catálogo-por-segmento**. Posicionamento em [`_memoria/posicionamento.md`](../../_memoria/posicionamento.md).
+>
 > **Especificação v2.** Sistema de gestão + site para revendas de veículos.
 > Produto **reutilizável** da Orion: um molde, uma instância por cliente.
 > Primeira instância: **Dicar Veículos** (`clientes/dicar-veiculos/`).

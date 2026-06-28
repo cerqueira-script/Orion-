@@ -51,6 +51,88 @@
     document.head.appendChild(s);
   }
 
+  /* ---------- SEO dinâmico da página de veículo ----------
+     title/description/OG/canonical + breadcrumb por veículo (a página é a mesma
+     veiculo.html?id=…; quem renderiza JS — inclusive o Google — vê o conteúdo certo).
+     Pra prévia em redes que NÃO rodam JS (WhatsApp/Facebook) só com SSR/prerender. */
+  function seoBase() {
+    if (location.protocol === 'http:' || location.protocol === 'https:') return location.origin;
+    var c = document.getElementById('canonical');
+    try { return new URL(c.getAttribute('href')).origin; } catch (e) { return 'https://dicarveiculos.com.br'; }
+  }
+  function setMeta(id, attr, val) { var el = document.getElementById(id); if (el) el.setAttribute(attr, val); }
+  function setVeiculoSEO(v) {
+    var nome = (v.marca + ' ' + v.modelo + ' ' + (v.versao || '')).replace(/\s+/g, ' ').trim();
+    var url = seoBase() + '/veiculo.html?id=' + v.id;
+    var titulo = nome + ' ' + v.ano + ' em Castanhal/PA · Dicar Veículos';
+    var desc = nome + ' ' + v.ano + ' · ' + Store.fmtKm(v.km) + ' · ' + v.cambio + ' · ' + Store.fmtPreco(v.preco) +
+      '. Seminovo com procedência e garantia na Dicar, Castanhal/PA. Financiamento e troca.';
+    document.title = titulo;
+    setMeta('meta-desc', 'content', desc);
+    setMeta('og-title', 'content', nome + ' ' + v.ano + ' em Castanhal/PA — Dicar Veículos');
+    setMeta('og-desc', 'content', desc);
+    setMeta('og-url', 'content', url);
+    setMeta('canonical', 'href', url);
+    // imagem social: 1ª foto real do veículo (não placeholder/base64); senão mantém a da loja
+    if (v.fotos && v.fotos.length && v.fotos[0].indexOf('data:') !== 0) {
+      setMeta('og-image', 'content', seoBase() + '/' + v.fotos[0]);
+    }
+    var bc = document.getElementById('bc-veiculo'); if (bc) bc.textContent = v.marca + ' ' + v.modelo;
+    // breadcrumb estruturado (Início › Veículos › modelo)
+    var bcLd = {
+      '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Início', item: seoBase() + '/' },
+        { '@type': 'ListItem', position: 2, name: 'Veículos', item: seoBase() + '/estoque.html' },
+        { '@type': 'ListItem', position: 3, name: nome, item: url }
+      ]
+    };
+    var old = document.getElementById('veh-bc-ld'); if (old) old.remove();
+    var s = document.createElement('script');
+    s.type = 'application/ld+json'; s.id = 'veh-bc-ld';
+    s.textContent = JSON.stringify(bcLd);
+    document.head.appendChild(s);
+  }
+
+  /* ---------- dados estruturados do negócio (AutoDealer) ----------
+     Gerado a partir do config (fonte única) e injetado no <head>. Antes ficava
+     chumbado no index.html — agora muda num lugar só (Store config → Supabase).
+     Mesmo padrão dos schemas de veículo/breadcrumb: o Google renderiza JS e lê. */
+  function injectDealerLD() {
+    var cfg = Store.getConfig();
+    var n = cfg && cfg.negocio;
+    if (!n) return;
+    var base = seoBase();
+    var ld = {
+      '@context': 'https://schema.org',
+      '@type': (Store.PERFIL && Store.PERFIL.schemaType) || 'AutoDealer',
+      name: cfg.nomeLoja,
+      alternateName: n.alternateName,
+      description: n.descricao,
+      image: base + '/' + n.imagem,
+      logo: base + '/' + n.logo,
+      url: base + '/',
+      telephone: '+' + cfg.whatsapp,
+      priceRange: n.priceRange,
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: n.streetAddress, addressLocality: n.addressLocality,
+        addressRegion: n.addressRegion, postalCode: n.postalCode, addressCountry: n.addressCountry
+      },
+      openingHoursSpecification: (n.horarios || []).map(function (h) {
+        return { '@type': 'OpeningHoursSpecification', dayOfWeek: h.dias, opens: h.abre, closes: h.fecha };
+      }),
+      areaServed: (n.areaServed || []).map(function (c) { return { '@type': 'City', name: c }; }),
+      aggregateRating: { '@type': 'AggregateRating', ratingValue: n.ratingValue, reviewCount: n.reviewCount },
+      sameAs: (Store.redesSameAs ? Store.redesSameAs() : ['https://instagram.com/' + cfg.instagram])
+    };
+    var old = document.getElementById('dealer-ld'); if (old) old.remove();
+    var s = document.createElement('script');
+    s.type = 'application/ld+json'; s.id = 'dealer-ld';
+    s.textContent = JSON.stringify(ld);
+    document.head.appendChild(s);
+  }
+
   /* ---------- config (contatos) ---------- */
   function bindConfig() {
     var cfg = Store.getConfig();
@@ -96,7 +178,7 @@
     '<article class="card reveal">' +
       '<a class="ph" href="veiculo.html?id=' + v.id + '" aria-label="' + v.marca + ' ' + v.modelo + '">' +
         '<span class="tag' + (sold ? ' sold' : (neg ? ' neg' : '')) + '">' + (sold ? 'Vendido' : (neg ? 'Negociando' : 'Disponível')) + '</span>' +
-        '<img src="' + Store.foto(v) + '" alt="' + v.marca + ' ' + v.modelo + ' ' + v.ano + '" loading="lazy">' +
+        '<img src="' + Store.foto(v) + '" alt="' + v.marca + ' ' + v.modelo + ' ' + v.ano + '" loading="lazy" decoding="async">' +
       '</a>' +
       '<div class="bd">' +
         '<span class="mk">' + v.marca + '</span>' +
@@ -118,6 +200,7 @@
   /* ---------- HOME ---------- */
   function initHome() {
     var heroBox = $('#hero-dyn'); if (!heroBox) return;
+    injectDealerLD();          // schema do negócio (home) a partir do config
     var feats = Store.getPublicVehicles({ destaque: true });
     if (!feats.length) feats = Store.getPublicVehicles({});
     var idx = 0;
@@ -128,7 +211,7 @@
       heroBox.innerHTML =
         '<div class="hero-copy">' +
           '<span class="kicker">Em destaque</span>' +
-          '<h1 class="hero-model">' + v.modelo + ' <span class="yr">' + v.ano + '</span></h1>' +
+          '<h2 class="hero-model">' + v.modelo + ' <span class="yr">' + v.ano + '</span></h2>' +
           '<p class="hero-sub">' + v.marca + ' ' + v.versao + '.</p>' +
           '<div class="hero-price"><span class="v">' + Store.fmtPreco(v.preco) + '</span><span class="lbl">à vista ou financiado</span></div>' +
           '<div class="hero-actions">' +
@@ -191,12 +274,16 @@
   }
 
   /* ---------- ESTOQUE ---------- */
+  var PAGINA = 12;            // veículos mostrados por vez (clica "Carregar mais" pro resto)
   function initEstoque() {
     var grid = $('#grid'); if (!grid) return;
     var q = new URLSearchParams(location.search);
     var fBusca = $('#f-busca'), fMarca = $('#f-marca'), fTipo = $('#f-tipo'),
         fCambio = $('#f-cambio'), fPreco = $('#f-preco'), fOrd = $('#f-ord'),
         countEl = $('#count'), clearEl = $('#f-clear');
+
+    var resultado = [];        // lista filtrada/ordenada inteira
+    var visiveis = 0;          // quantos cards estão na tela agora
 
     Store.marcas().forEach(function (m) { fMarca.add(new Option(m, m)); });
     Store.tipos().forEach(function (t) { fTipo.add(new Option(t, t)); });
@@ -206,17 +293,26 @@
     if (q.get('tipo')) fTipo.value = q.get('tipo');
     if (q.get('cambio')) fCambio.value = q.get('cambio');
 
+    // recalcula a lista (ao mudar filtro/busca) e volta pra 1ª página
     function apply() {
-      var list = Store.getPublicVehicles({
+      resultado = Store.getPublicVehicles({
         busca: fBusca.value || null, marca: fMarca.value || null, tipo: fTipo.value || null,
         cambio: fCambio.value || null, precoMax: fPreco.value ? Number(fPreco.value) : null,
         ordenar: fOrd.value || null
       });
       // sem filtro/ordenação ativos: destaques primeiro
       var semFiltro = !fBusca.value && !fMarca.value && !fTipo.value && !fCambio.value && !fOrd.value && !fPreco.value;
-      if (semFiltro) list = list.slice().sort(function (a, b) { return (b.destaque ? 1 : 0) - (a.destaque ? 1 : 0); });
-      grid.innerHTML = list.length ? list.map(card).join('')
-        : '<div class="empty">' +
+      if (semFiltro) resultado = resultado.slice().sort(function (a, b) { return (b.destaque ? 1 : 0) - (a.destaque ? 1 : 0); });
+      visiveis = Math.min(PAGINA, resultado.length);
+      render();
+      markActive();
+    }
+
+    // desenha só os "visiveis" primeiros + botão "Carregar mais" (carrega o resto sob demanda)
+    function render() {
+      if (!resultado.length) {
+        grid.innerHTML =
+          '<div class="empty">' +
             '<h3>Não achou o que procura?</h3>' +
             '<p>Toda semana entra carro novo. Diz pra gente o que você quer — a gente acha pra você.</p>' +
             '<div class="empty-acts">' +
@@ -224,11 +320,26 @@
               '<a href="#" id="clr" class="empty-clr">Limpar filtros</a>' +
             '</div>' +
           '</div>' + sugsHTML();
-      // esconde a faixa de CTA do rodapé quando já mostramos a mensagem aqui
+      } else {
+        var html = resultado.slice(0, visiveis).map(card).join('');
+        var restantes = resultado.length - visiveis;
+        if (restantes > 0) {
+          var lote = Math.min(PAGINA, restantes);
+          html += '<div class="load-more-wrap">' +
+            '<button type="button" class="btn btn-line on-light load-more" id="load-more">Carregar mais ' +
+              '<span class="lm-n">+' + lote + '</span></button>' +
+            '<div class="load-more-info">Mostrando ' + visiveis + ' de ' + resultado.length + '</div>' +
+          '</div>';
+        }
+        grid.innerHTML = html;
+      }
+      // esconde a faixa de CTA do rodapé quando mostramos a mensagem de "não achou"
       var band = document.querySelector('.cta-band');
-      if (band) band.style.display = list.length ? '' : 'none';
-      countEl.innerHTML = '<b>' + list.length + '</b> veículo' + (list.length === 1 ? '' : 's');
+      if (band) band.style.display = resultado.length ? '' : 'none';
+      countEl.innerHTML = '<b>' + resultado.length + '</b> veículo' + (resultado.length === 1 ? '' : 's');
       $$('.reveal', grid).forEach(function (e) { e.classList.add('in'); });
+      var lm = $('#load-more');
+      if (lm) lm.onclick = function () { visiveis = Math.min(visiveis + PAGINA, resultado.length); render(); };
       var c = $('#clr'); if (c) c.onclick = function (e) { e.preventDefault(); reset(); };
       $$('.sug-btn', grid).forEach(function (b) {
         b.addEventListener('click', function () {
@@ -236,7 +347,6 @@
           fTipo.value = b.getAttribute('data-tipo'); apply();
         });
       });
-      markActive();
     }
     // 3 carros de categorias diferentes pra sugerir quando o filtro não acha nada
     function sugsHTML() {
@@ -250,7 +360,7 @@
           '<div class="sugs-head">Que tal um destes?</div>' +
           '<div class="sugs">' + picks.map(function (v) {
             return '<article class="sug">' +
-              '<a class="sug-ph" href="veiculo.html?id=' + v.id + '" aria-label="' + v.marca + ' ' + v.modelo + '"><img src="' + Store.foto(v) + '" alt="' + v.marca + ' ' + v.modelo + '" loading="lazy"></a>' +
+              '<a class="sug-ph" href="veiculo.html?id=' + v.id + '" aria-label="' + v.marca + ' ' + v.modelo + '"><img src="' + Store.foto(v) + '" alt="' + v.marca + ' ' + v.modelo + '" loading="lazy" decoding="async"></a>' +
               '<div class="sug-bd">' +
                 '<span class="sug-mk">' + v.marca + ' · ' + v.tipo + '</span>' +
                 '<a class="sug-nm" href="veiculo.html?id=' + v.id + '">' + v.modelo + '</a>' +
@@ -325,7 +435,7 @@
       '<button type="button" class="lb-close" aria-label="Fechar">&times;</button>' +
       (multi ? '<span class="lb-count"><b>' + (start + 1) + '</b> / ' + fotos.length + '</span>' : '') +
       '<div class="lb-track">' + fotos.map(function (f, i) {
-        return '<div class="lb-slide"><img src="' + f + '" alt="' + nome + ' — foto ' + (i + 1) + '"></div>';
+        return '<div class="lb-slide"><img src="' + f + '" alt="' + nome + ' — foto ' + (i + 1) + '" decoding="async"' + (i === start ? '' : ' loading="lazy"') + '></div>';
       }).join('') + '</div>';
     document.body.appendChild(lb);
     document.body.classList.add('lb-open');
@@ -348,8 +458,9 @@
     var id = new URLSearchParams(location.search).get('id');
     var v = id && Store.getVehicle(id);
     if (!v || v.status === 'vendido') { box.innerHTML = '<div class="empty">Este veículo não está mais disponível. <a href="estoque.html">Ver os veículos à venda</a></div>'; return; }
-    document.title = v.marca + ' ' + v.modelo + ' ' + v.versao + ' · Dicar Veículos';
     injectVehicleLD(v);
+    setVeiculoSEO(v);
+    dicarTrack('ver_veiculo', { id: v.id, nome: Store.nomeVeiculo(v), value: v.preco, currency: 'BRL' });
     var fotos = (v.fotos && v.fotos.length) ? v.fotos : [Store.placeholder(v)];
     var sold = v.status === 'vendido';
     var neg = v.status === 'negociando';
@@ -363,7 +474,7 @@
           '<div class="slider" id="gslider">' +
             fotos.map(function (f, i) {
               return '<button type="button" class="slide" data-i="' + i + '" aria-label="Ampliar foto ' + (i + 1) + '">' +
-                '<img src="' + f + '" alt="' + v.modelo + ' — foto ' + (i + 1) + '"' + (i ? ' loading="lazy"' : '') + '>' +
+                '<img src="' + f + '" alt="' + v.modelo + ' — foto ' + (i + 1) + '" decoding="async"' + (i ? ' loading="lazy"' : ' fetchpriority="high"') + '>' +
               '</button>';
             }).join('') +
           '</div>' +
@@ -386,7 +497,7 @@
         '<div class="acts">' +
           (sold ? '<span class="btn btn-ink">Este veículo já foi vendido</span>'
                 : '<a class="btn btn-wa" target="_blank" rel="noopener" href="' + Store.waLink(msg) + '">' + WA_ICO + 'Falar no WhatsApp</a>' +
-                  '<a class="btn btn-red" target="_blank" rel="noopener" href="' + Store.waLink(msgF) + '">Simular financiamento</a>') +
+                  '<a class="btn btn-red" data-wa-action="simular_financiamento" target="_blank" rel="noopener" href="' + Store.waLink(msgF) + '">Simular financiamento</a>') +
           '<a class="acts-back" href="estoque.html">← Ver todos os veículos</a>' +
         '</div>' +
       '</div>';
@@ -394,7 +505,129 @@
     function g(k, val) { return '<div><div class="k">' + k + '</div><div class="v">' + val + '</div></div>'; }
   }
 
+  /* ---------- LGPD: consentimento de cookies + rastreamento ----------
+     Nenhum cookie de análise/marketing carrega sem aceite (art. 7 da LGPD).
+     Quando o cliente ativar campanhas, preencher os IDs em TRACKING — o código
+     só dispara GA4/Meta Pixel se o consentimento estiver "granted". */
+  var CONSENT_KEY = 'dicar_consent_v1';
+
+  function consentStatus() { try { return localStorage.getItem(CONSENT_KEY); } catch (e) { return null; } }
+  function injectScript(src) { var s = document.createElement('script'); s.async = true; s.src = src; document.head.appendChild(s); }
+  // IDs vêm do painel (Store.getAds) — ativar/trocar anúncio NÃO exige novo deploy.
+  function getAds() { try { return (window.Store && Store.getAds) ? Store.getAds() : {}; } catch (e) { return {}; } }
+  function loadTracking() {
+    if (consentStatus() !== 'granted') return;
+    var ads = getAds();
+    window.dataLayer = window.dataLayer || [];
+
+    // Google Tag Manager — recomendado: o gestor mapeia pixels/conversões/eventos
+    // dentro do painel do GTM, usando os eventos que o site empurra (sem mexer no código).
+    if (ads.gtmId && !window.__gtm) {
+      window.__gtm = true;
+      window.dataLayer.push({ 'gtm.start': Date.now(), event: 'gtm.js' });
+      injectScript('https://www.googletagmanager.com/gtm.js?id=' + ads.gtmId);
+    }
+
+    // gtag.js (Google Analytics 4 e/ou Google Ads) — direto, quando não for via GTM
+    var gtagId = ads.ga4Id || ads.googleAdsId;
+    if (gtagId && !window.__gtag) {
+      window.__gtag = true;
+      injectScript('https://www.googletagmanager.com/gtag/js?id=' + gtagId);
+      window.gtag = window.gtag || function () { window.dataLayer.push(arguments); };
+      window.gtag('js', new Date());
+      if (ads.ga4Id) window.gtag('config', ads.ga4Id);
+      if (ads.googleAdsId) window.gtag('config', ads.googleAdsId);
+    }
+
+    // Meta (Facebook/Instagram) Pixel — direto
+    if (ads.metaPixelId && !window.__fb) {
+      window.__fb = true;
+      !function (f, b, e, v, n, t, s) {
+        if (f.fbq) return; n = f.fbq = function () { n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments); };
+        if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0'; n.queue = [];
+        t = b.createElement(e); t.async = !0; t.src = v; s = b.getElementsByTagName(e)[0]; s.parentNode.insertBefore(t, s);
+      }(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
+      window.fbq('init', ads.metaPixelId); window.fbq('track', 'PageView');
+    }
+  }
+
+  /* ---------- Eventos de conversão (pro gestor de anúncio mapear) ----------
+     Dispara só com consentimento. Empurra pro dataLayer (GTM mapeia lá) e,
+     quando os pixels estão diretos, chama fbq/gtag com os eventos padrão. */
+  function dicarTrack(action, data) {
+    data = data || {};
+    // [first-party] registra o evento p/ o painel (contagem agregada, sem dado pessoal).
+    // Roda SEMPRE — é métrica própria da loja, não cookie de terceiro (LGPD ok).
+    try { if (window.Store && Store.logEvent) Store.logEvent(action, data); } catch (e) {}
+    // [terceiros] GA4 / Meta / GTM só com consentimento de cookies.
+    if (consentStatus() !== 'granted') return;
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push(Object.assign({ event: 'dicar_' + action }, data));
+    if (window.fbq) {
+      var fbMap = { contato_whatsapp: 'Contact', simular_financiamento: 'Lead', avaliar_veiculo: 'Lead', ver_veiculo: 'ViewContent' };
+      if (fbMap[action]) window.fbq('track', fbMap[action], data); else window.fbq('trackCustom', action, data);
+    }
+    if (window.gtag) window.gtag('event', action, data);
+  }
+  window.dicarTrack = dicarTrack;
+  // todo clique em CTA de WhatsApp vira evento (ação conforme a página)
+  function initAdEvents() {
+    document.addEventListener('click', function (e) {
+      // pega tanto os botões com data-wa quanto os links dinâmicos (cards, detalhe,
+      // hero) que montam o wa.me direto no href — todo clique pro WhatsApp conta
+      var a = e.target.closest ? e.target.closest('[data-wa], a[href*="wa.me"]') : null;
+      if (!a) return;
+      var p = location.pathname;
+      // botão pode declarar a ação (ex.: "Simular financiamento" na página do veículo);
+      // senão, classifica pela página onde o clique aconteceu
+      var action = a.getAttribute('data-wa-action')
+                 || (/financiamento/.test(p) ? 'simular_financiamento'
+                    : /vender-meu-carro/.test(p) ? 'avaliar_veiculo'
+                    : 'contato_whatsapp');
+      dicarTrack(action, { pagina: p });
+    });
+  }
+  function setConsent(v) { try { localStorage.setItem(CONSENT_KEY, v); } catch (e) {} if (v === 'granted') loadTracking(); }
+  function showCookieBar() {
+    if ($('#cookie-bar')) return;
+    var bar = document.createElement('div');
+    bar.className = 'cookie-bar'; bar.id = 'cookie-bar';
+    bar.setAttribute('role', 'dialog'); bar.setAttribute('aria-label', 'Aviso de cookies');
+    bar.innerHTML =
+      '<p>A gente usa cookies pra melhorar sua experiência e, com sua autorização, medir o desempenho do site e exibir anúncios. Veja a <a href="privacidade.html">Política de Privacidade</a>.</p>' +
+      '<div class="cookie-acts">' +
+        '<button type="button" class="btn btn-line on-dark" id="ck-no">Só essenciais</button>' +
+        '<button type="button" class="btn btn-red" id="ck-yes">Aceitar</button>' +
+      '</div>';
+    document.body.appendChild(bar);
+    $('#ck-yes').onclick = function () { setConsent('granted'); bar.remove(); };
+    $('#ck-no').onclick = function () { setConsent('denied'); bar.remove(); };
+  }
+  function initConsent() {
+    loadTracking();                       // respeita escolha de visita anterior
+    if (!consentStatus()) showCookieBar();
+  }
+  // link de privacidade + reabrir preferências de cookies no rodapé de toda página
+  function addLegalLinks() {
+    $$('.ft-bottom').forEach(function (ft) {
+      var first = ft.querySelector('span');
+      if (!first || ft.querySelector('.ft-legal')) return;
+      var extra = document.createElement('span'); extra.className = 'ft-legal';
+      extra.innerHTML = ' · <a href="privacidade.html">Privacidade</a> · <a href="#" data-cookie-prefs>Preferências de cookies</a>';
+      first.appendChild(extra);
+    });
+    $$('[data-cookie-prefs]').forEach(function (a) {
+      a.addEventListener('click', function (e) { e.preventDefault(); showCookieBar(); });
+    });
+  }
+
   document.addEventListener('DOMContentLoaded', function () {
-    bindConfig(); initChrome(); initHome(); initEstoque(); initVeiculo(); initReveal();
+    // não dependem de dados — rodam já
+    initChrome(); initReveal(); initConsent(); addLegalLinks(); initAdEvents();
+    // dependem do banco (config + veículos): rodam após o init() hidratar o cache.
+    function boot() { bindConfig(); initHome(); initEstoque(); initVeiculo(); }
+    if (window.Store && Store.init) {
+      Store.init().then(boot).catch(function (e) { console.error('[site] init', e); boot(); });
+    } else { boot(); }
   });
 })();

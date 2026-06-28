@@ -1,8 +1,9 @@
 # Empresa
 
 **Nome:** Orion
-**Negócio:** Agência de presença digital para negócios locais
-**O que faz:** Constrói e fortalece a presença digital de empresas e profissionais liberais, unindo tecnologia, design e estratégia para gerar mais clientes e mais contatos online.
+**Negócio:** Plataforma de implantação de presença digital para empresas (qualquer segmento)
+**O que faz:** Implanta a presença digital completa de uma empresa — site exclusivo + Plataforma Orion para gerenciar essa presença (conteúdo, catálogo, leads, integrações), unindo tecnologia, design e estratégia para gerar confiança e novas oportunidades de negócio.
+**Posicionamento (fonte de verdade):** ver [`posicionamento.md`](posicionamento.md) — a Orion **não** é empresa de site nem de software, e **não** substitui ERP/gestão. É a camada que centraliza e fortalece a presença digital; quando preciso, **conecta** nos sistemas que a empresa já usa.
 **Perfil:** Solopreneur — operação solo
 **Atende clientes:** Dois perfis principais:
 - **Carlos (42 anos, empresário local)** — dono de loja, clínica, academia, restaurante, construtora etc. Fatura R$ 20k–500k/mês, negócio funciona no boca a boca, presença digital desorganizada ou inexistente. Quer mais clientes e mais credibilidade online.
@@ -16,7 +17,7 @@
 - Gestão e desenvolvimento de redes sociais
 - Fortalecimento da identidade digital da marca
 - Campanhas de tráfego pago
-- Sistemas de gestão sob medida (ex.: **Sistema de Revenda** — site + painel para revendas de veículos; 1ª instância: Dicar Veículos)
+- **Plataforma Orion** sob medida — site + painel pra gerenciar a presença digital (conteúdo, catálogo, leads, integrações). O núcleo é horizontal; o que **se adapta por segmento é o cadastro do catálogo** que alimenta o site (carro ≠ sofá ≠ serviço). 1ª adaptação/instância: **revenda de veículos** (Dicar Veículos).
 
 ## Contexto adicional
 

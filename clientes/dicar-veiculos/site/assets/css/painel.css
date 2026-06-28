@@ -194,6 +194,43 @@ h1,h2,h3{line-height:1.12;font-weight:800;letter-spacing:-.02em}
 .field input:hover,.field select:hover,.field textarea:hover{border-color:#c7cbd2}
 .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--red);outline:none;box-shadow:0 0 0 3px rgba(225,20,27,.12)}
 .field textarea{resize:vertical;min-height:80px}
+/* consentimento LGPD no cadastro de cliente */
+.lgpd-field{background:var(--soft);border:1px solid var(--line);border-radius:3px;padding:12px 14px}
+.lgpd-check{display:flex;align-items:center;gap:9px;font-size:13.5px!important;font-weight:600;cursor:pointer;margin:0!important}
+.lgpd-check input{width:auto!important;margin:0;flex:0 0 auto}
+.lgpd-note{display:block;color:var(--muted);font-size:12px;margin-top:7px;line-height:1.5}
+/* ===== Marketing (visão do dono) ===== */
+.mkt-links{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.mkt-link{display:flex;align-items:center;gap:14px;padding:15px 18px;border:1px solid var(--line);border-radius:8px;text-decoration:none;color:var(--ink);transition:border-color .15s var(--ease),transform .15s var(--ease)}
+.mkt-link:hover{border-color:var(--red);transform:translateY(-1px)}
+.mkt-link .mk-ic{width:42px;height:42px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;border-radius:9px;background:var(--soft);color:var(--red)}
+.mkt-link .mk-ic svg{width:22px;height:22px}
+.mkt-link .mk-tx{min-width:0}
+.mkt-link .mk-tx b{display:block;font-size:14.5px;line-height:1.2}
+.mkt-link .mk-tx span{display:block;font-size:12.5px;color:var(--muted);line-height:1.4;margin-top:2px}
+.mkt-link .mk-go{margin-left:auto;color:var(--muted);display:flex}
+.mkt-link .mk-go svg{width:18px;height:18px}
+.mk-status{display:grid;grid-template-columns:repeat(2,1fr);gap:10px 24px;font-size:14px;font-weight:600}
+.mk-status>div{display:flex;align-items:center;gap:9px}
+.mk-dot{width:9px;height:9px;border-radius:50%;background:#cfd3da;flex:0 0 auto}
+.mk-dot.on{background:#16a34a;box-shadow:0 0 0 3px rgba(22,163,74,.15)}
+.kpi.soon{position:relative;opacity:.85}
+.kpi.soon .v{color:var(--muted)}
+.kpi-soon{position:absolute;top:10px;right:10px;font-size:10px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);background:var(--soft);padding:3px 8px;border-radius:999px}
+@media(max-width:680px){.mkt-links,.mk-status{grid-template-columns:1fr}}
+/* ===== Busca FIPE no cadastro de veículo ===== */
+.fipe-box{background:var(--soft2);border:1px solid var(--line);border-radius:4px;padding:14px 16px;margin-bottom:20px}
+.fipe-head{font-size:12px;font-weight:800;letter-spacing:.02em;text-transform:uppercase;color:var(--ink);margin-bottom:10px}
+.fipe-head span{font-weight:600;text-transform:none;letter-spacing:0;color:var(--muted)}
+.fipe-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px}
+.fipe-result{font-size:13px;color:var(--muted);margin-top:10px}
+.fipe-result b{color:var(--ink)}
+.fipe-ref{color:#6B7280;font-size:11px}
+.fipe-card{border:1px solid var(--line);border-radius:8px;padding:20px;background:var(--bg)}
+.fipe-card-val{font-size:30px;font-weight:800;color:var(--ink);line-height:1;margin-bottom:16px}
+.fipe-card-val span{display:block;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin-top:6px}
+.fipe-card table{margin-bottom:18px}
+@media(max-width:640px){.fipe-row{grid-template-columns:1fr}}
 .login-hint{margin-top:18px;background:var(--soft);border-radius:3px;padding:12px 14px;font-size:12.5px;color:var(--muted);line-height:1.7}
 .login-err{background:#fdecec;color:var(--red-dark);padding:10px 13px;border-radius:3px;font-size:13.5px;margin-bottom:14px;display:none}
 

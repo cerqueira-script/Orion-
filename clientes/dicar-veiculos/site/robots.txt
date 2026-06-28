@@ -1,0 +1,7 @@
+# Dicar Veículos — Castanhal/PA
+# ⚠️ trocar o domínio do Sitemap pelo oficial quando publicar
+User-agent: *
+Allow: /
+Disallow: /admin/
+
+Sitemap: https://dicarveiculos.com.br/sitemap.xml

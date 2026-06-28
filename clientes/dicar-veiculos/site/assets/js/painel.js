@@ -47,7 +47,7 @@
     return Store.getClientes().filter(function (c) { return c.veiculoId === vid && c.etapa !== 'fechado' && c.etapa !== 'perdido'; });
   }
   function fotoTag(v, cls) {
-    return '<img' + (cls ? ' class="' + cls + '"' : '') + ' alt="' + esc(v.marca + ' ' + v.modelo) + '" src="' + Store.foto(v) +
+    return '<img' + (cls ? ' class="' + cls + '"' : '') + ' loading="lazy" decoding="async" alt="' + esc(v.marca + ' ' + v.modelo) + '" src="' + Store.foto(v) +
       '" onerror="this.onerror=null;this.src=\'' + Store.placeholder(v) + '\'">';
   }
 
@@ -64,9 +64,14 @@
 
   $('#login-form').addEventListener('submit', function (e) {
     e.preventDefault();
-    var s = Store.login($('#li-user').value.trim(), $('#li-pass').value);
-    if (!s) { $('#login-err').style.display = 'block'; return; }
-    session = s; boot();
+    $('#login-err').style.display = 'none';
+    var btn = e.target.querySelector('button[type="submit"]'); if (btn) btn.disabled = true;
+    // Promise.resolve casa os dois stores: demo (retorna sessão/null) e Supabase (Promise).
+    Promise.resolve(Store.login($('#li-user').value.trim(), $('#li-pass').value)).then(function (s) {
+      if (btn) btn.disabled = false;
+      if (!s) { $('#login-err').style.display = 'block'; return; }
+      session = s; boot();
+    }).catch(function (err) { if (btn) btn.disabled = false; console.error('[login]', err); $('#login-err').style.display = 'block'; });
   });
   $('#logout').addEventListener('click', function () { Store.logout(); session = null; showLogin(); });
 
@@ -78,7 +83,7 @@
     $$('.sidebar a[data-admin]').forEach(function (a) { a.style.display = session.role === 'admin' ? '' : 'none'; });
     $$('.sidebar a[data-perm]').forEach(function (a) { a.style.display = can(a.getAttribute('data-perm')) ? '' : 'none'; });
     var inicial = (location.hash || '').replace('#', '');
-    go(['dash', 'veiculos', 'clientes', 'vendas', 'config'].indexOf(inicial) > -1 ? inicial : 'dash');
+    go(['dash', 'veiculos', 'clientes', 'vendas', 'fipe', 'marketing', 'config'].indexOf(inicial) > -1 ? inicial : 'dash');
   }
 
   /* navegação */
@@ -99,7 +104,7 @@
     $$('.sidebar a').forEach(function (a) { a.addEventListener('click', fechar); });
   })();
   function go(view) {
-    if ((view === 'config') && session.role !== 'admin') view = 'dash';
+    if ((view === 'config' || view === 'marketing') && session.role !== 'admin') view = 'dash';
     if (view === 'clientes' && !can('gerenciarClientes')) view = 'dash';
     if (view === 'vendas' && !can('registrarVenda')) view = 'dash';
     try { if (location.hash !== '#' + view) history.replaceState(null, '', '#' + view); } catch (e) {}
@@ -108,27 +113,182 @@
     else if (view === 'veiculos') renderVeiculos();
     else if (view === 'clientes') renderClientes();
     else if (view === 'vendas') renderVendas();
+    else if (view === 'fipe') renderFipeConsulta();
+    else if (view === 'marketing') renderMarketing();
     else if (view === 'config') renderConfig();
+  }
+
+  /* ===================== MARKETING (visão do dono) ===================== */
+  function renderMarketing() {
+    var ads = Store.getAds();
+    var cfg = Store.getConfig();
+    var red = Store.getRedes();
+    // ícones simples (linha) pra cada canal
+    var icPin = svg('<path d="M12 21s7-6.4 7-11a7 7 0 0 0-14 0c0 4.6 7 11 7 11Z"/><circle cx="12" cy="10" r="2.6"/>');
+    var icChat = svg('<path d="M21 11.5a8.4 8.4 0 0 1-12.3 7.5L3 21l2-5.7A8.4 8.4 0 1 1 21 11.5Z"/>');
+    var icTarget = svg('<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.4"/>');
+    var icBars = svg('<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>');
+    var icSearch = svg('<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>');
+
+    function mktLink(t, d, href, ic) {
+      return '<a class="mkt-link" href="' + href + '" target="_blank" rel="noopener">' +
+        '<span class="mk-ic">' + ic + '</span>' +
+        '<span class="mk-tx"><b>' + t + '</b><span>' + d + '</span></span>' +
+        '<span class="mk-go">' + ICONS.arrowout + '</span></a>';
+    }
+    function kpiSoon(l, hint) {
+      return '<div class="kpi soon"><span class="kpi-soon">em breve</span><div class="v">—</div><div class="l">' + l + '</div>' +
+        (hint ? '<div class="kpi-hint">' + hint + '</div>' : '') + '</div>';
+    }
+    // status do que já está configurado (pixel/ads) — dado que JÁ temos
+    function dot(on) { return '<span class="mk-dot ' + (on ? 'on' : '') + '"></span>'; }
+    var igUrl = cfg.instagram ? 'https://instagram.com/' + cfg.instagram : 'https://instagram.com';
+
+    var html =
+      '<div class="admin-top"><h1>Conexões &amp; Medição</h1>' +
+        '<a class="btn btn-outline btn-sm" href="#config" id="mkt-cfg">Configurar anúncios</a></div>' +
+      '<p class="muted" style="margin:-6px 0 18px">Seus canais, redes e medição num lugar só. Os indicadores ligam quando o site estiver no ar e as contas conectadas.</p>';
+
+    // Atalhos pros painéis externos
+    html += '<div class="panel"><h3>Acesso rápido</h3>' +
+      '<div class="mkt-links">' +
+        mktLink('Google Meu Negócio', 'Avaliações, fotos, posts e dados do perfil', 'https://business.google.com/', icPin) +
+        mktLink('Meta Business Suite', 'Facebook e Instagram: posts, mensagens e anúncios', 'https://business.facebook.com/', icChat) +
+        mktLink('Google Ads', 'Campanhas de tráfego pago no Google', 'https://ads.google.com/', icTarget) +
+        mktLink('Google Analytics (GA4)', 'Visitas e comportamento no site', 'https://analytics.google.com/', icBars) +
+        mktLink('Google Search Console', 'Como o site aparece nas buscas do Google', 'https://search.google.com/search-console', icSearch) +
+        mktLink('Instagram', 'Perfil @' + (cfg.instagram || 'dicar_veiculos'), igUrl, icChat) +
+      '</div></div>';
+
+    // Status das ferramentas de anúncio (dado que já temos no config)
+    html += '<div class="panel"><h3>Ferramentas conectadas</h3>' +
+      '<p class="muted" style="margin:-8px 0 14px;font-size:13px">Configure em <a href="#config" class="mkt-cfg-link">Configurações › Anúncios</a>. O rastreamento no site só dispara após o visitante aceitar os cookies (LGPD).</p>' +
+      '<div class="mk-status">' +
+        '<div>' + dot(!!ads.gtmId) + 'Google Tag Manager</div>' +
+        '<div>' + dot(!!ads.ga4Id) + 'Google Analytics 4</div>' +
+        '<div>' + dot(!!ads.metaPixelId) + 'Meta Pixel</div>' +
+        '<div>' + dot(!!ads.googleAdsId) + 'Google Ads</div>' +
+      '</div></div>';
+
+    // Redes sociais (perfis públicos da loja) — aparecem no rodapé e no schema do site
+    html += '<div class="panel"><h3>Redes sociais</h3>' +
+      '<p class="muted" style="margin:-8px 0 14px;font-size:13px">Os perfis públicos da loja. Aparecem no rodapé do site e nos dados do Google (schema). Cole o link completo de cada um.</p>' +
+      '<form id="form-redes" style="max-width:560px">' +
+        redeField('instagram', 'Instagram (sem @)', cfg.instagram, 'Ex.: dicar_veiculos') +
+        redeField('facebook', 'Facebook (link)', red.facebook, 'Ex.: https://facebook.com/suapagina') +
+        redeField('youtube', 'YouTube (link)', red.youtube, '') +
+        redeField('tiktok', 'TikTok (link)', red.tiktok, '') +
+        redeField('linkedin', 'LinkedIn (link)', red.linkedin, '') +
+        '<button class="btn btn-red" type="submit">Salvar redes</button>' +
+        '<span id="redes-ok" class="save-ok" style="margin-left:14px">✓ Salvo!</span>' +
+      '</form></div>';
+
+    // Indicadores (placeholders pra fase Supabase)
+    html += '<div class="panel"><h3>Resumo de desempenho</h3>' +
+      '<div class="kpis">' +
+        kpiSoon('Visitas no site') + kpiSoon('Cliques no WhatsApp') +
+        kpiSoon('Simulações de financiamento') + kpiSoon('Veículos visualizados') +
+      '</div>' +
+      '<p class="muted" style="margin-top:8px;font-size:13px">Esses números aparecem automaticamente quando o site for publicado e o Google Analytics conectado.</p>' +
+    '</div>';
+
+    $('#main').innerHTML = html;
+    // atalhos internos pra aba de anúncios
+    $$('#main #mkt-cfg, #main .mkt-cfg-link').forEach(function (a) {
+      a.onclick = function (e) { e.preventDefault(); configTabAtual = 'anuncios'; go('config'); };
+    });
+    // salvar redes sociais (Instagram vai pro config; as demais pro redes)
+    var fr = $('#form-redes');
+    if (fr) fr.addEventListener('submit', function (e) {
+      e.preventDefault();
+      Store.saveConfig({ instagram: $('#re-instagram').value.trim().replace('@', '') });
+      Store.saveRedes({
+        facebook: $('#re-facebook').value.trim(),
+        youtube: $('#re-youtube').value.trim(),
+        tiktok: $('#re-tiktok').value.trim(),
+        linkedin: $('#re-linkedin').value.trim()
+      });
+      var ok = $('#redes-ok'); ok.style.opacity = '1'; setTimeout(function () { ok.style.opacity = '0'; }, 2000);
+    });
+  }
+  function redeField(k, label, val, hint) {
+    return '<div class="field"><label>' + label + '</label><input id="re-' + k + '" value="' + esc(val || '') + '" autocomplete="off">' +
+      (hint ? '<span class="hint">' + hint + '</span>' : '') + '</div>';
+  }
+
+  /* ===================== CONSULTA FIPE ===================== */
+  var fipeConsultaD = null;
+  function fqRow(k, v) { return '<tr><td style="color:#6B7280;width:140px">' + k + '</td><td><b>' + esc(String(v == null || v === '' ? '—' : v)) + '</b></td></tr>'; }
+  function fipeConsultaResult(d) {
+    fipeConsultaD = d;
+    var valor = fipeParseValor(d.Valor);
+    $('#fq-result').innerHTML =
+      '<div class="fipe-card">' +
+        '<div class="fipe-card-val">' + P(valor) + '<span>valor de referência FIPE</span></div>' +
+        '<table class="adm slim"><tbody>' +
+          fqRow('Marca', fipeMarcaLimpa(d.Marca)) + fqRow('Modelo', d.Modelo) +
+          fqRow('Ano', Number(d.AnoModelo) >= 32000 ? '0 km' : d.AnoModelo) +
+          fqRow('Combustível', d.Combustivel) + fqRow('Código FIPE', d.CodigoFipe) +
+          fqRow('Mês de referência', d.MesReferencia) +
+        '</tbody></table>' +
+        '<button class="btn btn-red" id="fq-add">' + ic('plus') + ' Adicionar ao estoque</button>' +
+      '</div>';
+    $('#fq-add').onclick = function () { openVeiculo(); fipeAplicar(fipeConsultaD); };
+  }
+  function renderFipeConsulta() {
+    $('#main').innerHTML =
+      '<div class="admin-top"><h1>Consulta FIPE</h1></div>' +
+      '<p class="muted" style="margin:-6px 0 18px">Busque qualquer veículo na tabela FIPE, veja os dados e o valor de referência, e adicione direto ao estoque.</p>' +
+      '<div class="table-wrap" style="padding:24px;max-width:760px">' +
+        '<div class="fipe-row">' +
+          '<div class="field"><label>Tipo</label><select id="fq-tipo"><option value="carros">Carros</option><option value="motos">Motos</option><option value="caminhoes">Caminhões</option></select></div>' +
+          '<div class="field"><label>Marca</label><input id="fq-marca" list="dl-fq-marca" autocomplete="off" placeholder="Digite a marca…"><datalist id="dl-fq-marca"></datalist></div>' +
+          '<div class="field"><label>Modelo</label><input id="fq-modelo" list="dl-fq-modelo" autocomplete="off" placeholder="Escolha a marca" disabled><datalist id="dl-fq-modelo"></datalist></div>' +
+          '<div class="field"><label>Versão</label><input id="fq-versao" list="dl-fq-versao" autocomplete="off" placeholder="Escolha o modelo" disabled><datalist id="dl-fq-versao"></datalist></div>' +
+        '</div>' +
+        '<div class="field" style="max-width:240px;margin-top:14px"><label>Ano</label><select id="fq-ano" disabled><option value="">—</option></select></div>' +
+        '<div id="fq-result" style="margin-top:18px"></div>' +
+      '</div>';
+    fipeConsultaD = null;
+    var picker = setupFipePicker({
+      tipoFn: function () { return $('#fq-tipo').value; },
+      marca: 'fq-marca', marcaDl: 'dl-fq-marca', modelo: 'fq-modelo', modeloDl: 'dl-fq-modelo',
+      versao: 'fq-versao', versaoDl: 'dl-fq-versao', ano: 'fq-ano',
+      onResolve: fipeConsultaResult
+    });
+    $('#fq-tipo').addEventListener('change', function () { picker.reset(); $('#fq-result').innerHTML = ''; });
   }
 
   /* ===================== DASHBOARD ===================== */
   function renderDash() {
     if (session.role === 'funcionario') return renderDashVendedor();
     var d = Store.dashboard();
+    var ev = Store.eventStats();
+    var mesAtual = new Date().toISOString().slice(0, 7);
+    var leadsMes = Store.getClientes().filter(function (c) { return (c.criadoEm || '').slice(0, 7) === mesAtual; });
+    var leadsSite = leadsMes.filter(function (c) { return c.origem === 'Site'; }).length;
+    var vMaisVisto = ev.veiculoMaisVistoId ? Store.getVehicle(ev.veiculoMaisVistoId) : null;
+
     var html =
       '<div class="admin-top"><h1>Olá, ' + esc(session.nome.split(' ')[0]) + '</h1>' +
-        '<button class="btn btn-red" id="add-top">' + ic('plus') + ' Adicionar veículo</button></div>';
+        '<button class="btn btn-red" id="add-top">' + ic('plus') + ' Adicionar veículo</button></div>' +
+      '<p class="muted" style="margin:-6px 0 18px">Como está a presença digital da sua loja — o que o site gera em contatos e interesse.</p>';
 
+    // Desempenho digital (eventos do site)
+    html += '<div class="kpis">' +
+      kpi(ev.whatsapp, 'Cliques no WhatsApp') +
+      kpi(leadsMes.length, 'Leads recebidos (mês)') +
+      kpi(ev.verVeiculo, 'Veículos vistos') +
+      kpi(ev.simulacoes, 'Simulações de financ.') +
+    '</div>';
+    if (!ev.total) html += '<p class="muted" style="font-size:13px;margin:-8px 0 18px">Os números de desempenho aparecem conforme as pessoas usam o site (cliques no WhatsApp, visualizações). Visitas e origem detalhadas chegam com o Google Analytics.</p>';
+    else if (leadsSite) html += '<p class="muted" style="font-size:13px;margin:-8px 0 18px"><b>' + leadsSite + '</b> dos leads deste mês vieram do site.</p>';
+
+    // Operacional do catálogo
     html += '<div class="kpis">' +
       kpi(d.totalEstoque, 'Veículos em estoque') +
+      kpi(d.proprios.qtd + ' · ' + d.consignados.qtd, 'Próprios · Consignados') +
       kpi(P(d.valorEstoque), 'Valor em estoque', true) +
-      kpi(d.proprios.qtd + ' · ' + P(d.proprios.valor), 'Próprios da loja') +
-      kpi(d.consignados.qtd + ' · ' + P(d.consignados.valor), 'Consignados') +
-    '</div>';
-    html += '<div class="kpis">' +
-      kpi(d.vendidosMes, 'Vendas no mês') +
-      kpi(P(d.faturamentoMes), 'Faturamento do mês', true) +
-      kpi(P(d.ticketMedio), 'Ticket médio') +
       kpi(d.docPendente.length, 'Docs pendentes') +
     '</div>';
 
@@ -136,19 +296,17 @@
     // ----- Comercial + Estoque lado a lado -----
     html += '<div class="dash-cols">';
 
-    // Comercial: funil de clientes + conversão + ranking de vendedores
-    html += '<div class="panel"><h3>Comercial</h3>' +
+    // Funil de leads + conversão + veículo mais visto (ranking foi pro módulo Vendas)
+    html += '<div class="panel"><h3>Funil de leads</h3>' +
       '<div class="funil-mini">' +
         funilCell('Novos', d.funil.novo) + funilCell('Atendimento', d.funil.atendimento) +
         funilCell('Negociando', d.funil.negociando) + funilCell('Fechados', d.funil.fechado) +
       '</div>' +
-      '<div class="conv">Clientes ativos: <b>' + d.clientesAtivos + '</b> · Conversão: <b>' + d.conversao + '%</b></div>' +
-      '<h4 class="sub-h">Ranking de vendedores (mês)</h4>' +
-      (d.ranking.length
-        ? '<table class="adm slim"><tbody>' + d.ranking.map(function (r, i) {
-            return '<tr><td>' + (i + 1) + 'º <b>' + esc(r.nome) + '</b></td><td>' + r.qtd + ' venda' + (r.qtd > 1 ? 's' : '') + '</td><td style="text-align:right"><b>' + P(r.valor) + '</b></td></tr>';
-          }).join('') + '</tbody></table>'
-        : '<p class="muted">Sem vendas neste mês ainda.</p>') +
+      '<div class="conv">Leads ativos: <b>' + d.clientesAtivos + '</b> · Conversão: <b>' + d.conversao + '%</b></div>' +
+      (vMaisVisto
+        ? '<h4 class="sub-h">Veículo mais visto</h4>' +
+          '<div class="conv"><b>' + esc(vMaisVisto.marca + ' ' + vMaisVisto.modelo) + '</b> · ' + ev.veiculoMaisVistoN + ' visualizaç' + (ev.veiculoMaisVistoN === 1 ? 'ão' : 'ões') + '</div>'
+        : '') +
     '</div>';
 
     // Estoque: veículos parados
@@ -167,14 +325,14 @@
 
     html += '</div>';
 
-    // ----- Gráficos: faturamento por mês (linha) + estoque por tipo (barra) -----
-    var fatMeses = Store.faturamentoPorMes(6);
+    // ----- Gráficos: cliques no WhatsApp (7 dias) + estoque por tipo -----
+    var waDias = Store.eventosPorDia('whatsapp', 7);
     var porTipo = Store.estoquePorTipo();
     html += '<div class="dash-cols">' +
-      '<div class="panel"><h3>Faturamento por mês</h3>' +
-        (fatMeses.some(function (m) { return m.valor > 0; })
-          ? chartLine(fatMeses.map(function (m) { return { label: m.label, value: m.valor }; }), { fmt: fmtK })
-          : '<p class="muted">Sem vendas registradas ainda.</p>') +
+      '<div class="panel"><h3>Cliques no WhatsApp (7 dias)</h3>' +
+        (waDias.some(function (m) { return m.value > 0; })
+          ? chartLine(waDias, {})
+          : '<p class="muted">Ainda sem cliques registrados. Aparecem conforme o site recebe visitas.</p>') +
       '</div>' +
       '<div class="panel"><h3>Estoque por tipo</h3>' +
         (porTipo.length
@@ -196,13 +354,13 @@
     html += '<div class="kpis">' +
       kpi(d.vendidosMes, 'Minhas vendas no mês') +
       kpi(P(d.faturamentoMes), 'Meu faturamento', true) +
-      kpi(d.clientesAtivos, 'Meus clientes ativos') +
+      kpi(d.clientesAtivos, 'Meus leads ativos') +
       kpi(d.totalEstoque, 'Veículos disponíveis') +
     '</div>';
     html += '<div class="dash-cols">';
     // Meus retornos (follow-ups)
     html += '<div class="panel"><h3>Meus retornos</h3>' +
-      '<p class="muted" style="margin:-8px 0 14px;font-size:13px">Clientes pra dar retorno hoje (ou atrasados). Clique pra abrir.</p>' +
+      '<p class="muted" style="margin:-8px 0 14px;font-size:13px">Leads pra dar retorno hoje (ou atrasados). Clique pra abrir.</p>' +
       (d.retornos.length
         ? '<table class="adm slim"><tbody>' + d.retornos.map(function (c) {
             var v = c.veiculoId ? Store.getVehicle(c.veiculoId) : null;
@@ -359,12 +517,12 @@
     return '<tr><td>' + fotoTag(v, 'thumb') + '</td>' +
       '<td><b>' + esc(v.marca + ' ' + v.modelo) + '</b>' + (v.destaque ? ' <span class="badge role">★</span>' : '') + selo +
         '<br><span style="color:#6B7280;font-size:12px">' + esc(v.versao || '') + (v.real === false ? ' · exemplo' : '') + '</span></td>' +
-      '<td>' + v.ano + '</td><td><b>' + P(v.preco) + '</b></td>' +
+      '<td>' + v.ano + '</td><td><b>' + P(v.preco) + '</b>' + (v.valorFipe ? '<br><span class="fipe-ref">FIPE ' + P(v.valorFipe) + '</span>' : '') + '</td>' +
       '<td><span class="badge ' + (v.origem === 'consignado' ? 'role' : 'ok') + '">' + (v.origem === 'consignado' ? 'Consignado' : 'Próprio') + '</span>' + docFlag + '</td>' +
       '<td>' + statusBadge(v) + '</td>' +
       '<td><div class="rowact">' +
         '<button class="iconbtn" data-edit="' + v.id + '" title="Editar veículo">' + ic('edit') + ' Editar</button>' +
-        (ativo && can('gerenciarClientes') ? '<button class="iconbtn" data-interesse="' + v.id + '" title="Registrar interesse (novo cliente)" aria-label="Registrar interesse">' + ic('interest') + '</button>' : '') +
+        (ativo && can('gerenciarClientes') ? '<button class="iconbtn" data-interesse="' + v.id + '" title="Registrar interesse (novo lead)" aria-label="Registrar interesse">' + ic('interest') + '</button>' : '') +
         (ativo && can('registrarVenda') ? '<button class="iconbtn" data-sell="' + v.id + '" title="Venda de balcão (sem cliente cadastrado)" aria-label="Venda de balcão">' + ic('sell') + '</button>' : '') +
         '<button class="iconbtn del" data-del="' + v.id + '" title="Remover" aria-label="Remover">' + ic('trash') + '</button>' +
       '</div></td></tr>';
@@ -427,6 +585,7 @@
     $('#ve-obs-internas').value = v ? (v.obsInternas || '') : '';
     fotosTmp = v && v.fotos ? v.fotos.slice() : [];
     renderFotosPrev();
+    fipeShowSaved(v);
     countChars('#ve-descricao', '#cc-descricao', L.descricao);
     countChars('#ve-obs-internas', '#cc-ve-obs', L.obs);
     toggleOrigem();
@@ -451,6 +610,106 @@
     });
     e.target.value = '';
   });
+  /* ----- Tabela FIPE: busca pesquisável (marca/modelo via datalist), autopreenche e guarda código + valor ----- */
+  var FIPE_API = 'https://parallelum.com.br/fipe/api/v1';
+  function fipeTipo() { var t = $('#ve-tipo').value; return t === 'Moto' ? 'motos' : (t === 'Caminhão' ? 'caminhoes' : 'carros'); }
+  function fipeGet(path) { return fetch(FIPE_API + path).then(function (r) { if (!r.ok) throw 0; return r.json(); }); }
+  function fipeParseValor(s) { return Number(String(s || '').replace(/[^\d,]/g, '').replace(',', '.')) || 0; }
+  function fipeMarcaLimpa(n) { n = String(n || ''); var i = n.indexOf(' - '); return i > -1 ? n.slice(i + 3) : n; }
+  function fipeCombustivel(c) {
+    c = (c || '').toLowerCase();
+    if (c.indexOf('flex') > -1 || c.indexOf('álco') > -1 || c.indexOf('alco') > -1 || c.indexOf('etanol') > -1) return 'Flex';
+    if (c.indexOf('diesel') > -1) return 'Diesel';
+    if (c.indexOf('elétr') > -1 || c.indexOf('eletr') > -1) return 'Elétrico';
+    if (c.indexOf('híbr') > -1 || c.indexOf('hibr') > -1) return 'Híbrido';
+    if (c.indexOf('gasolina') > -1) return 'Gasolina';
+    return '';
+  }
+  // nome base do modelo (até o 1º termo com número) — separa "Gol" de "1.0 Mi Total Flex"
+  function fipeBase(nome) {
+    var parts = String(nome || '').trim().split(/\s+/), base = [];
+    for (var i = 0; i < parts.length; i++) { if (i > 0 && /\d/.test(parts[i])) break; base.push(parts[i]); }
+    return base.join(' ') || (parts[0] || '');
+  }
+  function fipeVersaoLabel(nome, base) { var v = String(nome || '').slice(String(base || '').length).trim(); return v || nome; }
+  // componente reutilizável: marca → modelo → versão → ano (marca/modelo/versão pesquisáveis via datalist)
+  function setupFipePicker(o) {
+    var st = { tipo: null, marcas: [], marcaCod: null, modelosRaw: [], bases: [], base: null, versoes: [], modeloCod: null };
+    var marcaIn = $('#' + o.marca), modeloIn = $('#' + o.modelo), versaoIn = $('#' + o.versao), anoSel = $('#' + o.ano);
+    function fillDl(id, names) { $('#' + id).innerHTML = names.map(function (n) { return '<option value="' + esc(n) + '">'; }).join(''); }
+    function eq(a, b) { return String(a || '').trim().toLowerCase() === String(b || '').trim().toLowerCase(); }
+    function findNome(list, val) { for (var i = 0; i < list.length; i++) if (eq(list[i].nome, val)) return list[i]; return null; }
+    function resetAno() { anoSel.innerHTML = '<option value="">—</option>'; anoSel.disabled = true; }
+    function resetVersao() { versaoIn.value = ''; versaoIn.disabled = true; versaoIn.placeholder = 'Escolha o modelo'; $('#' + o.versaoDl).innerHTML = ''; st.versoes = []; st.modeloCod = null; resetAno(); }
+    function resetModelo() { modeloIn.value = ''; modeloIn.disabled = true; modeloIn.placeholder = 'Escolha a marca'; $('#' + o.modeloDl).innerHTML = ''; st.modelosRaw = []; st.bases = []; st.base = null; resetVersao(); }
+    function loadMarcas() { var t = o.tipoFn(); st.tipo = t; fipeGet('/' + t + '/marcas').then(function (l) { st.marcas = l; fillDl(o.marcaDl, l.map(function (x) { return x.nome; })); }).catch(function () {}); }
+    marcaIn.addEventListener('focus', function () { if (!st.marcas.length || st.tipo !== o.tipoFn()) loadMarcas(); });
+    marcaIn.addEventListener('input', function () {
+      var m = findNome(st.marcas, marcaIn.value);
+      if (!m || st.marcaCod === m.codigo) return;
+      st.marcaCod = m.codigo; resetModelo(); modeloIn.disabled = false; modeloIn.placeholder = 'Digite o modelo…';
+      fipeGet('/' + o.tipoFn() + '/marcas/' + m.codigo + '/modelos').then(function (d) {
+        st.modelosRaw = d.modelos || [];
+        var seen = {}; st.bases = [];
+        st.modelosRaw.forEach(function (it) { var b = fipeBase(it.nome); if (!seen[b]) { seen[b] = 1; st.bases.push(b); } });
+        fillDl(o.modeloDl, st.bases);
+      }).catch(function () {});
+    });
+    modeloIn.addEventListener('input', function () {
+      var base = null, val = modeloIn.value;
+      for (var i = 0; i < st.bases.length; i++) if (eq(st.bases[i], val)) { base = st.bases[i]; break; }
+      if (!base || st.base === base) return;
+      st.base = base; resetVersao(); versaoIn.disabled = false; versaoIn.placeholder = 'Digite a versão…';
+      st.versoes = st.modelosRaw.filter(function (it) { return eq(fipeBase(it.nome), base); })
+        .map(function (it) { return { codigo: it.codigo, nome: it.nome, label: fipeVersaoLabel(it.nome, base) }; });
+      fillDl(o.versaoDl, st.versoes.map(function (v) { return v.label; }));
+      if (st.versoes.length === 1) { versaoIn.value = st.versoes[0].label; pickVersao(); }
+    });
+    function pickVersao() {
+      var v = null, val = versaoIn.value;
+      for (var i = 0; i < st.versoes.length; i++) if (eq(st.versoes[i].label, val)) { v = st.versoes[i]; break; }
+      if (!v || st.modeloCod === v.codigo) return;
+      st.modeloCod = v.codigo; resetAno(); anoSel.disabled = false; anoSel.innerHTML = '<option>Carregando…</option>';
+      fipeGet('/' + o.tipoFn() + '/marcas/' + st.marcaCod + '/modelos/' + v.codigo + '/anos').then(function (l) {
+        anoSel.innerHTML = '<option value="">Selecione o ano…</option>' + l.map(function (a) { return '<option value="' + a.codigo + '">' + esc(a.nome) + '</option>'; }).join('');
+      }).catch(function () { anoSel.innerHTML = '<option value="">erro</option>'; });
+    }
+    versaoIn.addEventListener('input', pickVersao);
+    anoSel.addEventListener('change', function () {
+      if (!anoSel.value) return;
+      fipeGet('/' + o.tipoFn() + '/marcas/' + st.marcaCod + '/modelos/' + st.modeloCod + '/anos/' + anoSel.value).then(o.onResolve).catch(function () {});
+    });
+    return { reset: function () { marcaIn.value = ''; st.marcaCod = null; resetModelo(); } };
+  }
+  function fipeAplicar(d) {
+    var valor = fipeParseValor(d.Valor);
+    $('#ve-codigo-fipe').value = d.CodigoFipe || '';
+    $('#ve-valor-fipe').value = valor || '';
+    if (d.Marca) $('#ve-marca').value = fipeMarcaLimpa(d.Marca);
+    if (d.AnoModelo) $('#ve-ano').value = (Number(d.AnoModelo) >= 32000 ? new Date().getFullYear() : d.AnoModelo);
+    var comb = fipeCombustivel(d.Combustivel); if (comb) $('#ve-combustivel').value = comb;
+    if (!$('#ve-modelo').value && d.Modelo) {
+      var base = fipeBase(d.Modelo);
+      $('#ve-modelo').value = base;
+      if (!$('#ve-versao').value) $('#ve-versao').value = fipeVersaoLabel(d.Modelo, base);
+    }
+    $('#fipe-result').innerHTML = '<b>FIPE ' + esc(d.CodigoFipe || '') + '</b> · ' + esc(d.Modelo || '') + ' · referência <b>' + P(valor) + '</b>';
+  }
+  function fipeShowSaved(v) {
+    $('#ve-codigo-fipe').value = v && v.codigoFipe ? v.codigoFipe : '';
+    $('#ve-valor-fipe').value = v && v.valorFipe ? v.valorFipe : '';
+    $('#fipe-result').innerHTML = (v && v.codigoFipe)
+      ? '<b>FIPE ' + esc(v.codigoFipe) + '</b> · referência <b>' + P(v.valorFipe || 0) + '</b>'
+      : '';
+    if (modalFipePicker) modalFipePicker.reset();
+  }
+  var modalFipePicker = null;
+  (function () {
+    if (!$('#fipe-marca')) return;
+    modalFipePicker = setupFipePicker({ tipoFn: fipeTipo, marca: 'fipe-marca', marcaDl: 'dl-fipe-marca', modelo: 'fipe-modelo', modeloDl: 'dl-fipe-modelo', versao: 'fipe-versao', versaoDl: 'dl-fipe-versao', ano: 'fipe-ano', onResolve: fipeAplicar });
+    $('#ve-tipo').addEventListener('change', function () { if (modalFipePicker) modalFipePicker.reset(); });
+  })();
+
   function renderFotosPrev() {
     $('#ve-fotos-prev').innerHTML = fotosTmp.map(function (f, i) {
       return '<div class="pp' + (i === 0 ? ' cover' : '') + '" draggable="true" data-i="' + i + '">' +
@@ -516,7 +775,9 @@
       placa: $('#ve-placa').value.trim().toUpperCase(),
       docStatus: $('#ve-doc').value,
       dataEntrada: $('#ve-data-entrada').value || new Date().toISOString().slice(0, 10),
-      obsInternas: $('#ve-obs-internas').value.trim()
+      obsInternas: $('#ve-obs-internas').value.trim(),
+      codigoFipe: $('#ve-codigo-fipe').value || '',
+      valorFipe: Number($('#ve-valor-fipe').value) || 0
     };
     if (existing && !can('editarPreco')) v.preco = existing.preco;
     // marcar "Vendido" aqui não vende direto: abre a venda pra registrar o cliente
@@ -775,13 +1036,13 @@
       ? '<div class="filter-chip">Interessados em <b>' + esc(carro.marca + ' ' + carro.modelo) + '</b><button id="clear-filtro" aria-label="Limpar filtro">×</button></div>'
       : '';
     $('#main').innerHTML =
-      '<div class="admin-top"><h1>' + (ehVend ? 'Meus clientes' : 'Clientes') + ' <span class="count-pill">' + total + '</span></h1>' +
+      '<div class="admin-top"><h1>' + (ehVend ? 'Meus leads' : 'Leads') + ' <span class="count-pill">' + total + '</span></h1>' +
         '<div class="top-actions">' +
           '<div class="segmented">' +
             '<button class="seg' + (clientesView === 'kanban' ? ' active' : '') + '" data-cv="kanban">' + ic('kanban') + ' Kanban</button>' +
             '<button class="seg' + (clientesView === 'lista' ? ' active' : '') + '" data-cv="lista">' + ic('listv') + ' Lista</button>' +
           '</div>' +
-          '<button class="btn btn-red" id="add-c">' + ic('plus') + ' Novo cliente</button>' +
+          '<button class="btn btn-red" id="add-c">' + ic('plus') + ' Novo lead</button>' +
         '</div></div>' +
       chip +
       '<div class="toolbar">' +
@@ -817,7 +1078,7 @@
   function bindClienteCardActions(scope) {
     $$(scope + ' [data-ec]').forEach(function (b) { b.onclick = function () { openCliente(b.getAttribute('data-ec')); }; });
     $$(scope + ' [data-dc]').forEach(function (b) { b.onclick = function () {
-      if (confirm('Remover este cliente?')) { Store.deleteCliente(b.getAttribute('data-dc')); renderClientes(); }
+      if (confirm('Remover este lead?')) { Store.deleteCliente(b.getAttribute('data-dc')); renderClientes(); }
     }; });
     $$(scope + ' [data-sell-cli]').forEach(function (b) { b.onclick = function () {
       var c = Store.getCliente(b.getAttribute('data-sell-cli'));
@@ -882,7 +1143,7 @@
     var list = clientesFiltrados().slice().sort(function (a, b) { return a.nome.localeCompare(b.nome); });
     $('#cli-body').innerHTML =
       '<div class="table-wrap"><table class="adm"><thead><tr>' +
-        '<th>Cliente</th><th>Telefone</th><th>Cidade</th><th>Interesse</th><th>Etapa</th><th>Vendedor</th><th>Ações</th>' +
+        '<th>Lead</th><th>Telefone</th><th>Cidade</th><th>Interesse</th><th>Etapa</th><th>Vendedor</th><th>Ações</th>' +
         '</tr></thead><tbody>' +
         (list.length ? list.map(function (c) {
           var v = c.veiculoId ? Store.getVehicle(c.veiculoId) : null;
@@ -898,7 +1159,7 @@
               '<button class="iconbtn" data-ec="' + c.id + '" title="Editar" aria-label="Editar">' + ic('edit') + '</button>' +
               '<button class="iconbtn del" data-dc="' + c.id + '" title="Remover" aria-label="Remover">' + ic('trash') + '</button>' +
             '</div></td></tr>';
-        }).join('') : '<tr><td colspan="7" style="text-align:center;padding:40px;color:#6B7280">Nenhum cliente encontrado.</td></tr>') +
+        }).join('') : '<tr><td colspan="7" style="text-align:center;padding:40px;color:#6B7280">Nenhum lead encontrado.</td></tr>') +
       '</tbody></table></div>';
     bindClienteCardActions('#cli-body');
   }
@@ -913,7 +1174,7 @@
   function openCliente(id, presetVeiculo) {
     fillVeiculoDatalists();
     var c = id ? Store.getCliente(id) : null;
-    $('#mc-title').textContent = c ? 'Editar cliente' : 'Novo cliente';
+    $('#mc-title').textContent = c ? 'Editar lead' : 'Novo lead';
     $('#cl-id').value = c ? c.id : '';
     $('#cl-nome').value = c ? c.nome : '';
     $('#cl-tel').value = c ? (c.telefone || '') : '';
@@ -932,6 +1193,11 @@
     $('#cl-proximo').value = c ? (c.proximoContato || '') : '';
     $('#cl-obs').value = c ? (c.obs || '') : '';
     countChars('#cl-obs', '#cc-obs', L.obs);
+    // consentimento LGPD: marca + data; mostra desde quando foi dado
+    $('#cl-consent').checked = c ? !!c.consent : false;
+    $('#cl-consent-info').textContent = (c && c.consent && c.consentEm)
+      ? 'Consentimento registrado em ' + Store.fmtData(c.consentEm) + '.'
+      : 'Marque quando o cliente concordar em ser contatado. Registramos a data do consentimento.';
     // ações rápidas + remover (só ao editar um cliente existente)
     var actions = '';
     if (c) {
@@ -943,7 +1209,7 @@
     if (c) {
       var fc = $('#cl-fechar');
       if (fc) fc.onclick = function () { closeCliente(); openVenda({ veiculoId: c.veiculoId, clienteId: c.id, origem: 'clientes' }); };
-      $('#cl-del').onclick = function () { if (confirm('Remover este cliente?')) { Store.deleteCliente(c.id); closeCliente(); renderClientes(); } };
+      $('#cl-del').onclick = function () { if (confirm('Remover este lead?')) { Store.deleteCliente(c.id); closeCliente(); renderClientes(); } };
     }
     mc.classList.add('open');
   }
@@ -955,6 +1221,8 @@
     e.preventDefault();
     var vbusca = $('#cl-veiculo-busca').value.trim();
     var v = resolveVeiculo(vbusca);
+    var consent = $('#cl-consent').checked;
+    var anterior = $('#cl-id').value ? (Store.getCliente($('#cl-id').value) || {}) : {};
     Store.saveCliente({
       id: $('#cl-id').value,
       nome: $('#cl-nome').value.trim(),
@@ -966,12 +1234,17 @@
       vendedor: $('#cl-vendedor').value,
       etapa: $('#cl-etapa').value,
       proximoContato: $('#cl-proximo').value,
-      obs: $('#cl-obs').value.trim()
+      obs: $('#cl-obs').value.trim(),
+      // LGPD: guarda o consentimento e a data em que foi dado (mantém a 1ª data)
+      consent: consent,
+      consentEm: consent ? (anterior.consentEm || new Date().toISOString().slice(0, 10)) : ''
     });
     closeCliente(); renderClientes();
   });
 
   /* ===================== VENDAS ===================== */
+  /* [ADD-ON OPERACIONAL] Vendas — mantido p/ a Dicar, fora do núcleo da Plataforma
+     Orion (presença digital). Registro de vendas, faturamento e ranking vivem aqui. */
   function renderVendas() {
     var meses = Store.mesesComVenda();
     var sel = '';
@@ -983,6 +1256,7 @@
           '</select>' +
           '<button class="btn btn-red" id="nova-venda">' + ic('plus') + ' Nova venda</button>' +
         '</div></div>' +
+      '<p class="muted" style="margin:-6px 0 18px">Módulo operacional — registro de vendas, faturamento e ranking. Os indicadores de presença digital ficam no Painel.</p>' +
       '<div id="vn-body"></div>';
     $('#nova-venda').onclick = function () { openVenda({ origem: 'vendas' }); };
     $('#vn-mes').onchange = function () { renderVendasBody($('#vn-mes').value); };
@@ -1017,6 +1291,27 @@
             : '<span class="muted" style="font-size:12px">—</span>') + '</div></td></tr>';
       }).join('') : '<tr><td colspan="8" style="text-align:center;padding:40px;color:#6B7280">Nenhuma venda registrada neste período. Clique em "Nova venda".</td></tr>') +
     '</tbody></table></div>';
+    // [dono] ranking do período + faturamento por mês (realocados do dashboard)
+    if (!vend) {
+      var rank = {};
+      vendas.forEach(function (s) { var k = s.vendedor || '—'; if (!rank[k]) rank[k] = { nome: Store.userName(k), qtd: 0, valor: 0 }; rank[k].qtd++; rank[k].valor += s.valorFinal || 0; });
+      var ranking = Object.keys(rank).map(function (k) { return rank[k]; }).sort(function (a, b) { return b.valor - a.valor; });
+      var fatMeses = Store.faturamentoPorMes(6);
+      html += '<div class="dash-cols">' +
+        '<div class="panel"><h3>Ranking de vendedores</h3>' +
+          (ranking.length
+            ? '<table class="adm slim"><tbody>' + ranking.map(function (r, i) {
+                return '<tr><td>' + (i + 1) + 'º <b>' + esc(r.nome) + '</b></td><td>' + r.qtd + ' venda' + (r.qtd > 1 ? 's' : '') + '</td><td style="text-align:right"><b>' + P(r.valor) + '</b></td></tr>';
+              }).join('') + '</tbody></table>'
+            : '<p class="muted">Sem vendas neste período.</p>') +
+        '</div>' +
+        '<div class="panel"><h3>Faturamento por mês</h3>' +
+          (fatMeses.some(function (m) { return m.valor > 0; })
+            ? chartLine(fatMeses.map(function (m) { return { label: m.label, value: m.valor }; }), { fmt: fmtK })
+            : '<p class="muted">Sem vendas registradas ainda.</p>') +
+        '</div>' +
+      '</div>';
+    }
     $('#vn-body').innerHTML = html;
     $$('#vn-body [data-cancel]').forEach(function (b) {
       b.onclick = function () {
@@ -1037,7 +1332,7 @@
     { k: 'editarPreco', l: 'Editar preço anunciado', d: 'Alterar o preço que vai pro site.' },
     { k: 'verConsignante', l: 'Ver dados do consignante', d: 'Nome e telefone de quem deixou o veículo.' },
     { k: 'registrarVenda', l: 'Registrar venda', d: 'Marcar veículo como vendido e lançar a venda.' },
-    { k: 'gerenciarClientes', l: 'Gerenciar clientes (CRM)', d: 'Cadastrar e acompanhar contatos.' }
+    { k: 'gerenciarClientes', l: 'Gerenciar leads (CRM)', d: 'Cadastrar e acompanhar contatos.' }
   ];
   var configTabAtual = 'loja';
   function renderConfig() {
@@ -1047,13 +1342,52 @@
         '<button class="tab' + (configTabAtual === 'loja' ? ' active' : '') + '" data-tab="loja">Dados da loja</button>' +
         '<button class="tab' + (configTabAtual === 'permissoes' ? ' active' : '') + '" data-tab="permissoes">Permissões do vendedor</button>' +
         '<button class="tab' + (configTabAtual === 'funcionarios' ? ' active' : '') + '" data-tab="funcionarios">Funcionários</button>' +
+        '<button class="tab' + (configTabAtual === 'anuncios' ? ' active' : '') + '" data-tab="anuncios">Anúncios</button>' +
         '<a class="tablink" href="../index.html" target="_blank" rel="noopener">' + ic('site') + ' Ver site' + ic('arrowout') + '</a>' +
       '</div>' +
       '<div id="cfg-tab"></div>';
     $$('#main button.tab').forEach(function (b) { b.onclick = function () { configTabAtual = b.getAttribute('data-tab'); renderConfig(); }; });
     if (configTabAtual === 'permissoes') { $('#cfg-tab').innerHTML = permissoesSection(); bindPermissoes(); }
     else if (configTabAtual === 'funcionarios') renderFuncionarios();
+    else if (configTabAtual === 'anuncios') renderConfigAnuncios();
     else renderConfigLoja();
+  }
+  function renderConfigAnuncios() {
+    var a = Store.getAds();
+    $('#cfg-tab').innerHTML =
+      '<p class="muted" style="margin:0 0 6px">Cole aqui os IDs das ferramentas de anúncio. O site começa a rastrear na hora — <b>sem precisar de novo deploy</b>.</p>' +
+      '<p class="muted" style="margin:0 0 20px;font-size:13px">Por LGPD, o rastreamento só dispara depois que o visitante <b>aceita os cookies</b> no site.</p>' +
+      '<div class="table-wrap" style="padding:24px;max-width:660px">' +
+        '<form id="form-ads">' +
+          adsField('gtmId', 'Google Tag Manager', a.gtmId, 'Ex.: GTM-XXXXXXX. Recomendado — com o GTM o gestor mapeia pixels e conversões pelo painel do Google, sem mexer no site.') +
+          adsField('ga4Id', 'Google Analytics 4', a.ga4Id, 'Ex.: G-XXXXXXXXXX') +
+          adsField('metaPixelId', 'Meta Pixel (Facebook/Instagram)', a.metaPixelId, 'Só números. Ex.: 123456789012345') +
+          adsField('googleAdsId', 'Google Ads', a.googleAdsId, 'Ex.: AW-XXXXXXXXX') +
+          adsField('googleAdsLabel', 'Rótulo de conversão do Google Ads', a.googleAdsLabel, 'Opcional. Ex.: AbC-D_efG (usado em conversões).') +
+          '<button class="btn btn-red" type="submit">Salvar anúncios</button>' +
+          '<span id="ads-ok" class="save-ok" style="margin-left:14px">✓ Salvo!</span>' +
+        '</form>' +
+        '<div class="login-hint" style="margin-top:22px">' +
+          '<b>Eventos que o site já envia</b> (pro gestor mapear conversões no GTM/Pixel/Ads):<br>' +
+          '<code>ver_veiculo</code> · <code>contato_whatsapp</code> · <code>simular_financiamento</code> · <code>avaliar_veiculo</code><br>' +
+          'No Meta, viram <code>ViewContent</code>, <code>Contact</code> e <code>Lead</code> automaticamente.' +
+        '</div>' +
+      '</div>';
+    $('#form-ads').addEventListener('submit', function (e) {
+      e.preventDefault();
+      Store.saveAds({
+        gtmId: $('#ad-gtmId').value.trim(),
+        ga4Id: $('#ad-ga4Id').value.trim(),
+        metaPixelId: $('#ad-metaPixelId').value.trim().replace(/\D/g, ''),
+        googleAdsId: $('#ad-googleAdsId').value.trim(),
+        googleAdsLabel: $('#ad-googleAdsLabel').value.trim()
+      });
+      var ok = $('#ads-ok'); ok.style.opacity = '1'; setTimeout(function () { ok.style.opacity = '0'; }, 2000);
+    });
+  }
+  function adsField(k, label, val, hint) {
+    return '<div class="field"><label>' + label + '</label><input id="ad-' + k + '" value="' + esc(val) + '" autocomplete="off">' +
+      (hint ? '<span class="hint">' + hint + '</span>' : '') + '</div>';
   }
   function permissoesSection() {
     var p = Store.getPerms();
@@ -1159,8 +1493,13 @@
   });
 
   /* ===================== INÍCIO ===================== */
-  (function init() {
+  function startup() {
     session = Store.session();
     if (session) boot(); else showLogin();
-  })();
+  }
+  // Supabase: espera o init() hidratar o cache (e resolver a sessão) antes de renderizar.
+  // Demo (localStorage): não tem init() → arranca direto. (compatível com os dois stores)
+  if (Store.init) {
+    Store.init().then(startup).catch(function (e) { console.error('[painel] init', e); showLogin(); });
+  } else { startup(); }
 })();
